@@ -1,0 +1,81 @@
+import { App, Tag } from '../types/app.types';
+
+export const mockApps: App[] = [
+  {
+    id: '1',
+    name: 'LSCS Portal',
+    description: 'Main portal for LSCS members to access all services and resources.',
+    url: 'https://portal.lscs.org',
+    tags: ['portal', 'main', 'official'],
+    category: 'productivity',
+    featured: true,
+  },
+  {
+    id: '2',
+    name: 'Member Directory',
+    description: 'Find and connect with LSCS members across different branches.',
+    url: 'https://directory.lscs.org',
+    tags: ['directory', 'members', 'social'],
+    category: 'social',
+    featured: false,
+  },
+  {
+    id: '3',
+    name: 'Event Manager',
+    description: 'Manage and register for LSCS events, workshops, and activities.',
+    url: 'https://events.lscs.org',
+    tags: ['events', 'calendar', 'registration'],
+    category: 'events',
+    featured: true,
+  },
+  {
+    id: '4',
+    name: 'Resource Hub',
+    description: 'Access training materials, templates, and documentation for projects.',
+    url: 'https://resources.lscs.org',
+    tags: ['resources', 'learning', 'documentation'],
+    category: 'education',
+    featured: false,
+  },
+  {
+    id: '5',
+    name: 'Project Tracker',
+    description: 'Track progress on LSCS projects and collaborate with your team.',
+    url: 'https://projects.lscs.org',
+    tags: ['projects', 'tracking', 'collaboration'],
+    category: 'productivity',
+    featured: true,
+  },
+  {
+    id: '6',
+    name: 'Announcement Board',
+    description: 'Stay updated with the latest announcements and news from LSCS.',
+    url: 'https://announcements.lscs.org',
+    tags: ['announcements', 'news', 'updates'],
+    category: 'communication',
+    featured: false,
+  },
+];
+
+export const mockTags: Tag[] = [
+  { id: '1', name: 'portal', count: 1 },
+  { id: '2', name: 'main', count: 1 },
+  { id: '3', name: 'official', count: 1 },
+  { id: '4', name: 'directory', count: 1 },
+  { id: '5', name: 'members', count: 1 },
+  { id: '6', name: 'social', count: 1 },
+  { id: '7', name: 'events', count: 1 },
+  { id: '8', name: 'calendar', count: 1 },
+  { id: '9', name: 'registration', count: 1 },
+  { id: '10', name: 'resources', count: 1 },
+  { id: '11', name: 'learning', count: 1 },
+  { id: '12', name: 'documentation', count: 1 },
+  { id: '13', name: 'projects', count: 1 },
+  { id: '14', name: 'tracking', count: 1 },
+  { id: '15', name: 'collaboration', count: 1 },
+  { id: '16', name: 'announcements', count: 1 },
+  { id: '17', name: 'news', count: 1 },
+  { id: '18', name: 'updates', count: 1 },
+];
+
+
