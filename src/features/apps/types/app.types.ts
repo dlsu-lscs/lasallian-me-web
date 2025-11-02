@@ -4,6 +4,8 @@ export interface App {
   description: string;
   icon?: string;
   url: string;
+  slug: string;
+  rating: number;
   tags: string[];
   category?: string;
   featured?: boolean;

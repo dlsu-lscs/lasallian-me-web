@@ -3,60 +3,75 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { FiFilter, FiSearch } from 'react-icons/fi';
+import { useUIStore } from '@/store/uiStore';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const toggleSearch = useUIStore((state) => state.toggleSearch);
+  const toggleFilters = useUIStore((state) => state.toggleFilters);
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-[#006633] shadow-sm border-b border-gray-200 py-3">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <Image
-              src="/lscs-logo.png"
-              alt="LSCS Logo"
-              width={30}
-              height={30}
-              priority
-            />
-          </Link>
+        <div className="flex items-center justify-between">
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              href="/"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href="/applications"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Apps
-            </Link>
-            <Link
-              href="/about"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              About
-            </Link>
+            <div className="flex items-center space-x-10">
+              <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center">
+                LaSallian.Me
+              </h1>
 
-            <Link
-              href="/signup"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Sign Up
-            </Link>
+              {/* Desktop Navigation Links */}
+              <div className="hidden md:flex items-center space-x-6 pl-10">
+                <Link
+                  href="/"
+                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                >
+                  Apps
+                </Link>
 
-            <Link
-              href="/login"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-            >
-              Login
-            </Link>
+                <Link
+                  href="https://dlsu-lscs.org/"
+                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  LSCS
+                </Link>
+
+                <Link
+                  href="/signup"
+                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                >
+                  Sign Up
+                </Link>
+
+                <Link
+                  href="/login"
+                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                >
+                  Login
+                </Link>
+              </div>
           </div>
+
+          {/* Right Side: Icons */}
+          <div className="hidden md:flex items-center space-x-4 text-white">
+            <button
+              aria-label="Search"
+              className="hover:text-yellow-300 transition-colors"
+              onClick={toggleSearch}
+            >
+              <FiSearch className="w-6 h-6" />
+            </button>
+            <button
+              aria-label="Filter"
+              className="hover:text-yellow-300 transition-colors"
+              onClick={toggleFilters}
+            >
+              <FiFilter className="w-6 h-6" />
+            </button>
+          </div>
+
 
           {/* Mobile Menu Button */}
           <button
@@ -105,8 +120,8 @@ export function Navbar() {
                 Home
               </Link>
               <Link
-                href="/applications"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                href="/"
+                className="text-gray-700 hover:text-blue-600 font-medium "
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Apps
