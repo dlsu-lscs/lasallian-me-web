@@ -12,7 +12,7 @@ export interface AppCardProps {
 export function AppCard({ app }: AppCardProps) {
   const router = useRouter();
   const handleClick = () => {
-    router.push(`/apps/${app.slug}`);
+    router.push(`/${app.slug}`);
   }
   return (
     <button
