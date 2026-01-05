@@ -156,7 +156,14 @@ export function AppDetail({ app }: AppDetailProps) {
                   <button className="text-gray-400 hover:text-gray-600">...</button>
                 </div>
                 <p className="text-gray-700 mt-2">Great app!</p>
-                <p className="text-sm text-gray-400 mt-1">Report</p>
+                <button
+                  type="button"
+                  className="text-sm text-gray-400 mt-1 hover:text-red-500 focus:outline-none"
+                  onClick={() => { /* TODO: implement report functionality */ }}
+                  aria-label="Report review"
+                >
+                  Report
+                </button>
               </div>
             ))}
           </div>
