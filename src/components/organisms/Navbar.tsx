@@ -79,7 +79,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             type="button"
-            className="md:hidden text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+           className="md:hidden text-white hover:text-lime-300 focus:outline-none transition-colors"
             aria-label="Toggle menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -117,28 +117,28 @@ export function Navbar() {
             <div className="flex flex-col space-y-3">
               <Link
                 href="/"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                className="text-white hover:text-blue-600 font-medium transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 href="/"
-                className="text-gray-700 hover:text-blue-600 font-medium "
+                className="text-white hover:text-blue-600 font-medium "
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Apps
               </Link>
               <Link
                 href="/about"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                className="text-white hover:text-blue-600 font-medium transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 About
               </Link>
               <Link
               href="/signup"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-white hover:text-blue-600 font-medium transition-colors"
               onClick={() => setMobileMenuOpen(false)}
               >
                 Sign Up
@@ -146,7 +146,7 @@ export function Navbar() {
 
             <Link
               href="/login"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-white hover:text-blue-600 font-medium transition-colors"
               onClick={() => setMobileMenuOpen(false)}
               >
                 Login
