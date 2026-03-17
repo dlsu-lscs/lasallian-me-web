@@ -73,7 +73,7 @@ export default function AppsContainer() {
       {/* Results Count */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-lime-800 pl-4">
             {filteredApps.length === apps.length
               ? `Showing all ${apps.length} apps`
               : `Showing ${filteredApps.length} of ${apps.length} apps`}

@@ -9,8 +9,8 @@ interface UIState {
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  showSearch: true,
-  showFilters: true,
+  showSearch: false,
+  showFilters: false,
   toggleSearch: () => set((state) => ({ showSearch: !state.showSearch })),
   toggleFilters: () => set((state) => ({ showFilters: !state.showFilters })),
   hideAll: () => set({ showSearch: false, showFilters: false }),
