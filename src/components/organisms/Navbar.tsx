@@ -16,22 +16,25 @@ export function Navbar() {
         <div className="flex items-center justify-between">
 
             <div className="flex items-center space-x-10">
-              <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center">
+              <Link href="/">
+                <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center hover:text-lime-300">
                 LaSallian.Me
-              </h1>
+                </h1>
+              </Link>
+              
 
               {/* Desktop Navigation Links */}
               <div className="hidden md:flex items-center space-x-6 pl-10">
                 <Link
                   href="/"
-                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                  className="text-white hover:text-lime-300 font-medium transition-colors"
                 >
                   Apps
                 </Link>
 
                 <Link
                   href="https://dlsu-lscs.org/"
-                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                  className="text-white hover:text-lime-300 font-medium transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -40,14 +43,14 @@ export function Navbar() {
 
                 <Link
                   href="/signup"
-                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                  className="text-white hover:text-lime-300 font-medium transition-colors"
                 >
                   Sign Up
                 </Link>
 
                 <Link
                   href="/login"
-                  className="text-white hover:text-yellow-300 font-medium transition-colors"
+                  className="text-white hover:text-lime-300 font-medium transition-colors"
                 >
                   Login
                 </Link>
@@ -58,14 +61,14 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-4 text-white">
             <button
               aria-label="Search"
-              className="hover:text-yellow-300 transition-colors"
+              className="hover:text-lime-300 transition-colors"
               onClick={toggleSearch}
             >
               <FiSearch className="w-6 h-6" />
             </button>
             <button
               aria-label="Filter"
-              className="hover:text-yellow-300 transition-colors"
+              className="hover:text-lime-300 transition-colors"
               onClick={toggleFilters}
             >
               <FiFilter className="w-6 h-6" />
@@ -76,7 +79,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             type="button"
-            className="md:hidden text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+           className="md:hidden text-white hover:text-lime-300 focus:outline-none transition-colors"
             aria-label="Toggle menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -114,28 +117,28 @@ export function Navbar() {
             <div className="flex flex-col space-y-3">
               <Link
                 href="/"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                className="text-white hover:text-blue-600 font-medium transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 href="/"
-                className="text-gray-700 hover:text-blue-600 font-medium "
+                className="text-white hover:text-blue-600 font-medium "
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Apps
               </Link>
               <Link
                 href="/about"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                className="text-white hover:text-blue-600 font-medium transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 About
               </Link>
               <Link
               href="/signup"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-white hover:text-blue-600 font-medium transition-colors"
               onClick={() => setMobileMenuOpen(false)}
               >
                 Sign Up
@@ -143,7 +146,7 @@ export function Navbar() {
 
             <Link
               href="/login"
-              className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              className="text-white hover:text-blue-600 font-medium transition-colors"
               onClick={() => setMobileMenuOpen(false)}
               >
                 Login

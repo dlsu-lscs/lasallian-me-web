@@ -30,7 +30,7 @@ export function AppDetailContainer({ slug }: AppDetailContainerProps) {
         </div>
       </div>
 
-    );
+    )
   }
 
   return <AppDetail app={app} />;
