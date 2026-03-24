@@ -15,7 +15,7 @@ export default function LoginFormContainer() {
     try {
       await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/', // Redirect back to the apps directory upon success
+        callbackURL: window.location.origin, // Redirect back to the apps directory upon success
       });
     } catch (err) {
       setError('Failed to authenticate. Please ensure you are using a valid DLSU email.');
