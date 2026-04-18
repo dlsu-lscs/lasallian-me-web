@@ -1,7 +1,7 @@
 import { Application } from '../types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { useRouter } from 'next/navigation';
-import { FiHeart } from 'react-icons/fi';
+import { FiBookmark } from 'react-icons/fi';
 
 export interface AppCardProps {
   app: Application;
@@ -42,7 +42,7 @@ export function AppCard({ app }: AppCardProps) {
 
           {app.favoritesCount !== undefined && (
             <h3 className="font-semibold text-base leading-[140%] tracking-normal flex items-center gap-1 text-gray-800">
-              <FiHeart className="text-black w-4 h-4" />
+              <FiBookmark className="text-black w-4 h-4" />
               {app.favoritesCount}
             </h3>
           )}

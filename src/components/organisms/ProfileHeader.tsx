@@ -23,7 +23,7 @@ export function ProfileHeader({ name, email, image }: ProfileHeaderProps) {
         <h1 className="text-4xl font-bold text-black mb-2">{name ?? 'Unknown User'}</h1>
         <p className="text-xl text-gray-700 font-medium">Lasallian Developer</p>
         {email && (
-          <div className="mt-2">
+          <div className="mt-2  ">
             <p className="text-lg text-gray-500">{email}</p>
           </div>
         )}

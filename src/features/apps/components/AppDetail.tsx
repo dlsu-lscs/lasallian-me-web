@@ -2,7 +2,7 @@ import React from 'react';
 import { Application } from '../types/app.types';
 import { Button } from '@/components/atoms/Button';
 import { FaStar } from 'react-icons/fa';
-import { FiHeart } from 'react-icons/fi';
+import { FiBookmark } from 'react-icons/fi';
 
 export interface AppDetailProps {
   app: Application;
@@ -43,7 +43,7 @@ export function AppDetail({ app, favoritesCount }: AppDetailProps) {
 
             {favoritesCount !== undefined && (
               <div className="mt-2 flex items-center gap-2 text-gray-600">
-                <FiHeart className="text-black w-5 h-5" />
+                <FiBookmark className="text-black w-5 h-5" />
                 <span>{favoritesCount} favorites</span>
               </div>
             )}

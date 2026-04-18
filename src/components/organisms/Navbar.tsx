@@ -53,11 +53,11 @@ export function Navbar() {
         <div className="flex items-center justify-between">
 
           <div className="flex items-center space-x-10">
-            <Link href="/">
-              <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center hover:text-lime-300 transition-colors">
-                LaSallian.Me
-              </h1>
-            </Link>
+         
+            <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center transition-colors">
+              LaSallian.Me
+            </h1>
+        
 
             {/*Desktop Links*/}
             <div className="hidden md:flex items-center space-x-6 pl-10">
