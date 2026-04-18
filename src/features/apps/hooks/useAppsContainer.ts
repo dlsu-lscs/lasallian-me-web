@@ -1,41 +1,56 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
-import { App } from '../types/app.types';
-import { useAppsFilters } from './use-apps-filters';
-import { mockApps } from '../data/mock-apps';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useUIStore } from '@/store/uiStore';
+import { useApplicationsQuery } from '../queries/apps.queries';
+import { Application } from '../types/app.types';
 
 export function useAppsContainer() {
-  const apps = mockApps;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // Get unique tags
-  const [uniqueTags] = useState<string[]>(() => {
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const query = useApplicationsQuery({ searchQuery: debouncedSearch, selectedTags });
+
+  const apps = query.data?.data ?? [];
+
+  const uniqueTags = useMemo(() => {
     const tags = new Set<string>();
     apps.forEach((app) => app.tags.forEach((tag) => tags.add(tag)));
     return Array.from(tags).sort();
-  });
+  }, [apps]);
 
-  // Use the filtering logic
-  const { filters, handleSearchChange, toggleTag, clearFilters, filteredApps } =
-    useAppsFilters(apps);
-
-  // UI store values
   const { showSearch, showFilters } = useUIStore();
 
-  // Derived states
-  const hasActiveFilters =
-    filters.searchQuery !== '' || filters.selectedTags.length > 0;
+  const hasActiveFilters = searchQuery !== '' || selectedTags.length > 0;
 
-  // Event handlers
-  const handleAppClick = useCallback((app: App) => {
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+  }, []);
+
+  const toggleTag = useCallback((tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedTags([]);
+  }, []);
+
+  const handleAppClick = useCallback((app: Application) => {
     window.open(app.url, '_blank');
   }, []);
 
   return {
     apps,
-    filters,
-    filteredApps,
+    filters: { searchQuery, selectedTags },
     uniqueTags,
     handleSearchChange,
     toggleTag,
@@ -44,5 +59,7 @@ export function useAppsContainer() {
     showSearch,
     showFilters,
     hasActiveFilters,
+    isLoading: query.isLoading,
+    isError: query.isError,
   };
 }

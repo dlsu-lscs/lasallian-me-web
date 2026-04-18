@@ -10,15 +10,15 @@ export default function AppsContainer() {
   const {
     apps,
     filters,
-    filteredApps,
     uniqueTags,
     handleSearchChange,
     toggleTag,
     clearFilters,
-    handleAppClick,
     showSearch,
     showFilters,
     hasActiveFilters,
+    isLoading,
+    isError,
   } = useAppsContainer();
 
   return (
@@ -42,9 +42,9 @@ export default function AppsContainer() {
             {/* Filter Tags */}
             {showFilters && (
               <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-medium text-gray-700 mr-2">
-            Filter by tags:
-          </span>
+                <span className="text-sm font-medium text-gray-700 mr-2">
+                  Filter by tags:
+                </span>
                 {uniqueTags.map((tag) => (
                   <FilterButton
                     key={tag}
@@ -69,24 +69,27 @@ export default function AppsContainer() {
         </div>
       )}
 
-
       {/* Results Count */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <p className="text-sm text-lime-800 pl-4">
-            {filteredApps.length === apps.length
-              ? `Showing all ${apps.length} apps`
-              : `Showing ${filteredApps.length} of ${apps.length} apps`}
+            {isLoading ? 'Loading...' : `Showing ${apps.length} apps`}
           </p>
         </div>
       </div>
 
       {/* Apps Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {filteredApps.length > 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12 text-gray-500">Loading apps...</div>
+        ) : isError ? (
+          <div className="text-center py-12 text-red-500">
+            Failed to load apps. Please check that the API is running.
+          </div>
+        ) : apps.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredApps.map((app) => (
-              <AppCard key={app.id} app={app} onClick={handleAppClick} />
+            {apps.map((app) => (
+              <AppCard key={app.id} app={app} />
             ))}
           </div>
         ) : (
@@ -121,5 +124,3 @@ export default function AppsContainer() {
     </div>
   );
 }
-
-
