@@ -1,4 +1,4 @@
-import { ApplicationsListResponse } from '../types/app.types';
+import { Application, ApplicationsListResponse } from '../types/app.types';
 
 interface GetApplicationsParams {
   search?: string;
@@ -21,6 +21,32 @@ export async function getApplications(params: GetApplicationsParams = {}): Promi
 
   if (!response.ok) {
     throw new Error(`Failed to fetch applications: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getApplicationFavoritesCount(
+  applicationId: number,
+): Promise<{ applicationId: number; count: number }> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/favorites/applications/${applicationId}/count`,
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch favorites count: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getApplicationBySlug(slug: string): Promise<Application> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${encodeURIComponent(slug)}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch application: ${response.statusText}`);
   }
 
   return response.json();

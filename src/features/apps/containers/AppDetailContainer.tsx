@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useAppBySlug} from '@/features/apps/hooks/use-app-by-slug';
+import { useAppBySlug } from '@/features/apps/hooks/use-app-by-slug';
+import { useApplicationFavoritesCountQuery } from '../queries/apps.queries';
 import { AppDetail } from '../components/AppDetail';
 import { Button } from '@/components/atoms/Button';
 import Link from 'next/link';
@@ -11,9 +12,18 @@ export interface AppDetailContainerProps {
 }
 
 export function AppDetailContainer({ slug }: AppDetailContainerProps) {
-  const app = useAppBySlug(slug);
+  const { data: app, isLoading, isError } = useAppBySlug(slug);
+  const { data: favoritesData } = useApplicationFavoritesCountQuery(app?.id);
 
-  if (!app) {
+  if (isLoading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center bg-gray-50">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (isError || !app) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gray-50 p-8">
         <div className="text-center">
@@ -23,15 +33,12 @@ export function AppDetailContainer({ slug }: AppDetailContainerProps) {
             The app with the slug &quot;{slug}&quot; could not be found.
           </p>
           <Link href="/">
-            <Button variant="primary">
-              Go to App Directory
-            </Button>
+            <Button variant="primary">Go to App Directory</Button>
           </Link>
         </div>
       </div>
-
-    )
+    );
   }
 
-  return <AppDetail app={app} />;
+  return <AppDetail app={app} favoritesCount={favoritesData?.count} />;
 }

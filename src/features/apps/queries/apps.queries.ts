@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getApplications } from '../services/apps.service';
+import { getApplications, getApplicationBySlug, getApplicationFavoritesCount } from '../services/apps.service';
 import { AppFilters } from '../types/app.types';
 
 export const applicationsQueryKey = (filters: Partial<AppFilters>) => [
@@ -16,5 +16,21 @@ export function useApplicationsQuery(filters: Partial<AppFilters> = {}) {
         search: filters.searchQuery || undefined,
         tags: filters.selectedTags && filters.selectedTags.length > 0 ? filters.selectedTags : undefined,
       }),
+  });
+}
+
+export function useApplicationBySlugQuery(slug: string) {
+  return useQuery({
+    queryKey: ['application', slug],
+    queryFn: () => getApplicationBySlug(slug),
+    enabled: !!slug,
+  });
+}
+
+export function useApplicationFavoritesCountQuery(applicationId: number | undefined) {
+  return useQuery({
+    queryKey: ['application-favorites-count', applicationId],
+    queryFn: () => getApplicationFavoritesCount(applicationId!),
+    enabled: applicationId !== undefined,
   });
 }

@@ -40,10 +40,12 @@ export function AppCard({ app }: AppCardProps) {
             </h3>
           </div>
 
-          <h3 className="font-semibold text-base leading-[140%] tracking-normal flex items-center gap-1 text-gray-800">
-            <FaHeart className="text-red-400 w-4 h-4" />
-            {app.favoritesCount}
-          </h3>
+          {app.favoritesCount !== undefined && (
+            <h3 className="font-semibold text-base leading-[140%] tracking-normal flex items-center gap-1 text-gray-800">
+              <FaHeart className="text-red-400 w-4 h-4" />
+              {app.favoritesCount}
+            </h3>
+          )}
         </div>
       </div>
 

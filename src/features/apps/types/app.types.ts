@@ -9,7 +9,7 @@ export interface Application {
   authorId: number;
   createdAt: string;
   updatedAt: string;
-  favoritesCount: number;
+  favoritesCount?: number;
 }
 
 export interface ApplicationsMeta {
