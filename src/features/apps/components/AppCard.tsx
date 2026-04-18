@@ -57,7 +57,7 @@ export function AppCard({ app }: AppCardProps) {
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-1">
         {app.tags.slice(0, 3).map((tag, index) => (
-          <Badge key={index} variant="primary">
+          <Badge key={index} variant="success">
             {tag}
           </Badge>
         ))}
