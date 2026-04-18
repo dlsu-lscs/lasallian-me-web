@@ -1,7 +1,8 @@
 import React from 'react';
 import { Application } from '../types/app.types';
 import { Button } from '@/components/atoms/Button';
-import { FaHeart, FaStar } from 'react-icons/fa';
+import { FaStar } from 'react-icons/fa';
+import { FiHeart } from 'react-icons/fi';
 
 export interface AppDetailProps {
   app: Application;
@@ -33,7 +34,7 @@ export function AppDetail({ app, favoritesCount }: AppDetailProps) {
             </div>
 
             <div className="flex items-center justify-between">
-              <h1 className="text-4xl font-extrabold text-gray-900 truncate">
+              <h1 className="text-3xl font-extrabold text-gray-900">
                 {app.title}
               </h1>
             </div>
@@ -41,8 +42,8 @@ export function AppDetail({ app, favoritesCount }: AppDetailProps) {
             <p className="text-xl text-gray-600 mt-1">By Author Name</p>
 
             {favoritesCount !== undefined && (
-              <div className="mt-2 flex items-center gap-2 text-gray-700 font-semibold">
-                <FaHeart className="text-red-400 w-5 h-5" />
+              <div className="mt-2 flex items-center gap-2 text-gray-600">
+                <FiHeart className="text-black w-5 h-5" />
                 <span>{favoritesCount} favorites</span>
               </div>
             )}
