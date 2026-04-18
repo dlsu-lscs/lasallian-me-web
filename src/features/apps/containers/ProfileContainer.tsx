@@ -21,7 +21,6 @@ export default function ProfileContainer({ slug }: ProfileContainerProps) {
   const {
     apps,
     filters,
-    filteredApps,
     uniqueTags,
     handleSearchChange,
     toggleTag,
@@ -30,6 +29,8 @@ export default function ProfileContainer({ slug }: ProfileContainerProps) {
     showSearch,
     showFilters,
     hasActiveFilters,
+    isLoading,
+    isError,
   } = useAppsContainer();
 
   return (
@@ -81,13 +82,17 @@ export default function ProfileContainer({ slug }: ProfileContainerProps) {
         <div className="py-4">
           {activeTab === 'apps' && (
             <>
-              {filteredApps.length > 0 ? (
+              {isLoading ? (
+                <div className="text-center py-12 text-gray-500">Loading...</div>
+              ) : isError ? (
+                <div className="text-center py-12 text-red-500">Failed to load apps.</div>
+              ) : apps.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredApps.map((app) => (
-                    <AppCard 
-                      key={app.id} 
-                      app={app} 
-                      onClick={handleAppClick} 
+                  {apps.map((app) => (
+                    <AppCard
+                      key={app.id}
+                      app={app}
+                      onClick={handleAppClick}
                     />
                   ))}
                 </div>
