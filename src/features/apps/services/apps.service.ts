@@ -8,16 +8,21 @@ interface GetApplicationsParams {
 }
 
 export async function getApplications(params: GetApplicationsParams = {}): Promise<ApplicationsListResponse> {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/applications`);
+  const parts: string[] = [];
 
-  if (params.search) url.searchParams.set('search', params.search);
+  if (params.search) parts.push(`search=${encodeURIComponent(params.search)}`);
   if (params.tags && params.tags.length > 0) {
-    params.tags.forEach((tag) => url.searchParams.append('tags', tag));
+    params.tags.forEach((tag) => {
+      parts.push(`tags=${encodeURIComponent(tag)}`);
+      parts.push(`tags=${encodeURIComponent(tag)}`);
+    });
   }
-  if (params.page) url.searchParams.set('page', String(params.page));
-  if (params.limit) url.searchParams.set('limit', String(params.limit));
+  if (params.page) parts.push(`page=${params.page}`);
+  if (params.limit) parts.push(`limit=${params.limit}`);
 
-  const response = await fetch(url.toString());
+  const base = `${process.env.NEXT_PUBLIC_API_URL}/api/applications`;
+  const finalUrl = parts.length ? `${base}?${parts.join('&')}` : base;
+  const response = await fetch(finalUrl);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch applications: ${response.statusText}`);
