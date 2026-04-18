@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { authClient } from '@/lib/auth-client';
 import { ProfileHeader } from '../../../components/organisms/ProfileHeader';
 import { ProfileTabs } from '../../../components/molecules/ProfileTabs';
 import { AppCard } from '../components/AppCard';
@@ -16,6 +17,7 @@ interface ProfileContainerProps {
 export default function ProfileContainer({ slug }: ProfileContainerProps) {
   // Logic: Manage active tab state (Profile-specific) 
   const [activeTab, setActiveTab] = useState('apps');
+  const { data: session } = authClient.useSession();
 
   // Logic: Integrate the apps container hook 
   const {
@@ -38,7 +40,11 @@ export default function ProfileContainer({ slug }: ProfileContainerProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Presentational: Profile Header */}
-        <ProfileHeader />
+        <ProfileHeader
+          name={session?.user.name}
+          email={session?.user.email}
+          image={session?.user.image ?? undefined}
+        />
         
         {/* Presentational: Segmented control for tabs */}
         <div className="mb-8">
