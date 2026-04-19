@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { authClient } from '@/lib/auth-client';
 import { ProfileHeader } from '../../../components/organisms/ProfileHeader';
 import { ProfileTabs } from '../../../components/molecules/ProfileTabs';
 import { AppCard } from '../components/AppCard';
@@ -16,12 +17,12 @@ interface ProfileContainerProps {
 export default function ProfileContainer({ slug }: ProfileContainerProps) {
   // Logic: Manage active tab state (Profile-specific) 
   const [activeTab, setActiveTab] = useState('apps');
+  const { data: session } = authClient.useSession();
 
   // Logic: Integrate the apps container hook 
   const {
     apps,
     filters,
-    filteredApps,
     uniqueTags,
     handleSearchChange,
     toggleTag,
@@ -30,6 +31,8 @@ export default function ProfileContainer({ slug }: ProfileContainerProps) {
     showSearch,
     showFilters,
     hasActiveFilters,
+    isLoading,
+    isError,
   } = useAppsContainer();
 
   return (
@@ -37,7 +40,11 @@ export default function ProfileContainer({ slug }: ProfileContainerProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Presentational: Profile Header */}
-        <ProfileHeader />
+        <ProfileHeader
+          name={session?.user.name}
+          email={session?.user.email}
+          image={session?.user.image ?? undefined}
+        />
         
         {/* Presentational: Segmented control for tabs */}
         <div className="mb-8">
@@ -81,13 +88,17 @@ export default function ProfileContainer({ slug }: ProfileContainerProps) {
         <div className="py-4">
           {activeTab === 'apps' && (
             <>
-              {filteredApps.length > 0 ? (
+              {isLoading ? (
+                <div className="text-center py-12 text-gray-500">Loading...</div>
+              ) : isError ? (
+                <div className="text-center py-12 text-red-500">Failed to load apps.</div>
+              ) : apps.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredApps.map((app) => (
-                    <AppCard 
-                      key={app.id} 
-                      app={app} 
-                      onClick={handleAppClick} 
+                  {apps.map((app) => (
+                    <AppCard
+                      key={app.id}
+                      app={app}
+                      onClick={handleAppClick}
                     />
                   ))}
                 </div>

@@ -8,6 +8,7 @@ import { useUIStore } from '@/store/uiStore';
 import { authClient } from '@/lib/auth-client'; 
 
 export function Navbar() {
+  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   
@@ -20,6 +21,8 @@ export function Navbar() {
   // Fetch the current user session
   const { data: session, isPending } = authClient.useSession();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setMounted(true), []);
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -50,11 +53,11 @@ export function Navbar() {
         <div className="flex items-center justify-between">
 
           <div className="flex items-center space-x-10">
-            <Link href="/">
-              <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center hover:text-lime-300 transition-colors">
-                LaSallian.Me
-              </h1>
-            </Link>
+         
+            <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center transition-colors">
+              LaSallian.Me
+            </h1>
+        
 
             {/*Desktop Links*/}
             <div className="hidden md:flex items-center space-x-6 pl-10">
@@ -78,7 +81,9 @@ export function Navbar() {
 
             {/* Auth State Rendering */}
             <div className="pl-4 border-l border-white/20 flex items-center space-x-6">
-              {!isPending && session ? (
+              {!mounted || isPending ? (
+                <div className="w-9 h-9 rounded-full bg-white/20 animate-pulse" />
+              ) : session ? (
                 <div className="relative" ref={dropdownRef}>
                   <button 
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
@@ -124,14 +129,12 @@ export function Navbar() {
                     </div>
                   )}
                 </div>
-              ) : !isPending ? (
+              ) : (
                 <>
                   <Link href="/login" className="bg-white text-[#006633] px-4 py-2 rounded-lg font-medium hover:bg-lime-300 transition-colors">
                     Login
                   </Link>
                 </>
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-white/20 animate-pulse"></div> 
               )}
             </div>
           </div>

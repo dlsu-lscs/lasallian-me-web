@@ -1,28 +1,31 @@
-export interface App {
-  id: string;
-  name: string;
-  description: string;
-  icon?: string;
-  url: string;
+export interface Application {
+  id: number;
+  title: string;
   slug: string;
-  rating: number;
+  description: string;
+  url: string;
+  previewImages: string[];
   tags: string[];
-  category?: string;
-  featured?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  authorId: number;
+  createdAt: string;
+  updatedAt: string;
+  favoritesCount?: number;
+}
+
+export interface ApplicationsMeta {
+  page: number;
+  limit: number;
+  count: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ApplicationsListResponse {
+  data: Application[];
+  meta: ApplicationsMeta;
 }
 
 export interface AppFilters {
   searchQuery: string;
   selectedTags: string[];
-  category?: string;
 }
-
-export interface Tag {
-  id: string;
-  name: string;
-  count: number;
-}
-
-
