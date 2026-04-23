@@ -3,9 +3,11 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { FiFilter, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiFilter, FiSearch, FiUser, FiLogOut, FiSettings } from 'react-icons/fi';
 import { useUIStore } from '@/store/uiStore';
-import { authClient } from '@/lib/auth-client'; 
+import { authClient } from '@/lib/auth-client';
+import { useIsAdmin } from '@/features/auth/hooks/useIsAdmin';
+import Image from 'next/image';
 
 export function Navbar() {
   const [mounted, setMounted] = useState(false);
@@ -20,6 +22,7 @@ export function Navbar() {
 
   // Fetch the current user session
   const { data: session, isPending } = authClient.useSession();
+  const { isAdmin } = useIsAdmin();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
@@ -67,6 +70,11 @@ export function Navbar() {
               <Link href="https://dlsu-lscs.org/" className="text-white hover:text-lime-300 font-medium transition-colors" target="_blank" rel="noopener noreferrer">
                 LSCS
               </Link>
+              {session && (
+                <Link href="/submit" className="text-white hover:text-lime-300 font-medium transition-colors">
+                  Submit App
+                </Link>
+              )}
             </div>
           </div>
 
@@ -90,8 +98,10 @@ export function Navbar() {
                     className="flex items-center space-x-2 focus:outline-none"
                   >
                     {session.user.image ? (
-                      <img 
+                      <Image
                         src={session.user.image} 
+                        width={36} 
+                        height={36} 
                         alt="Profile" 
                         className="w-9 h-9 rounded-full border-2 border-transparent hover:border-lime-300 transition-all object-cover"
                       />
@@ -110,16 +120,27 @@ export function Navbar() {
                         <p className="text-xs text-gray-500 truncate">{session.user.email}</p>
                       </div>
                       
-                      <Link 
-                        href={`/users/${session.user.id}`} 
+                      <Link
+                        href={`/users/${session.user.id}`}
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#006633] transition-colors"
                         onClick={() => setProfileMenuOpen(false)}
                       >
                         <FiUser className="mr-2" />
                         My Profile
                       </Link>
-                      
-                      <button 
+
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#006633] transition-colors"
+                          onClick={() => setProfileMenuOpen(false)}
+                        >
+                          <FiSettings className="mr-2" />
+                          Admin Dashboard
+                        </Link>
+                      )}
+
+                      <button
                         onClick={handleLogout} 
                         className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-gray-100 pt-2"
                       >
@@ -173,12 +194,20 @@ export function Navbar() {
                 {session ? (
                   <>
                     <div className="flex items-center space-x-3 px-2">
-                      {session.user.image && <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" />}
+                      {session.user.image && <Image src={session.user.image} alt="" className="w-8 h-8 rounded-full" />}
                       <span className="text-white font-medium">{session.user.name}</span>
                     </div>
                     <Link href={`/users/${session.user.id}`} className="text-lime-100 hover:text-lime-300 font-medium transition-colors pl-2" onClick={() => setMobileMenuOpen(false)}>
                       My Profile
                     </Link>
+                    <Link href="/submit" className="text-lime-100 hover:text-lime-300 font-medium transition-colors pl-2" onClick={() => setMobileMenuOpen(false)}>
+                      Submit App
+                    </Link>
+                    {isAdmin && (
+                      <Link href="/admin" className="text-lime-100 hover:text-lime-300 font-medium transition-colors pl-2" onClick={() => setMobileMenuOpen(false)}>
+                        Admin Dashboard
+                      </Link>
+                    )}
                     <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="text-left text-red-300 hover:text-red-400 font-medium transition-colors pl-2">
                       Log out
                     </button>

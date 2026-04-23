@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { FilterButton } from '@/components/molecules/FilterButton';
 import { Button } from '@/components/atoms/Button';
@@ -7,6 +8,8 @@ import { AppCard } from '../components/AppCard';
 import { useAppsContainer } from '@/features/apps/hooks/useAppsContainer';
 
 export default function AppsContainer() {
+  const [hasMounted, setHasMounted] = useState(false);
+
   const {
     apps,
     filters,
@@ -21,9 +24,21 @@ export default function AppsContainer() {
     isError,
   } = useAppsContainer();
 
+  // Triggered only on the client after the first render
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center py-12 text-gray-500">Loading apps...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* Filters and Search Section */}
       {(showSearch || showFilters || hasActiveFilters) && (
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
