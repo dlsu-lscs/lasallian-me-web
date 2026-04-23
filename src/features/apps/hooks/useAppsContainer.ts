@@ -17,7 +17,7 @@ export function useAppsContainer() {
 
   const query = useApplicationsQuery({ searchQuery: debouncedSearch, selectedTags });
 
-  const apps = query.data?.data ?? [];
+  const apps = useMemo(() => query.data?.data ?? [], [query.data]);
 
   const uniqueTags = useMemo(() => {
     const tags = new Set<string>();

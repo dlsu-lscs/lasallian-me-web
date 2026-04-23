@@ -14,7 +14,7 @@ interface ProfileContainerProps {
   slug: string;
 }
 
-export default function ProfileContainer({ slug }: ProfileContainerProps) {
+export default function ProfileContainer({ slug: _slug }: ProfileContainerProps) {
   // Logic: Manage active tab state (Profile-specific) 
   const [activeTab, setActiveTab] = useState('apps');
   const { data: session } = authClient.useSession();

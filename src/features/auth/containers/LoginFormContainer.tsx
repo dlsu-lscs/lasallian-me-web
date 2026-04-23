@@ -18,6 +18,7 @@ export default function LoginFormContainer() {
         callbackURL: window.location.origin, // Redirect back to the apps directory upon success
       });
     } catch (err) {
+      console.error("Authentication failed:", err);
       setError('Failed to authenticate. Please ensure you are using a valid DLSU email.');
       setIsLoading(false);
     }

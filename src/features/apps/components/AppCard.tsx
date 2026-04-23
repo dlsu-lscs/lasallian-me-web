@@ -3,6 +3,7 @@ import { Badge } from '@/components/atoms/Badge';
 import { useRouter } from 'next/navigation';
 import { FiBookmark } from 'react-icons/fi';
 
+
 export interface AppCardProps {
   app: Application;
   onClick?: (app: Application) => void;

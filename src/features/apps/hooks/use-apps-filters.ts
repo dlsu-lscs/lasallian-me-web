@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
-import { App, AppFilters } from '../types/app.types';
+import { AppFilters, Application } from '../types/app.types';
 
-export function useAppsFilters(apps: App[]) {
-  const [filters, setFilters] = useState<AppFilters>({
+export function useAppsFilters(apps: Application[]) {
+  const [filters, setFilters] = useState<AppFilters & { category?: string }>({
     searchQuery: '',
     selectedTags: [],
     category: undefined,
@@ -34,7 +34,7 @@ export function useAppsFilters(apps: App[]) {
       // Search filter
       const matchesSearch =
         filters.searchQuery === '' ||
-        app.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+        app.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
         app.description.toLowerCase().includes(filters.searchQuery.toLowerCase());
 
       // Tag filter
@@ -42,11 +42,7 @@ export function useAppsFilters(apps: App[]) {
         filters.selectedTags.length === 0 ||
         filters.selectedTags.some((tag) => app.tags.includes(tag));
 
-      // Category filter
-      const matchesCategory =
-        !filters.category || app.category === filters.category;
-
-      return matchesSearch && matchesTags && matchesCategory;
+      return matchesSearch && matchesTags;
     });
   }, [apps, filters]);
 
