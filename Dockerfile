@@ -15,6 +15,7 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
