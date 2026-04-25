@@ -6,15 +6,55 @@ import { PendingAppCard } from '../components/PendingAppCard';
 import { RejectModal } from '../components/RejectModal';
 import { EditModal } from '../components/EditModal';
 import {
-  usePendingApplicationsQuery,
   useApproveApplicationMutation,
   useRejectApplicationMutation,
   useEditApplicationMutation,
 } from '../queries/admin.queries';
 import type { RejectModalState, EditModalState } from '../types/admin.types';
 
+// TODO: remove mock data once API auth is wired
+const MOCK_PENDING_APPS: Application[] = [
+  {
+    id: 1,
+    title: 'LSCS Bulletin Board',
+    slug: 'lscs-bulletin-board',
+    description: 'A real-time announcement board for LSCS members to post events, news, and updates across all sections.',
+    url: 'https://bulletin.lscs.dev',
+    previewImages: [],
+    tags: ['productivity', 'social', 'web'],
+    authorId: 42,
+    createdAt: '2026-04-20T08:30:00Z',
+    updatedAt: '2026-04-20T08:30:00Z',
+  },
+  {
+    id: 2,
+    title: 'CodeTrack',
+    slug: 'codetrack',
+    description: 'Track your competitive programming progress across Codeforces, LeetCode, and AtCoder in one dashboard.',
+    url: 'https://codetrack.lscs.dev',
+    previewImages: [],
+    tags: ['competitive-programming', 'dashboard', 'ai'],
+    authorId: 17,
+    createdAt: '2026-04-21T14:00:00Z',
+    updatedAt: '2026-04-21T14:00:00Z',
+  },
+  {
+    id: 3,
+    title: 'Pair Me',
+    slug: 'pair-me',
+    description: 'Matches LSCS members for pair programming sessions based on skill level and availability.',
+    url: 'https://pairme.lscs.dev',
+    previewImages: [],
+    tags: ['social', 'productivity'],
+    authorId: 9,
+    createdAt: '2026-04-22T10:15:00Z',
+    updatedAt: '2026-04-22T10:15:00Z',
+  },
+];
+
 export function ApprovalContainer() {
-  const { data, isLoading, isError } = usePendingApplicationsQuery();
+  const isLoading = false;
+  const isError = false;
 
   const approveMutation = useApproveApplicationMutation();
   const rejectMutation = useRejectApplicationMutation();
@@ -58,7 +98,7 @@ export function ApprovalContainer() {
     );
   };
 
-  const apps = data?.data ?? [];
+  const apps = MOCK_PENDING_APPS;
 
   return (
     <div>
