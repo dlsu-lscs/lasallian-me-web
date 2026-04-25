@@ -4,6 +4,9 @@ import React from 'react';
 import { useAppBySlug } from '@/features/apps/hooks/use-app-by-slug';
 import { useApplicationFavoritesCountQuery } from '../queries/apps.queries';
 import { AppDetail } from '../components/AppDetail';
+import { RatingsContainer } from '@/features/ratings/containers/RatingsContainer';
+import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
+import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
 import { Button } from '@/components/atoms/Button';
 import Link from 'next/link';
 
@@ -14,6 +17,8 @@ export interface AppDetailContainerProps {
 export function AppDetailContainer({ slug }: AppDetailContainerProps) {
   const { data: app, isLoading, isError } = useAppBySlug(slug);
   const { data: favoritesData } = useApplicationFavoritesCountQuery(app?.id);
+  const { data: ratingsData } = useApplicationRatingsQuery(slug);
+  const { isFavorited, toggle, isPending: isFavoritePending, isLoggedIn } = useFavoriteToggle(app?.id ?? 0);
 
   if (isLoading) {
     return (
@@ -40,5 +45,17 @@ export function AppDetailContainer({ slug }: AppDetailContainerProps) {
     );
   }
 
-  return <AppDetail app={app} favoritesCount={favoritesData?.count} />;
+  return (
+    <AppDetail
+      app={app}
+      favoritesCount={favoritesData?.count}
+      isFavorited={isFavorited}
+      onToggleFavorite={toggle}
+      isFavoritePending={isFavoritePending}
+      isLoggedIn={isLoggedIn}
+      averageScore={ratingsData?.averageScore}
+      totalRatings={ratingsData?.total}
+      ratingsSection={<RatingsContainer slug={slug} />}
+    />
+  );
 }
