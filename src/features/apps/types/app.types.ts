@@ -6,7 +6,10 @@ export interface Application {
   url: string;
   previewImages: string[];
   tags: string[];
-  authorId: number;
+  userId: string;
+  userEmail?: string;
+  isApproved: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REMOVED';
+  rejectionReason?: string | null;
   createdAt: string;
   updatedAt: string;
   favoritesCount?: number;
