@@ -13,6 +13,7 @@ export function useAdminApplicationsQuery(page = 1, status: AdminApplicationStat
   return useQuery({
     queryKey: ['admin', 'applications', status, page],
     queryFn: () => getAdminApplications(page, 20, status),
+    retry: 1,
   });
 }
 

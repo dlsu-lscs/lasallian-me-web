@@ -15,7 +15,7 @@ export const applicationsQueryKey = (filters: Partial<AppFilters>) => [
   filters.selectedTags ?? [],
 ];
 
-export function useApplicationsQuery(filters: Partial<AppFilters> = {}) {
+export function useApplicationsQuery(filters: Partial<AppFilters> = {}, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: applicationsQueryKey(filters),
     queryFn: () =>
@@ -24,6 +24,8 @@ export function useApplicationsQuery(filters: Partial<AppFilters> = {}) {
         tags: filters.selectedTags && filters.selectedTags.length > 0 ? filters.selectedTags : undefined,
         userId: filters.userId || undefined,
       }),
+    retry: 1,
+    enabled: options?.enabled ?? true,
   });
 }
 

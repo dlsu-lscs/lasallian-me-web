@@ -114,7 +114,7 @@ export function ApprovalContainer() {
         <div className="text-center py-12 text-gray-500">Loading applications…</div>
       ) : isError ? (
         <div className="text-center py-12 text-red-500">
-          Failed to load applications. Please check that the API is running.
+          Unable to load applications right now. The admin endpoint may be unavailable.
         </div>
       ) : apps.length === 0 ? (
         <div className="text-center py-16">

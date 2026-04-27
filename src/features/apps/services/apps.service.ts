@@ -24,7 +24,7 @@ export async function getApplications(params: GetApplicationsParams = {}): Promi
 
   const base = `${process.env.NEXT_PUBLIC_API_URL}/api/applications`;
   const finalUrl = parts.length ? `${base}?${parts.join('&')}` : base;
-  const response = await fetch(finalUrl, { credentials: 'include' });
+  const response = await fetch(finalUrl);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch applications: ${response.statusText}`);

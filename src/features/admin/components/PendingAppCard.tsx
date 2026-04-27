@@ -1,7 +1,6 @@
 import { Application } from '@/features/apps/types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
-import Image from 'next/image';
 
 interface PendingAppCardProps {
   app: Application;
@@ -34,10 +33,12 @@ export function PendingAppCard({
     app.isApproved === 'REMOVED' ? 'danger' :
     'warning';
 
+  const uniqueTags = Array.from(new Set(visibleTags));
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
       {app.previewImages?.[0] ? (
-        <Image
+        <img
           src={app.previewImages[0]}
           alt={app.title}
           className="w-full h-40 object-cover"
@@ -70,14 +71,12 @@ export function PendingAppCard({
           </p>
         )}
 
-        {visibleTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {visibleTags.map((tag) => (
-              <Badge key={tag}>{tag}</Badge>
-            ))}
-            {extraTags > 0 && <Badge>+{extraTags}</Badge>}
-          </div>
-        )}
+        <div className="flex flex-wrap gap-1.5">
+          {uniqueTags.map((tag) => (
+            <Badge key={tag}>{tag}</Badge>
+          ))}
+          {extraTags > 0 && <Badge>+{extraTags}</Badge>}
+        </div>
 
         <div className="flex gap-2 mt-auto pt-2 flex-wrap">
           <Button

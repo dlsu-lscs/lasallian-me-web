@@ -14,7 +14,7 @@ export function ProfileHeader({ name, email, image }: ProfileHeaderProps) {
       {/* Avatar */}
       <div className="w-48 h-48 rounded-full border-2 border-gray-200 bg-gray-50 flex-shrink-0 overflow-hidden flex items-center justify-center">
         {image ? (
-          <Image src={image} alt={name || "Profile Name"} className="w-full h-full object-cover" />
+          <img src={image} alt={name || "Profile Name"} className="w-full h-full object-cover" />
         ) : (
           <span className="text-5xl font-bold text-gray-400">
             {name?.charAt(0) ?? '?'}

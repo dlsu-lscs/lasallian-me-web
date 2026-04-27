@@ -99,7 +99,7 @@ export default function AppsContainer() {
           <div className="text-center py-12 text-gray-500">Loading apps...</div>
         ) : isError ? (
           <div className="text-center py-12 text-red-500">
-            Failed to load apps. Please check that the API is running.
+            Unable to load apps right now. Please try again later.
           </div>
         ) : apps.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -98,10 +98,8 @@ export function Navbar() {
                     className="flex items-center space-x-2 focus:outline-none"
                   >
                     {session.user.image ? (
-                      <Image
+                      <img
                         src={session.user.image} 
-                        width={36} 
-                        height={36} 
                         alt="Profile" 
                         className="w-9 h-9 rounded-full border-2 border-transparent hover:border-lime-300 transition-all object-cover"
                       />
@@ -194,7 +192,7 @@ export function Navbar() {
                 {session ? (
                   <>
                     <div className="flex items-center space-x-3 px-2">
-                      {session.user.image && <Image src={session.user.image} alt="" className="w-8 h-8 rounded-full" />}
+                      {session.user.image && <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" />}
                       <span className="text-white font-medium">{session.user.name}</span>
                     </div>
                     <Link href={`/users/${session.user.id}`} className="text-lime-100 hover:text-lime-300 font-medium transition-colors pl-2" onClick={() => setMobileMenuOpen(false)}>

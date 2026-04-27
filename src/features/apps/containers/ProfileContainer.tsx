@@ -39,7 +39,7 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
     application: null,
   });
 
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const { showSearch, showFilters } = useUIStore();
 
   useEffect(() => {
@@ -47,11 +47,10 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const { data, isLoading, isError } = useApplicationsQuery({
-    userId: session?.user?.id,
-    searchQuery: debouncedSearch,
-    selectedTags,
-  });
+  const { data, isLoading, isError } = useApplicationsQuery(
+    { userId: session?.user?.id, searchQuery: debouncedSearch, selectedTags },
+    { enabled: !sessionPending && !!session?.user?.id },
+  );
 
   const apps = useMemo(() => data?.data ?? [], [data]);
 
@@ -88,6 +87,14 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
       { onSuccess: () => setEditModal({ isOpen: false, application: null }) },
     );
   };
+
+  if (!sessionPending && !session) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-gray-500">Please sign in to view your profile.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -141,7 +148,7 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
               {isLoading ? (
                 <div className="text-center py-12 text-gray-500">Loading...</div>
               ) : isError ? (
-                <div className="text-center py-12 text-red-500">Failed to load apps.</div>
+                <div className="text-center py-12 text-red-500">Unable to load apps right now. Please try again later.</div>
               ) : apps.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {apps.map((app) => {
