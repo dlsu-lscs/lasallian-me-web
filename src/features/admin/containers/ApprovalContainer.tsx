@@ -6,61 +6,42 @@ import { PendingAppCard } from '../components/PendingAppCard';
 import { RejectModal } from '../components/RejectModal';
 import { EditModal } from '../components/EditModal';
 import {
+  useAdminApplicationsQuery,
   useApproveApplicationMutation,
   useRejectApplicationMutation,
+  useRemoveApplicationMutation,
   useEditApplicationMutation,
 } from '../queries/admin.queries';
-import type { RejectModalState, EditModalState } from '../types/admin.types';
+import type { RejectModalState, RemoveModalState, EditModalState } from '../types/admin.types';
+import type { AdminApplicationStatus } from '../services/admin.service';
+import { Button } from '@/components/atoms/Button';
 
-// TODO: remove mock data once API auth is wired
-const MOCK_PENDING_APPS: Application[] = [
-  {
-    id: 1,
-    title: 'LSCS Bulletin Board',
-    slug: 'lscs-bulletin-board',
-    description: 'A real-time announcement board for LSCS members to post events, news, and updates across all sections.',
-    url: 'https://bulletin.lscs.dev',
-    previewImages: [],
-    tags: ['productivity', 'social', 'web'],
-    authorId: 42,
-    createdAt: '2026-04-20T08:30:00Z',
-    updatedAt: '2026-04-20T08:30:00Z',
-  },
-  {
-    id: 2,
-    title: 'CodeTrack',
-    slug: 'codetrack',
-    description: 'Track your competitive programming progress across Codeforces, LeetCode, and AtCoder in one dashboard.',
-    url: 'https://codetrack.lscs.dev',
-    previewImages: [],
-    tags: ['competitive-programming', 'dashboard', 'ai'],
-    authorId: 17,
-    createdAt: '2026-04-21T14:00:00Z',
-    updatedAt: '2026-04-21T14:00:00Z',
-  },
-  {
-    id: 3,
-    title: 'Pair Me',
-    slug: 'pair-me',
-    description: 'Matches LSCS members for pair programming sessions based on skill level and availability.',
-    url: 'https://pairme.lscs.dev',
-    previewImages: [],
-    tags: ['social', 'productivity'],
-    authorId: 9,
-    createdAt: '2026-04-22T10:15:00Z',
-    updatedAt: '2026-04-22T10:15:00Z',
-  },
+const STATUS_TABS: { label: string; value: AdminApplicationStatus }[] = [
+  { label: 'Pending', value: 'PENDING' },
+  { label: 'Rejected', value: 'REJECTED' },
+  { label: 'Removed', value: 'REMOVED' },
 ];
 
 export function ApprovalContainer() {
-  const isLoading = false;
-  const isError = false;
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState<AdminApplicationStatus>('PENDING');
+
+  const { data, isLoading, isError } = useAdminApplicationsQuery(page, status);
+  const apps = data?.data ?? [];
+  const meta = data?.meta;
 
   const approveMutation = useApproveApplicationMutation();
   const rejectMutation = useRejectApplicationMutation();
+  const removeMutation = useRemoveApplicationMutation();
   const editMutation = useEditApplicationMutation();
 
   const [rejectModal, setRejectModal] = useState<RejectModalState>({
+    isOpen: false,
+    applicationId: null,
+    reason: '',
+  });
+
+  const [removeModal, setRemoveModal] = useState<RemoveModalState>({
     isOpen: false,
     applicationId: null,
     reason: '',
@@ -87,6 +68,18 @@ export function ApprovalContainer() {
     );
   };
 
+  const handleOpenRemove = (id: number) => {
+    setRemoveModal({ isOpen: true, applicationId: id, reason: '' });
+  };
+
+  const handleConfirmRemove = (reason: string) => {
+    if (removeModal.applicationId == null) return;
+    removeMutation.mutate(
+      { id: removeModal.applicationId, reason },
+      { onSuccess: () => setRemoveModal({ isOpen: false, applicationId: null, reason: '' }) },
+    );
+  };
+
   const handleOpenEdit = (app: Application) => {
     setEditModal({ isOpen: true, application: app });
   };
@@ -98,15 +91,30 @@ export function ApprovalContainer() {
     );
   };
 
-  const apps = MOCK_PENDING_APPS;
-
   return (
     <div>
+      {/* Status filter tabs */}
+      <div className="flex gap-2 mb-6">
+        {STATUS_TABS.map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => { setStatus(tab.value); setPage(1); }}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              status === tab.value
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {isLoading ? (
-        <div className="text-center py-12 text-gray-500">Loading pending apps…</div>
+        <div className="text-center py-12 text-gray-500">Loading applications…</div>
       ) : isError ? (
         <div className="text-center py-12 text-red-500">
-          Failed to load pending apps. Please check that the API is running.
+          Failed to load applications. Please check that the API is running.
         </div>
       ) : apps.length === 0 ? (
         <div className="text-center py-16">
@@ -116,7 +124,7 @@ export function ApprovalContainer() {
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-lg font-medium text-gray-900">No apps awaiting approval</p>
+          <p className="text-lg font-medium text-gray-900">No {status.toLowerCase()} apps</p>
           <p className="text-gray-500 mt-1">New submissions will appear here.</p>
         </div>
       ) : (
@@ -127,16 +135,38 @@ export function ApprovalContainer() {
               app={app}
               onApprove={handleApprove}
               onReject={handleOpenReject}
+              onRemove={handleOpenRemove}
               onEdit={handleOpenEdit}
-              isApproving={
-                approveMutation.isPending && approveMutation.variables === app.id
-              }
-              isRejecting={
-                rejectMutation.isPending &&
-                rejectMutation.variables?.id === app.id
-              }
+              isApproving={approveMutation.isPending && approveMutation.variables === app.id}
+              isRejecting={rejectMutation.isPending && rejectMutation.variables?.id === app.id}
+              isRemoving={removeMutation.isPending && removeMutation.variables?.id === app.id}
             />
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-gray-600">
+            Page {meta.page} of {meta.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= meta.totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </Button>
         </div>
       )}
 
@@ -145,6 +175,14 @@ export function ApprovalContainer() {
         onClose={() => setRejectModal({ isOpen: false, applicationId: null, reason: '' })}
         onConfirm={handleConfirmReject}
         isSubmitting={rejectMutation.isPending}
+      />
+
+      {/* Remove modal reuses the same RejectModal UI */}
+      <RejectModal
+        isOpen={removeModal.isOpen}
+        onClose={() => setRemoveModal({ isOpen: false, applicationId: null, reason: '' })}
+        onConfirm={handleConfirmRemove}
+        isSubmitting={removeMutation.isPending}
       />
 
       <EditModal
