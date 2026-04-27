@@ -5,61 +5,112 @@ import { authClient } from '@/lib/auth-client';
 import { ProfileHeader } from '../../../components/organisms/ProfileHeader';
 import { ProfileTabs } from '../../../components/molecules/ProfileTabs';
 import { AppCard } from '../components/AppCard';
-import { useAppsContainer } from '@/features/apps/hooks/useAppsContainer'; 
 import { SearchBar } from '@/components/molecules/SearchBar';
 import { FilterButton } from '@/components/molecules/FilterButton';
 import { Button } from '@/components/atoms/Button';
+import { Badge } from '@/components/atoms/Badge';
+import { EditModal } from '@/features/admin/components/EditModal';
+import { useApplicationsQuery, useUpdateApplicationMutation, useDeleteApplicationMutation } from '../queries/apps.queries';
+import { useUIStore } from '@/store/uiStore';
+import { Application } from '../types/app.types';
+import { useMemo, useEffect, useCallback } from 'react';
 
 interface ProfileContainerProps {
   slug: string;
 }
 
-export default function ProfileContainer({ slug: _slug }: ProfileContainerProps) {
-  // Logic: Manage active tab state (Profile-specific) 
-  const [activeTab, setActiveTab] = useState('apps');
-  const { data: session } = authClient.useSession();
+const STATUS_BADGE: Record<
+  Application['isApproved'],
+  { label: string; variant: 'success' | 'warning' | 'danger' | 'default' }
+> = {
+  APPROVED: { label: 'Approved', variant: 'success' },
+  PENDING:  { label: 'Pending review', variant: 'warning' },
+  REJECTED: { label: 'Rejected', variant: 'danger' },
+  REMOVED:  { label: 'Removed', variant: 'danger' },
+};
 
-  // Logic: Integrate the apps container hook 
-  const {
-    apps,
-    filters,
-    uniqueTags,
-    handleSearchChange,
-    toggleTag,
-    clearFilters,
-    handleAppClick,
-    showSearch,
-    showFilters,
-    hasActiveFilters,
-    isLoading,
-    isError,
-  } = useAppsContainer();
+export default function ProfileContainer({ slug: _slug }: ProfileContainerProps) {
+  const [activeTab, setActiveTab] = useState('apps');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [editModal, setEditModal] = useState<{ isOpen: boolean; application: Application | null }>({
+    isOpen: false,
+    application: null,
+  });
+
+  const { data: session } = authClient.useSession();
+  const { showSearch, showFilters } = useUIStore();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const { data, isLoading, isError } = useApplicationsQuery({
+    userId: session?.user?.id,
+    searchQuery: debouncedSearch,
+    selectedTags,
+  });
+
+  const apps = useMemo(() => data?.data ?? [], [data]);
+
+  const uniqueTags = useMemo(() => {
+    const tags = new Set<string>();
+    apps.forEach((app) => app.tags?.forEach((tag) => tags.add(tag)));
+    return Array.from(tags).sort();
+  }, [apps]);
+
+  const hasActiveFilters = searchQuery !== '' || selectedTags.length > 0;
+
+  const toggleTag = useCallback((tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedTags([]);
+  }, []);
+
+  const updateMutation = useUpdateApplicationMutation();
+  const deleteMutation = useDeleteApplicationMutation();
+
+  const handleDelete = (id: number) => {
+    if (!confirm('Delete this app? This cannot be undone.')) return;
+    deleteMutation.mutate(id);
+  };
+
+  const handleSaveEdit = (id: number, updates: Partial<Application>) => {
+    updateMutation.mutate(
+      { id, updates },
+      { onSuccess: () => setEditModal({ isOpen: false, application: null }) },
+    );
+  };
 
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Presentational: Profile Header */}
+
         <ProfileHeader
           name={session?.user.name}
           email={session?.user.email}
           image={session?.user.image ?? undefined}
         />
-        
-        {/* Presentational: Segmented control for tabs */}
+
         <div className="mb-8">
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
-        {/* Conditional Search and Filters: Mirroring AppsContainer logic */}
         {activeTab === 'apps' && (showSearch || showFilters || hasActiveFilters) && (
           <div className="mb-8 p-4 border border-gray-200 rounded-xl bg-gray-50">
             {showSearch && (
               <div className="mb-4">
                 <SearchBar
-                  value={filters.searchQuery}
-                  onChange={handleSearchChange}
-                  placeholder="Search user's apps..."
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Search your apps..."
                 />
               </div>
             )}
@@ -70,7 +121,7 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
                   <FilterButton
                     key={tag}
                     label={tag}
-                    isActive={filters.selectedTags.includes(tag)}
+                    isActive={selectedTags.includes(tag)}
                     onClick={() => toggleTag(tag)}
                   />
                 ))}
@@ -84,7 +135,6 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
           </div>
         )}
 
-        {/* Results Section: Conditioned by activeTab and filteredApps */}
         <div className="py-4">
           {activeTab === 'apps' && (
             <>
@@ -94,17 +144,47 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
                 <div className="text-center py-12 text-red-500">Failed to load apps.</div>
               ) : apps.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {apps.map((app) => (
-                    <AppCard
-                      key={app.id}
-                      app={app}
-                      onClick={handleAppClick}
-                    />
-                  ))}
+                  {apps.map((app) => {
+                    const status = STATUS_BADGE[app.isApproved] ?? STATUS_BADGE.PENDING;
+                    return (
+                      <div key={app.id} className="flex flex-col gap-2">
+                        <AppCard app={app} onClick={() => window.open(app.url, '_blank')} />
+                        <div className="flex items-center justify-between px-1">
+                          <div className="flex flex-col gap-1">
+                            <Badge variant={status.variant}>{status.label}</Badge>
+                            {(app.isApproved === 'REJECTED' || app.isApproved === 'REMOVED') &&
+                              app.rejectionReason && (
+                                <p className="text-xs text-red-600">{app.rejectionReason}</p>
+                              )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditModal({ isOpen: true, application: app })}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={deleteMutation.isPending && deleteMutation.variables === app.id}
+                              onClick={() => handleDelete(app.id)}
+                              className="text-red-600 border-red-200 hover:bg-red-50"
+                            >
+                              {deleteMutation.isPending && deleteMutation.variables === app.id
+                                ? 'Deleting…'
+                                : 'Delete'}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-gray-500">No apps found matching your criteria.</p>
+                  <p className="text-gray-500">No apps submitted yet.</p>
                   <Button variant="outline" onClick={clearFilters} className="mt-4">
                     Reset Search
                   </Button>
@@ -126,6 +206,14 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
           )}
         </div>
       </div>
+
+      <EditModal
+        isOpen={editModal.isOpen}
+        onClose={() => setEditModal({ isOpen: false, application: null })}
+        application={editModal.application}
+        onSave={handleSaveEdit}
+        isSubmitting={updateMutation.isPending}
+      />
     </div>
   );
 }

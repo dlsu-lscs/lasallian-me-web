@@ -31,4 +31,5 @@ export interface ApplicationsListResponse {
 export interface AppFilters {
   searchQuery: string;
   selectedTags: string[];
+  userId?: string;
 }

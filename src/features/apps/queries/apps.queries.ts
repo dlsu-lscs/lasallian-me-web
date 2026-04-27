@@ -1,9 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { getApplications, getApplicationBySlug, getApplicationFavoritesCount } from '../services/apps.service';
-import { AppFilters } from '../types/app.types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getApplications,
+  getApplicationBySlug,
+  getApplicationFavoritesCount,
+  updateApplication,
+  deleteApplication,
+} from '../services/apps.service';
+import { AppFilters, Application } from '../types/app.types';
 
 export const applicationsQueryKey = (filters: Partial<AppFilters>) => [
   'applications',
+  filters.userId ?? '',
   filters.searchQuery ?? '',
   filters.selectedTags ?? [],
 ];
@@ -15,6 +22,7 @@ export function useApplicationsQuery(filters: Partial<AppFilters> = {}) {
       getApplications({
         search: filters.searchQuery || undefined,
         tags: filters.selectedTags && filters.selectedTags.length > 0 ? filters.selectedTags : undefined,
+        userId: filters.userId || undefined,
       }),
   });
 }
@@ -32,5 +40,22 @@ export function useApplicationFavoritesCountQuery(applicationId: number | undefi
     queryKey: ['application-favorites-count', applicationId],
     queryFn: () => getApplicationFavoritesCount(applicationId!),
     enabled: applicationId !== undefined,
+  });
+}
+
+export function useUpdateApplicationMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<Application> }) =>
+      updateApplication(id, updates),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['applications'] }),
+  });
+}
+
+export function useDeleteApplicationMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteApplication(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['applications'] }),
   });
 }
