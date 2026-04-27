@@ -7,7 +7,6 @@ import { FiBookmark } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
 import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
-import { StarRating } from '@/features/ratings/components/StarRating';
 import { FaStar } from 'react-icons/fa';
 
 export interface AppCardProps {

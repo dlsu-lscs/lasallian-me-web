@@ -13,6 +13,7 @@ import {
   usePatchRatingMutation,
 } from '../queries/ratings.queries';
 import type { CreateRatingPayload } from '../types/rating.types';
+import Link from 'next/link';
 
 interface RatingsContainerProps {
   slug: string;
@@ -60,7 +61,7 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
           <>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Leave a Review</h2>
             <p className="text-sm text-gray-500">
-              <a href="/login" className="text-blue-600 hover:underline">Login</a> to leave a review.
+              <Link href="/login" className="text-blue-600 hover:underline">Login</Link> to leave a review.
             </p>
           </>
         ) : userRating && !isEditing ? (

@@ -7,7 +7,6 @@ import { FiFilter, FiSearch, FiUser, FiLogOut, FiSettings } from 'react-icons/fi
 import { useUIStore } from '@/store/uiStore';
 import { authClient } from '@/lib/auth-client';
 import { useIsAdmin } from '@/features/auth/hooks/useIsAdmin';
-import Image from 'next/image';
 
 export function Navbar() {
   const [mounted, setMounted] = useState(false);

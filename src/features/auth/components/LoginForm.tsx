@@ -2,7 +2,6 @@ import React from 'react';
 import { FiArrowLeft } from 'react-icons/fi'; 
 import { FcGoogle } from 'react-icons/fc'; // Make sure react-icons is installed
 import Link from 'next/link';
-import Image from 'next/image';
 
 export interface LoginFormProps {
   onGoogleSignIn: () => void;

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+
 
 interface ProfileHeaderProps {
   name?: string;
