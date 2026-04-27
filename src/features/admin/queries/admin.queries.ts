@@ -1,16 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Application } from '@/features/apps/types/app.types';
 import {
-  getPendingApplications,
+  getAdminApplications,
   approveApplication,
   rejectApplication,
+  removeApplication,
   editApplication,
+  type AdminApplicationStatus,
 } from '../services/admin.service';
 
-export function usePendingApplicationsQuery(page = 1) {
+export function useAdminApplicationsQuery(page = 1, status: AdminApplicationStatus = 'PENDING') {
   return useQuery({
-    queryKey: ['admin', 'applications', 'pending', page],
-    queryFn: () => getPendingApplications(page),
+    queryKey: ['admin', 'applications', status, page],
+    queryFn: () => getAdminApplications(page, 20, status),
+    retry: 1,
   });
 }
 
@@ -27,6 +30,15 @@ export function useRejectApplicationMutation() {
   return useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) =>
       rejectApplication(id, reason),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'applications'] }),
+  });
+}
+
+export function useRemoveApplicationMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason: string }) =>
+      removeApplication(id, reason),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'applications'] }),
   });
 }

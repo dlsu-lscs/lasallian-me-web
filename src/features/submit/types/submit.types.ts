@@ -5,8 +5,4 @@ export interface SubmitApplicationForm {
   url?: string;
   previewImages?: string[];
   tags?: string[];
-  authorName: string;
-  authorEmail: string;
-  authorDescription?: string;
-  authorWebsite?: string;
 }
