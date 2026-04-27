@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+if (!process.env.NEXT_PUBLIC_SITE_URL) {
+  throw new Error('NEXT_PUBLIC_SITE_URL is not set');
+}
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
