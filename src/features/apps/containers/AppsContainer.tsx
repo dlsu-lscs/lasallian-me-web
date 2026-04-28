@@ -7,6 +7,7 @@ import { Button } from '@/components/atoms/Button';
 import { AppCard } from '../components/AppCard';
 import { useAppsContainer } from '@/features/apps/hooks/useAppsContainer';
 import { Pagination } from '@/components/molecules/Pagination';
+import { AppCardSkeleton } from '@/components/molecules/AppCardSkeleton';
 
 export default function AppsContainer() {
   const [hasMounted, setHasMounted] = useState(false);
@@ -100,7 +101,11 @@ export default function AppsContainer() {
       {/* Apps Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
-          <div className="text-center py-12 text-gray-500">Loading apps...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <AppCardSkeleton key={i} />
+            ))}
+          </div>
         ) : isError ? (
           <div className="text-center py-12 text-red-500">
             Unable to load apps right now. Please try again later.
