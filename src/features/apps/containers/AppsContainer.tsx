@@ -6,12 +6,16 @@ import { FilterButton } from '@/components/molecules/FilterButton';
 import { Button } from '@/components/atoms/Button';
 import { AppCard } from '../components/AppCard';
 import { useAppsContainer } from '@/features/apps/hooks/useAppsContainer';
+import { Pagination } from '@/components/molecules/Pagination';
 
 export default function AppsContainer() {
   const [hasMounted, setHasMounted] = useState(false);
 
   const {
     apps,
+    meta,
+    page,
+    setPage,
     filters,
     uniqueTags,
     handleSearchChange,
@@ -134,6 +138,14 @@ export default function AppsContainer() {
               Clear all filters
             </Button>
           </div>
+        )}
+
+        {meta && (
+          <Pagination
+            page={page}
+            totalPages={meta.totalPages}
+            onPageChange={setPage}
+          />
         )}
       </div>
     </div>

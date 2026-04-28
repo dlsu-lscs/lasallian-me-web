@@ -15,14 +15,18 @@ export const applicationsQueryKey = (filters: Partial<AppFilters>) => [
   filters.selectedTags ?? [],
 ];
 
-export function useApplicationsQuery(filters: Partial<AppFilters> = {}, options?: { enabled?: boolean }) {
+export function useApplicationsQuery(filters: Partial<AppFilters> = {}, options?: { enabled?: boolean; page?: number; limit?: number }) {
+  const page = options?.page ?? 1;
+  const limit = options?.limit;
   return useQuery({
-    queryKey: applicationsQueryKey(filters),
+    queryKey: [...applicationsQueryKey(filters), page, limit],
     queryFn: () =>
       getApplications({
         search: filters.searchQuery || undefined,
         tags: filters.selectedTags && filters.selectedTags.length > 0 ? filters.selectedTags : undefined,
         userId: filters.userId || undefined,
+        page,
+        limit,
       }),
     retry: 1,
     enabled: options?.enabled ?? true,
