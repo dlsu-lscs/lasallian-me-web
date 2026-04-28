@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/atoms/Button';
 import { RatingForm } from '../components/RatingForm';
@@ -27,27 +27,68 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
   const deleteMutation = useDeleteRatingMutation(slug);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [anonCache, setAnonCache] = useState<Pick<CreateRatingPayload, 'score' | 'comment' | 'isAnonymous'> | null>(null);
+
+  const anonKey = `anon-rated-${slug}`;
+
+  useEffect(() => {
+    const stored = localStorage.getItem(anonKey);
+    if (stored) setAnonCache(JSON.parse(stored));
+  }, [anonKey]);
 
   const currentUserEmail = session?.user?.email;
-  const userRating = ratingsData?.ratings.find(
+  const emailRating = ratingsData?.ratings.find(
     (r) => r.userEmail !== null && r.userEmail === currentUserEmail,
   );
+  const userRating = emailRating ?? (anonCache
+    ? { score: anonCache.score, comment: anonCache.comment ?? null, isAnonymous: true, userEmail: null, applicationId: ratingsData?.ratings[0]?.applicationId ?? 0 }
+    : undefined);
 
   const handleCreate = (payload: CreateRatingPayload) => {
-    createMutation.mutate(payload);
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        if (payload.isAnonymous) {
+          const cached = { score: payload.score, comment: payload.comment ?? null, isAnonymous: true };
+          localStorage.setItem(anonKey, JSON.stringify(cached));
+          setAnonCache(cached);
+        }
+      },
+    });
   };
 
   const handlePatch = (payload: CreateRatingPayload) => {
-    patchMutation.mutate(payload, { onSuccess: () => setIsEditing(false) });
+    patchMutation.mutate(payload, {
+      onSuccess: () => {
+        setIsEditing(false);
+        if (payload.isAnonymous) {
+          const cached = { score: payload.score, comment: payload.comment ?? null, isAnonymous: true };
+          localStorage.setItem(anonKey, JSON.stringify(cached));
+          setAnonCache(cached);
+        } else {
+          localStorage.removeItem(anonKey);
+          setAnonCache(null);
+        }
+      },
+    });
   };
 
   const handleDelete = () => {
-    deleteMutation.mutate();
+    deleteMutation.mutate(undefined, {
+      onSuccess: () => {
+        localStorage.removeItem(anonKey);
+        setAnonCache(null);
+      },
+    });
   };
 
-  const otherRatings = ratingsData?.ratings.filter(
-    (r) => r.userEmail !== currentUserEmail,
-  ) ?? [];
+  const anonRatingIndex = (!emailRating && anonCache)
+    ? (ratingsData?.ratings.findIndex((r) => r.isAnonymous && r.userEmail === null) ?? -1)
+    : -1;
+
+  const otherRatings = (ratingsData?.ratings ?? []).filter((r, i) => {
+    if (i === anonRatingIndex) return false;
+    return r.userEmail !== currentUserEmail;
+  });
 
   return (
     <div className="lg:col-span-1 lg:border-l border-gray-200 lg:pl-8">

@@ -14,6 +14,7 @@ import { useApplicationsQuery, useUpdateApplicationMutation, useDeleteApplicatio
 import { useUIStore } from '@/store/uiStore';
 import { Application } from '../types/app.types';
 import { useMemo, useEffect, useCallback } from 'react';
+import { FavoritesContainer } from '@/features/favorites/containers/FavoritesContainer';
 
 interface ProfileContainerProps {
   slug: string;
@@ -206,10 +207,8 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
             </div>
           )}
 
-          {activeTab === 'favorites' && (
-            <div className="text-center py-12 text-gray-500">
-              No favorite apps selected.
-            </div>
+          {activeTab === 'favorites' && session?.user?.id && (
+            <FavoritesContainer userId={session.user.id} />
           )}
         </div>
       </div>
