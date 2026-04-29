@@ -39,7 +39,7 @@ export function AppDetail({
 
             {/* App Icon/Image */}
             <div className="w-full h-48 sm:h-64 mb-6 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
-              {app.previewImages[0] ? (
+              {app.previewImages?.[0] ? (
                 <img
                   src={app.previewImages[0]}
                   alt={`${app.title} header image`}

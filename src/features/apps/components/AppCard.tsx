@@ -45,7 +45,7 @@ export function AppCard({ app }: AppCardProps) {
     >
       {/* App Photo */}
       <div className="w-full h-45 mb-4 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
-        {app.previewImages[0] ? (
+        {app.previewImages?.[0] ? (
           <img
             src={app.previewImages[0]}
             alt={`${app.title} photo header`}
@@ -99,12 +99,12 @@ export function AppCard({ app }: AppCardProps) {
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-1">
-        {app.tags.slice(0, 3).map((tag, index) => (
+        {app.tags?.slice(0, 3).map((tag, index) => (
           <Badge key={index} variant="success">
             {tag}
           </Badge>
         ))}
-        {app.tags.length > 3 && (
+        {app.tags?.length > 3 && (
           <Badge variant="default">+{app.tags.length - 3}</Badge>
         )}
       </div>
