@@ -27,12 +27,6 @@ export function PendingAppCard({
   const visibleTags = app.tags?.slice(0, 3) ?? [];
   const extraTags = (app.tags?.length ?? 0) - 3;
 
-  const statusVariant =
-    app.isApproved === 'APPROVED' ? 'success' :
-    app.isApproved === 'REJECTED' ? 'danger' :
-    app.isApproved === 'REMOVED' ? 'secondary' :
-    'warning';
-
   const uniqueTags = Array.from(new Set(visibleTags));
 
   return (
@@ -52,9 +46,6 @@ export function PendingAppCard({
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-gray-900 text-base leading-tight">{app.title}</h3>
-          <Badge variant={statusVariant} className="shrink-0 capitalize">
-            {app.isApproved.toLowerCase()}
-          </Badge>
         </div>
 
         {app.userEmail && (
