@@ -23,7 +23,7 @@ export function useAppsContainer() {
 
   const uniqueTags = useMemo(() => {
     const tags = new Set<string>();
-    apps.forEach((app) => app.tags.forEach((tag) => tags.add(tag)));
+    apps.forEach((app) => app.tags?.forEach((tag) => tags.add(tag)));
     return Array.from(tags).sort();
   }, [apps]);
 
