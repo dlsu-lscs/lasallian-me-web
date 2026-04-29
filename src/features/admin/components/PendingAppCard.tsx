@@ -30,7 +30,7 @@ export function PendingAppCard({
   const statusVariant =
     app.isApproved === 'APPROVED' ? 'success' :
     app.isApproved === 'REJECTED' ? 'danger' :
-    app.isApproved === 'REMOVED' ? 'danger' :
+    app.isApproved === 'REMOVED' ? 'secondary' :
     'warning';
 
   const uniqueTags = Array.from(new Set(visibleTags));
@@ -79,24 +79,28 @@ export function PendingAppCard({
         </div>
 
         <div className="flex gap-2 mt-auto pt-2 flex-wrap">
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={isBusy}
-            onClick={() => onApprove(app.id)}
-            className="flex-1 bg-green-600 hover:bg-green-700 focus:ring-green-500 disabled:opacity-60"
-          >
-            {isApproving ? 'Approving…' : 'Approve'}
-          </Button>
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={isBusy}
-            onClick={() => onReject(app.id)}
-            className="flex-1 bg-red-600 hover:bg-red-700 focus:ring-red-500 disabled:opacity-60"
-          >
-            {isRejecting ? 'Declining…' : 'Decline'}
-          </Button>
+          {app.isApproved !== 'APPROVED' && (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={isBusy}
+              onClick={() => onApprove(app.id)}
+              className="flex-1 bg-green-600 hover:bg-green-700 focus:ring-green-500 disabled:opacity-60"
+            >
+              {isApproving ? 'Approving…' : 'Approve'}
+            </Button>
+          )}
+          {app.isApproved !== 'APPROVED' && (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={isBusy}
+              onClick={() => onReject(app.id)}
+              className="flex-1 bg-red-600 hover:bg-red-700 focus:ring-red-500 disabled:opacity-60"
+            >
+              {isRejecting ? 'Declining…' : 'Decline'}
+            </Button>
+          )}
           <Button
             size="sm"
             variant="primary"

@@ -16,15 +16,32 @@ import type { RejectModalState, RemoveModalState, EditModalState } from '../type
 import type { AdminApplicationStatus } from '../services/admin.service';
 import { Button } from '@/components/atoms/Button';
 
-const STATUS_TABS: { label: string; value: AdminApplicationStatus }[] = [
-  { label: 'Pending', value: 'PENDING' },
-  { label: 'Rejected', value: 'REJECTED' },
-  { label: 'Removed', value: 'REMOVED' },
+const STATUS_TABS: { label: string; value: AdminApplicationStatus; activeClass: string; inactiveClass: string }[] = [
+  {
+    label: 'Approved', value: 'APPROVED',
+    activeClass: 'bg-green-600 text-white',
+    inactiveClass: 'bg-green-50 text-green-700 hover:bg-green-100',
+  },
+  {
+    label: 'Pending', value: 'PENDING',
+    activeClass: 'bg-yellow-500 text-white',
+    inactiveClass: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100',
+  },
+  {
+    label: 'Rejected', value: 'REJECTED',
+    activeClass: 'bg-red-600 text-white',
+    inactiveClass: 'bg-red-50 text-red-700 hover:bg-red-100',
+  },
+  {
+    label: 'Removed', value: 'REMOVED',
+    activeClass: 'bg-gray-700 text-white',
+    inactiveClass: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+  },
 ];
 
 export function ApprovalContainer() {
   const [page, setPage] = useState(1);
-  const [status, setStatus] = useState<AdminApplicationStatus>('PENDING');
+  const [status, setStatus] = useState<AdminApplicationStatus>('APPROVED');
 
   const { data, isLoading, isError } = useAdminApplicationsQuery(page, status);
   const apps = data?.data ?? [];
@@ -100,9 +117,7 @@ export function ApprovalContainer() {
             key={tab.value}
             onClick={() => { setStatus(tab.value); setPage(1); }}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              status === tab.value
-                ? 'bg-gray-900 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              status === tab.value ? tab.activeClass : tab.inactiveClass
             }`}
           >
             {tab.label}
