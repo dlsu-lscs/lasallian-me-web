@@ -12,6 +12,11 @@ export function AdminDashboardContainer() {
   const router = useRouter();
   const { isAdmin, isPending } = useIsAdmin();
   const [activeTab, setActiveTab] = useState<AdminTab>('apps');
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isPending && !isAdmin) {
@@ -19,7 +24,7 @@ export function AdminDashboardContainer() {
     }
   }, [isAdmin, isPending, router]);
 
-  if (isPending) {
+  if (!hasMounted || isPending) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">
         Loading…

@@ -27,12 +27,6 @@ export function PendingAppCard({
   const visibleTags = app.tags?.slice(0, 3) ?? [];
   const extraTags = (app.tags?.length ?? 0) - 3;
 
-  const statusVariant =
-    app.isApproved === 'APPROVED' ? 'success' :
-    app.isApproved === 'REJECTED' ? 'danger' :
-    app.isApproved === 'REMOVED' ? 'danger' :
-    'warning';
-
   const uniqueTags = Array.from(new Set(visibleTags));
 
   return (
@@ -52,9 +46,6 @@ export function PendingAppCard({
       <div className="p-4 flex flex-col gap-3 flex-1">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-gray-900 text-base leading-tight">{app.title}</h3>
-          <Badge variant={statusVariant} className="shrink-0 capitalize">
-            {app.isApproved.toLowerCase()}
-          </Badge>
         </div>
 
         {app.userEmail && (
@@ -79,24 +70,28 @@ export function PendingAppCard({
         </div>
 
         <div className="flex gap-2 mt-auto pt-2 flex-wrap">
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={isBusy}
-            onClick={() => onApprove(app.id)}
-            className="flex-1 bg-green-600 hover:bg-green-700 focus:ring-green-500 disabled:opacity-60"
-          >
-            {isApproving ? 'Approving…' : 'Approve'}
-          </Button>
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={isBusy}
-            onClick={() => onReject(app.id)}
-            className="flex-1 bg-red-600 hover:bg-red-700 focus:ring-red-500 disabled:opacity-60"
-          >
-            {isRejecting ? 'Declining…' : 'Decline'}
-          </Button>
+          {app.isApproved !== 'APPROVED' && (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={isBusy}
+              onClick={() => onApprove(app.id)}
+              className="flex-1 bg-green-600 hover:bg-green-700 focus:ring-green-500 disabled:opacity-60"
+            >
+              {isApproving ? 'Approving…' : 'Approve'}
+            </Button>
+          )}
+          {app.isApproved !== 'APPROVED' && (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={isBusy}
+              onClick={() => onReject(app.id)}
+              className="flex-1 bg-red-600 hover:bg-red-700 focus:ring-red-500 disabled:opacity-60"
+            >
+              {isRejecting ? 'Declining…' : 'Decline'}
+            </Button>
+          )}
           <Button
             size="sm"
             variant="primary"
