@@ -20,7 +20,7 @@ export function LoginForm({ onGoogleSignIn, isLoading, error }: LoginFormProps) 
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-[#062c1e]/80 via-[#062c1e]/70 to-[#062c1e] z-10"></div>
         
-          <img 
+          <img  
             src="/HenrySy.jpg"
             alt="University Campus" 
             className="w-full h-full object-cover opacity-40 mix-blend-luminosity" 

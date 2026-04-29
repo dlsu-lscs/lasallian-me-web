@@ -1,7 +1,13 @@
+'use client';
+
 import { Application } from '../types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { useRouter } from 'next/navigation';
 import { FiBookmark } from 'react-icons/fi';
+import { FaBookmark } from 'react-icons/fa';
+import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
+import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { FaStar } from 'react-icons/fa';
 
 export interface AppCardProps {
   app: Application;
@@ -10,17 +16,36 @@ export interface AppCardProps {
 
 export function AppCard({ app }: AppCardProps) {
   const router = useRouter();
-  const handleClick = () => {
+  const { isFavorited, toggle, isPending, isLoggedIn } = useFavoriteToggle(app.id);
+  const { data: ratingsData } = useApplicationRatingsQuery(app.slug);
+
+  const handleCardClick = () => {
     router.push(`/${app.slug}`);
   };
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevents the card navigation from triggering
+    toggle();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCardClick();
+    }
+  };
+
   return (
-    <button
-      onClick={handleClick}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-xl transition-shadow p-3 h-full flex flex-col text-left"
+    <div
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-xl transition-all p-3 h-full flex flex-col text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
     >
       {/* App Photo */}
       <div className="w-full h-45 mb-4 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
-        {app.previewImages[0] ? (
+        {app.previewImages?.[0] ? (
           <img
             src={app.previewImages[0]}
             alt={`${app.title} photo header`}
@@ -40,12 +65,30 @@ export function AppCard({ app }: AppCardProps) {
             </h3>
           </div>
 
-          {app.favoritesCount !== undefined && (
-            <h3 className="font-semibold text-base leading-[140%] tracking-normal flex items-center gap-1 text-gray-800">
-              <FiBookmark className="text-black w-4 h-4" />
-              {app.favoritesCount}
-            </h3>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {ratingsData && ratingsData.total > 0 && (
+              <span className="flex items-center gap-1 text-sm text-gray-600">
+                <FaStar className="text-yellow-400"/>
+                <span className="text-xs">{ratingsData.averageScore.toFixed(1)}</span>
+              </span>
+            )}
+
+            <button
+              onClick={handleBookmarkClick}
+              disabled={isPending || !isLoggedIn}
+              title={isLoggedIn ? (isFavorited ? 'Remove from favorites' : 'Add to favorites') : 'Sign in to favorite'}
+              className="flex items-center gap-1 text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed hover:text-yellow-500 transition-colors z-10"
+            >
+              {isFavorited ? (
+                <FaBookmark className="w-4 h-4 text-yellow-500" />
+              ) : (
+                <FiBookmark className="w-4 h-4" />
+              )}
+              {app.favoritesCount !== undefined && (
+                <span className="text-sm font-semibold">{app.favoritesCount}</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -56,15 +99,15 @@ export function AppCard({ app }: AppCardProps) {
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-1">
-        {app.tags.slice(0, 3).map((tag, index) => (
+        {app.tags?.slice(0, 3).map((tag, index) => (
           <Badge key={index} variant="success">
             {tag}
           </Badge>
         ))}
-        {app.tags.length > 3 && (
+        {app.tags?.length > 3 && (
           <Badge variant="default">+{app.tags.length - 3}</Badge>
         )}
       </div>
-    </button>
+    </div>
   );
 }
