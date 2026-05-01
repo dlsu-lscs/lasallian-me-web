@@ -161,10 +161,10 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
                   {apps.map((app) => {
                     const status = STATUS_BADGE[app.isApproved] ?? STATUS_BADGE.PENDING;
                     return (
-                      <div key={app.id} className="flex flex-col gap-2">
-                        <AppCard app={app} onClick={() => window.open(app.url, '_blank')} />
-                        <div className="flex items-center justify-between px-1">
-                          <div className="flex flex-col gap-1">
+                      <div key={app.id} className="flex flex-col border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <AppCard app={app} showTags={false} className="border-0 shadow-none rounded-none flex-1" onClick={() => window.open(app.url, '_blank')} />
+                        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-t border-gray-200">
+                          <div className="flex flex-col gap-0.5">
                             <Badge variant={status.variant}>{status.label}</Badge>
                             {(app.isApproved === 'REJECTED' || app.isApproved === 'REMOVED') &&
                               app.rejectionReason && (
