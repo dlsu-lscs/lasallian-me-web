@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Application } from '../types/app.types';
 import { FiBookmark } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { StarRating } from '@/features/ratings/components/StarRating';
+
+type Tab = 'Description' | 'Tags' | 'Links';
+const TABS: Tab[] = ['Description', 'Tags', 'Links'];
 
 export interface AppDetailProps {
   app: Application;
@@ -27,6 +30,8 @@ export function AppDetail({
   totalRatings,
   ratingsSection,
 }: AppDetailProps) {
+  const [activeTab, setActiveTab] = useState<Tab>('Description');
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -88,28 +93,68 @@ export function AppDetail({
 
           {/* Main Content Tabs/Sections */}
           <div className="border-b border-gray-200 mb-6 mt-6">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-              {['Description', 'Tags', 'How to use?', 'Links'].map((item) => (
-                <a
+            <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto" aria-label="Tabs">
+              {TABS.map((item) => (
+                <button
                   key={item}
-                  href="#"
+                  onClick={() => setActiveTab(item)}
                   className={`
-                    ${item === 'Description' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                    ${activeTab === item ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
                     whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm
                   `}
-                  aria-current={item === 'Description' ? 'page' : undefined}
+                  aria-current={activeTab === item ? 'page' : undefined}
                 >
                   {item}
-                </a>
+                </button>
               ))}
             </nav>
           </div>
 
-          {/* Description Content */}
-          <div className="prose max-w-none text-gray-700">
-            <h2 className="text-2xl font-bold mb-3">Description</h2>
-            <p className="mb-4">{app.description}</p>
-          </div>
+          {/* Tab Content */}
+          {activeTab === 'Description' && (
+            <div className="prose max-w-none text-gray-700">
+              <h2 className="text-2xl font-bold mb-3">Description</h2>
+              <p className="mb-4">{app.description}</p>
+            </div>
+          )}
+
+          {activeTab === 'Tags' && (
+            <div>
+              <h2 className="text-2xl font-bold mb-3 text-gray-900">Tags</h2>
+              {app.tags.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {app.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No tags added yet.</p>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'Links' && (
+            <div>
+              <h2 className="text-2xl font-bold mb-3 text-gray-900">Links</h2>
+              {app.url ? (
+                <a
+                  href={app.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline break-all"
+                >
+                  {app.url}
+                </a>
+              ) : (
+                <p className="text-gray-500">No links provided.</p>
+              )}
+            </div>
+          )}
 
         </div>
 
