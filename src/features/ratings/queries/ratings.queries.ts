@@ -3,6 +3,7 @@ import {
   createRating,
   deleteRating,
   getApplicationRatings,
+  getUserRatings,
   patchRating,
 } from '../services/ratings.service';
 import type { CreateRatingPayload } from '../types/rating.types';
@@ -38,5 +39,15 @@ export function useDeleteRatingMutation(slug: string) {
   return useMutation({
     mutationFn: () => deleteRating(slug),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ratingsKey(slug) }),
+  });
+}
+
+const userRatingsKey = () => ['user-ratings'];
+
+export function useUserRatingsQuery(enabled: boolean) {
+  return useQuery({
+    queryKey: userRatingsKey(),
+    queryFn: getUserRatings,
+    enabled,
   });
 }

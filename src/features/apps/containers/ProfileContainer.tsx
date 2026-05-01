@@ -15,6 +15,8 @@ import { useUIStore } from '@/store/uiStore';
 import { Application } from '../types/app.types';
 import { useMemo, useEffect, useCallback } from 'react';
 import { FavoritesContainer } from '@/features/favorites/containers/FavoritesContainer';
+import { useUserRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { UserReviewItem } from '@/features/ratings/components/UserReviewItem';
 
 interface ProfileContainerProps {
   slug: string;
@@ -73,6 +75,10 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
     setSearchQuery('');
     setSelectedTags([]);
   }, []);
+
+  const { data: userRatings, isLoading: ratingsLoading } = useUserRatingsQuery(
+    !sessionPending && !!session,
+  );
 
   const updateMutation = useUpdateApplicationMutation();
   const deleteMutation = useDeleteApplicationMutation();
@@ -202,9 +208,19 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
           )}
 
           {activeTab === 'my reviews' && (
-            <div className="text-center py-12 text-gray-500">
-              No reviews available for this profile yet.
-            </div>
+            <>
+              {ratingsLoading ? (
+                <div className="text-center py-12 text-gray-500">Loading...</div>
+              ) : !userRatings || userRatings.ratings.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">No reviews yet.</div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {userRatings.ratings.map((rating) => (
+                    <UserReviewItem key={rating.applicationId} rating={rating} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {activeTab === 'favorites' && session?.user?.id && (
