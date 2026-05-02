@@ -82,7 +82,12 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
   };
 
   const anonRatingIndex = (!emailRating && anonCache)
-    ? (ratingsData?.ratings.findIndex((r) => r.isAnonymous && r.userEmail === null) ?? -1)
+    ? (ratingsData?.ratings.findIndex((r) =>
+        r.isAnonymous &&
+        r.userEmail === null &&
+        r.score === anonCache.score &&
+        r.comment === (anonCache.comment ?? null)
+      ) ?? -1)
     : -1;
 
   const otherRatings = (ratingsData?.ratings ?? []).filter((r, i) => {

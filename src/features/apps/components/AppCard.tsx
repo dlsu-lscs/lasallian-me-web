@@ -12,9 +12,11 @@ import { FaStar } from 'react-icons/fa';
 export interface AppCardProps {
   app: Application;
   onClick?: (app: Application) => void;
+  showTags?: boolean;
+  className?: string;
 }
 
-export function AppCard({ app }: AppCardProps) {
+export function AppCard({ app, showTags = true, className }: AppCardProps) {
   const router = useRouter();
   const { isFavorited, toggle, isPending, isLoggedIn } = useFavoriteToggle(app.id);
   const { data: ratingsData } = useApplicationRatingsQuery(app.slug);
@@ -41,7 +43,7 @@ export function AppCard({ app }: AppCardProps) {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-xl transition-all p-3 h-full flex flex-col text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className={`bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-xl transition-all p-3 h-full flex flex-col text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 ${className ?? ''}`}
     >
       {/* App Photo */}
       <div className="w-full h-45 mb-4 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
@@ -92,22 +94,30 @@ export function AppCard({ app }: AppCardProps) {
         </div>
       </div>
 
-      {/* Description */}
+       {/* Description */}
       <p className="text-gray-600 text-sm mb-2 line-clamp-3 flex-grow">
         {app.description}
       </p>
 
       {/* Tags */}
-      <div className="flex flex-wrap gap-2 mb-1">
-        {app.tags?.slice(0, 3).map((tag, index) => (
-          <Badge key={index} variant="success">
-            {tag}
-          </Badge>
-        ))}
-        {app.tags?.length > 3 && (
-          <Badge variant="default">+{app.tags.length - 3}</Badge>
-        )}
-      </div>
+      {showTags && (
+        <div className="grid grid-cols-3 gap-2 mb-2">
+          {app.tags?.slice(0, 3).map((tag, index) => (
+            <span
+              key={index}
+              className="bg-green-700 text-white px-2.5 py-0.5 rounded-sm text-xs font-medium shadow-lg truncate text-center"
+            >
+              {tag.replace(/\b\w/g, (c) => c.toUpperCase())}
+            </span>
+          ))}
+          {app.tags?.length > 3 && (
+            <Badge variant="default">+{app.tags.length - 3}</Badge>
+          )}
+        </div>
+      )}
+
+
+     
     </div>
   );
 }

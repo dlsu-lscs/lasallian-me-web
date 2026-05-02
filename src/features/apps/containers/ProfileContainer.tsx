@@ -15,6 +15,8 @@ import { useUIStore } from '@/store/uiStore';
 import { Application } from '../types/app.types';
 import { useMemo, useEffect, useCallback } from 'react';
 import { FavoritesContainer } from '@/features/favorites/containers/FavoritesContainer';
+import { useUserRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { UserReviewItem } from '@/features/ratings/components/UserReviewItem';
 
 interface ProfileContainerProps {
   slug: string;
@@ -73,6 +75,10 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
     setSearchQuery('');
     setSelectedTags([]);
   }, []);
+
+  const { data: userRatings, isLoading: ratingsLoading } = useUserRatingsQuery(
+    !sessionPending && !!session,
+  );
 
   const updateMutation = useUpdateApplicationMutation();
   const deleteMutation = useDeleteApplicationMutation();
@@ -155,10 +161,10 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
                   {apps.map((app) => {
                     const status = STATUS_BADGE[app.isApproved] ?? STATUS_BADGE.PENDING;
                     return (
-                      <div key={app.id} className="flex flex-col gap-2">
-                        <AppCard app={app} onClick={() => window.open(app.url, '_blank')} />
-                        <div className="flex items-center justify-between px-1">
-                          <div className="flex flex-col gap-1">
+                      <div key={app.id} className="flex flex-col border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <AppCard app={app} showTags={false} className="border-0 shadow-none rounded-none flex-1" onClick={() => window.open(app.url, '_blank')} />
+                        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-t border-gray-200">
+                          <div className="flex flex-col gap-0.5">
                             <Badge variant={status.variant}>{status.label}</Badge>
                             {(app.isApproved === 'REJECTED' || app.isApproved === 'REMOVED') &&
                               app.rejectionReason && (
@@ -202,9 +208,19 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
           )}
 
           {activeTab === 'my reviews' && (
-            <div className="text-center py-12 text-gray-500">
-              No reviews available for this profile yet.
-            </div>
+            <>
+              {ratingsLoading ? (
+                <div className="text-center py-12 text-gray-500">Loading...</div>
+              ) : !userRatings || userRatings.ratings.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">No reviews yet.</div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {userRatings.ratings.map((rating) => (
+                    <UserReviewItem key={rating.applicationId} rating={rating} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {activeTab === 'favorites' && session?.user?.id && (
