@@ -105,16 +105,16 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
       {/* Tags */}
       {showTags && (
         <div className="grid grid-cols-3 gap-2 mb-2">
-          {app.tags?.slice(0, 3).map((tag, index) => (
+          {[...new Set(app.tags ?? [])].slice(0, 3).map((tag) => (
             <span
-              key={index}
+              key={tag}
               className="bg-green-700 text-white px-2.5 py-0.5 rounded-sm text-xs font-medium shadow-lg truncate text-center"
             >
               {tag.replace(/\b\w/g, (c) => c.toUpperCase())}
             </span>
           ))}
-          {app.tags?.length > 3 && (
-            <Badge variant="default">+{app.tags.length - 3}</Badge>
+          {[...new Set(app.tags ?? [])].length > 3 && (
+            <Badge variant="default">+{[...new Set(app.tags ?? [])].length - 3}</Badge>
           )}
         </div>
       )}

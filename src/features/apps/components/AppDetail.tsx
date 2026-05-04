@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Application } from '../types/app.types';
-import { FiBookmark } from 'react-icons/fi';
+import { FiBookmark, FiExternalLink } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { StarRating } from '@/features/ratings/components/StarRating';
-
-type Tab = 'Description' | 'Tags' | 'Links';
-const TABS: Tab[] = ['Description', 'Tags', 'Links'];
 
 export interface AppDetailProps {
   app: Application;
@@ -30,8 +27,6 @@ export function AppDetail({
   totalRatings,
   ratingsSection,
 }: AppDetailProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('Description');
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -91,70 +86,58 @@ export function AppDetail({
             </div>
           </div>
 
-          {/* Main Content Tabs/Sections */}
-          <div className="border-b border-gray-200 mb-6 mt-6">
-            <nav className="-mb-px flex space-x-4 sm:space-x-8 overflow-x-auto" aria-label="Tabs">
-              {TABS.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setActiveTab(item)}
-                  className={`
-                    ${activeTab === item ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
-                    whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm
-                  `}
-                  aria-current={activeTab === item ? 'page' : undefined}
-                >
-                  {item}
-                </button>
-              ))}
-            </nav>
-          </div>
+          <hr className="border-gray-100 my-6" />
 
-          {/* Tab Content */}
-          {activeTab === 'Description' && (
-            <div className="prose max-w-none text-gray-700">
-              <h2 className="text-2xl font-bold mb-3">Description</h2>
-              <p className="mb-4">{app.description}</p>
-            </div>
-          )}
+          {/* Description */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">About</h2>
+            <p className="text-gray-700 leading-relaxed">{app.description}</p>
+          </section>
 
-          {activeTab === 'Tags' && (
-            <div>
-              <h2 className="text-2xl font-bold mb-3 text-gray-900">Tags</h2>
-              {app.tags.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {app.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No tags added yet.</p>
-              )}
-            </div>
-          )}
+          <hr className="border-gray-100 my-6" />
 
-          {activeTab === 'Links' && (
-            <div>
-              <h2 className="text-2xl font-bold mb-3 text-gray-900">Links</h2>
-              {app.url ? (
-                <a
-                  href={app.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline break-all"
-                >
-                  {app.url}
-                </a>
-              ) : (
-                <p className="text-gray-500">No links provided.</p>
-              )}
-            </div>
-          )}
+          {/* Links */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Links</h2>
+            {app.url ? (
+              <a
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-green-600 hover:text-blue-800 hover:underline break-all text-sm"
+              >
+                <FiExternalLink className="w-4 h-4 shrink-0" />
+                {app.url}
+              </a>
+            ) : (
+              <p className="text-gray-500 text-sm">No links provided.</p>
+            )}
+          </section>
+
+          <hr className="border-gray-100 my-6" />
+
+          {/* Tags */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Tags</h2>
+            {app.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {[...new Set(app.tags)].map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No tags added yet.</p>
+            )}
+          </section>
+
+      
+
+          
 
         </div>
 
