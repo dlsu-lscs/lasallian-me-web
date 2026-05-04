@@ -3,6 +3,7 @@
 import { Application } from '../types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { FiBookmark } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
@@ -20,13 +21,15 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
   const router = useRouter();
   const { isFavorited, toggle, isPending, isLoggedIn } = useFavoriteToggle(app.id);
   const { data: ratingsData } = useApplicationRatingsQuery(app.slug);
+  const [localCount, setLocalCount] = useState(app.favoritesCount);
 
   const handleCardClick = () => {
     router.push(`/${app.slug}`);
   };
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevents the card navigation from triggering
+    e.stopPropagation();
+    if (localCount !== undefined) setLocalCount(isFavorited ? localCount - 1 : localCount + 1);
     toggle();
   };
 
@@ -86,8 +89,8 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
               ) : (
                 <FiBookmark className="w-4 h-4" />
               )}
-              {app.favoritesCount !== undefined && (
-                <span className="text-sm font-semibold">{app.favoritesCount}</span>
+              {localCount !== undefined && (
+                <span className="text-sm font-semibold">{localCount}</span>
               )}
             </button>
           </div>
