@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Application } from '@/features/apps/types/app.types';
 import { PendingAppCard } from '../components/PendingAppCard';
 import { RejectModal } from '../components/RejectModal';
+import { RemoveModal } from '../components/RemoveModal';
 import { EditModal } from '../components/EditModal';
 import {
   useAdminApplicationsQuery,
@@ -15,6 +16,7 @@ import {
 import type { RejectModalState, RemoveModalState, EditModalState } from '../types/admin.types';
 import type { AdminApplicationStatus } from '../services/admin.service';
 import { Button } from '@/components/atoms/Button';
+import { useToastStore } from '@/store/toast.store';
 
 const STATUS_TABS: { label: string; value: AdminApplicationStatus; activeClass: string; inactiveClass: string }[] = [
   {
@@ -52,6 +54,8 @@ export function ApprovalContainer() {
   const removeMutation = useRemoveApplicationMutation();
   const editMutation = useEditApplicationMutation();
 
+  const { addToast } = useToastStore();
+
   const [rejectModal, setRejectModal] = useState<RejectModalState>({
     isOpen: false,
     applicationId: null,
@@ -70,7 +74,10 @@ export function ApprovalContainer() {
   });
 
   const handleApprove = (id: number) => {
-    approveMutation.mutate(id);
+    approveMutation.mutate(id, {
+      onSuccess: () => addToast('Application approved', 'success'),
+      onError: () => addToast('Failed to approve application', 'error'),
+    });
   };
 
   const handleOpenReject = (id: number) => {
@@ -81,7 +88,13 @@ export function ApprovalContainer() {
     if (rejectModal.applicationId == null) return;
     rejectMutation.mutate(
       { id: rejectModal.applicationId, reason },
-      { onSuccess: () => setRejectModal({ isOpen: false, applicationId: null, reason: '' }) },
+      {
+        onSuccess: () => {
+          setRejectModal({ isOpen: false, applicationId: null, reason: '' });
+          addToast('Application declined', 'success');
+        },
+        onError: () => addToast('Failed to decline application', 'error'),
+      },
     );
   };
 
@@ -93,7 +106,13 @@ export function ApprovalContainer() {
     if (removeModal.applicationId == null) return;
     removeMutation.mutate(
       { id: removeModal.applicationId, reason },
-      { onSuccess: () => setRemoveModal({ isOpen: false, applicationId: null, reason: '' }) },
+      {
+        onSuccess: () => {
+          setRemoveModal({ isOpen: false, applicationId: null, reason: '' });
+          addToast('Application removed', 'success');
+        },
+        onError: () => addToast('Failed to remove application', 'error'),
+      },
     );
   };
 
@@ -104,7 +123,13 @@ export function ApprovalContainer() {
   const handleSaveEdit = (id: number, updates: Partial<Application>) => {
     editMutation.mutate(
       { id, updates },
-      { onSuccess: () => setEditModal({ isOpen: false, application: null }) },
+      {
+        onSuccess: () => {
+          setEditModal({ isOpen: false, application: null });
+          addToast('Application updated', 'success');
+        },
+        onError: () => addToast('Failed to update application', 'error'),
+      },
     );
   };
 
@@ -148,6 +173,7 @@ export function ApprovalContainer() {
             <PendingAppCard
               key={app.id}
               app={app}
+              tab={status}
               onApprove={handleApprove}
               onReject={handleOpenReject}
               onRemove={handleOpenRemove}
@@ -192,8 +218,7 @@ export function ApprovalContainer() {
         isSubmitting={rejectMutation.isPending}
       />
 
-      {/* Remove modal reuses the same RejectModal UI */}
-      <RejectModal
+      <RemoveModal
         isOpen={removeModal.isOpen}
         onClose={() => setRemoveModal({ isOpen: false, applicationId: null, reason: '' })}
         onConfirm={handleConfirmRemove}

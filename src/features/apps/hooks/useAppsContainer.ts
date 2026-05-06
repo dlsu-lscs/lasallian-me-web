@@ -50,7 +50,9 @@ export function useAppsContainer() {
   }, []);
 
   const handleAppClick = useCallback((app: Application) => {
-    window.open(app.url, '_blank');
+    if (app.url) {
+      window.open(app.url, '_blank');
+    }
   }, []);
 
   return {

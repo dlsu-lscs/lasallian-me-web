@@ -8,6 +8,7 @@ import { FiBookmark } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
 import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { imgSrc } from '@/lib/img-src';
 import { FaStar } from 'react-icons/fa';
 
 export interface AppCardProps {
@@ -52,7 +53,7 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
       <div className="w-full h-45 mb-4 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
         {app.previewImages?.[0] ? (
           <img
-            src={app.previewImages[0]}
+            src={imgSrc(app.previewImages[0])}
             alt={`${app.title} photo header`}
             className="w-full h-full object-cover"
           />
@@ -105,16 +106,16 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
       {/* Tags */}
       {showTags && (
         <div className="grid grid-cols-3 gap-2 mb-2">
-          {app.tags?.slice(0, 3).map((tag, index) => (
+          {[...new Set(app.tags ?? [])].slice(0, 3).map((tag) => (
             <span
-              key={index}
+              key={tag}
               className="bg-green-700 text-white px-2.5 py-0.5 rounded-sm text-xs font-medium shadow-lg truncate text-center"
             >
               {tag.replace(/\b\w/g, (c) => c.toUpperCase())}
             </span>
           ))}
-          {app.tags?.length > 3 && (
-            <Badge variant="default">+{app.tags.length - 3}</Badge>
+          {[...new Set(app.tags ?? [])].length > 3 && (
+            <Badge variant="default">+{[...new Set(app.tags ?? [])].length - 3}</Badge>
           )}
         </div>
       )}
