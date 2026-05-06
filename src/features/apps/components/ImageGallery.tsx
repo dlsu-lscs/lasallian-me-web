@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { imgSrc } from '@/lib/img-src';
 
 interface ImageGalleryProps {
   images: string[] | null;
@@ -27,7 +28,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
     <div className="w-full mb-6">
       <div className="relative w-full aspect-video rounded-xl bg-gray-100 overflow-hidden">
         <img
-          src={list[index]}
+          src={imgSrc(list[index])}
           alt={`${title} preview ${index + 1}`}
           className="w-full h-full object-cover"
         />

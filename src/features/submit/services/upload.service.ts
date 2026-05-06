@@ -1,4 +1,9 @@
-export async function uploadImages(files: File[]): Promise<string[]> {
+export interface UploadResult {
+  key: string;
+  signedUrl: string;
+}
+
+export async function uploadImages(files: File[]): Promise<UploadResult[]> {
   const formData = new FormData();
   for (const file of files) {
     formData.append('files', file);
@@ -15,5 +20,5 @@ export async function uploadImages(files: File[]): Promise<string[]> {
   }
 
   const data = await response.json();
-  return data.urls as string[];
+  return data.files as UploadResult[];
 }

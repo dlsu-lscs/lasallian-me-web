@@ -8,6 +8,7 @@ import { FiBookmark } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
 import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { imgSrc } from '@/lib/img-src';
 import { FaStar } from 'react-icons/fa';
 
 export interface AppCardProps {
@@ -52,7 +53,7 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
       <div className="w-full h-45 mb-4 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
         {app.previewImages?.[0] ? (
           <img
-            src={app.previewImages[0]}
+            src={imgSrc(app.previewImages[0])}
             alt={`${app.title} photo header`}
             className="w-full h-full object-cover"
           />

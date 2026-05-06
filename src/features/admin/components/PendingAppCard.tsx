@@ -2,6 +2,7 @@ import { Application } from '@/features/apps/types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
 import type { AdminApplicationStatus } from '../services/admin.service';
+import { imgSrc } from '@/lib/img-src';
 
 interface PendingAppCardProps {
   app: Application;
@@ -40,7 +41,7 @@ export function PendingAppCard({
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
       {app.previewImages?.[0] ? (
         <img
-          src={app.previewImages[0]}
+          src={imgSrc(app.previewImages[0])}
           alt={app.title}
           className="w-full h-40 object-cover"
         />

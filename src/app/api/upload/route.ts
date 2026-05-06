@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { s3, S3_BUCKET, getSignedImageUrl } from '@/lib/s3';
 
-const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET = process.env.S3_BUCKET_NAME!;
-const CDN_URL = process.env.CLOUDFRONT_URL!; // e.g. https://d1234567890.cloudfront.net
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_FILES = 5;
@@ -36,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const urls: string[] = [];
+  const results: { key: string; signedUrl: string }[] = [];
 
   for (const file of files) {
     const ext = file.name.split('.').pop() ?? 'jpg';
@@ -45,15 +36,16 @@ export async function POST(req: NextRequest) {
 
     await s3.send(
       new PutObjectCommand({
-        Bucket: BUCKET,
+        Bucket: S3_BUCKET,
         Key: key,
         Body: buffer,
         ContentType: file.type,
       }),
     );
 
-    urls.push(`${CDN_URL}/${key}`);
+    const signedUrl = await getSignedImageUrl(key);
+    results.push({ key, signedUrl });
   }
 
-  return NextResponse.json({ urls });
+  return NextResponse.json({ files: results });
 }
