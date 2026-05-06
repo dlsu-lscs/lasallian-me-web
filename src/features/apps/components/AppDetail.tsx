@@ -47,7 +47,7 @@ export function AppDetail({
               </h1>
             </div>
 
-            <p className="text-xl text-gray-600 mt-1">By Author Name</p>
+            <p className="text-xl text-gray-600 mt-1">By {app.userEmail?.split('@')[0] ?? 'Unknown'}</p>
 
             <div className="mt-2 flex items-center gap-4 flex-wrap">
               {/* Favorites */}
