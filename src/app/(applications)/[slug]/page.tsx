@@ -15,11 +15,13 @@ export async function generateMetadata({ params }: AppDetailPageProps): Promise<
     const app = await getApplicationBySlug(slug);
     return {
       title: app.title,
-      description: app.description,
+      description: app.description ?? undefined,
       openGraph: {
         title: app.title,
-        description: app.description,
-        images: app.previewImages.length > 0 ? [{ url: app.previewImages[0] }] : [],
+        description: app.description ?? undefined,
+        images: (app.previewImages?.length ?? 0) > 0 
+        ? [{ url: app.previewImages![0] }] 
+        : [],
       },
     };
   } catch {
