@@ -26,7 +26,7 @@ export async function approveApplication(id: number): Promise<Application> {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ isApproved: 'APPROVED' }),
+    body: JSON.stringify({ status: 'APPROVED' }),
   });
 
   if (!response.ok) {
@@ -41,7 +41,7 @@ export async function rejectApplication(id: number, reason: string): Promise<App
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ isApproved: 'REJECTED', rejectionReason: reason }),
+    body: JSON.stringify({ status: 'REJECTED', rejectionReason: reason }),
   });
 
   if (!response.ok) {
@@ -56,7 +56,7 @@ export async function removeApplication(id: number, reason: string): Promise<App
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ isApproved: 'REMOVED', rejectionReason: reason }),
+    body: JSON.stringify({ status: 'REMOVED', rejectionReason: reason }),
   });
 
   if (!response.ok) {

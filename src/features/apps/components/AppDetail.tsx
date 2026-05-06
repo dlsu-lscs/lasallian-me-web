@@ -3,6 +3,7 @@ import { Application } from '../types/app.types';
 import { FiBookmark, FiExternalLink } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { StarRating } from '@/features/ratings/components/StarRating';
+import { ImageGallery } from './ImageGallery';
 
 export interface AppDetailProps {
   app: Application;
@@ -38,17 +39,7 @@ export function AppDetail({
           <div className="flex-1 min-w-0">
 
             {/* App Icon/Image */}
-            <div className="w-full h-48 sm:h-64 mb-6 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
-              {app.previewImages?.[0] ? (
-                <img
-                  src={app.previewImages[0]}
-                  alt={`${app.title} header image`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-gray-300 text-3xl font-bold">App Image Placeholder</span>
-              )}
-            </div>
+            <ImageGallery images={app.previewImages} title={app.title} />
 
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-extrabold text-gray-900">
@@ -91,7 +82,7 @@ export function AppDetail({
           {/* Description */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">About</h2>
-            <p className="text-gray-700 leading-relaxed">{app.description}</p>
+            <p className="text-gray-700 leading-relaxed">{app.description ?? 'No description provided.'}</p>
           </section>
 
           <hr className="border-gray-100 my-6" />
@@ -119,9 +110,9 @@ export function AppDetail({
           {/* Tags */}
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Tags</h2>
-            {app.tags.length > 0 ? (
+            {(app.tags ?? []).length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {[...new Set(app.tags)].map((tag) => (
+                {[...new Set(app.tags ?? [])].map((tag) => (
                   <span
                     key={tag}
                     className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100"

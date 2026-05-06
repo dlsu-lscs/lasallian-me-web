@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { SubmitForm } from '../components/SubmitForm';
 import { useSubmitApplicationMutation } from '../queries/submit.queries';
+import { uploadImages } from '../services/upload.service';
 import type { SubmitApplicationForm } from '../types/submit.types';
 
 export function SubmitContainer() {
   const router = useRouter();
   const [hasMounted, setHasMounted] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const mutation = useSubmitApplicationMutation();
@@ -32,9 +35,34 @@ export function SubmitContainer() {
     return null;
   }
 
-  const handleSubmit = (formData: SubmitApplicationForm) => {
-    mutation.mutate(formData);
+  const handleSubmit = async (formData: SubmitApplicationForm, files: File[]) => {
+    setUploadError(null);
+
+    let previewImages: string[] | undefined;
+
+    if (files.length > 0) {
+      setIsUploading(true);
+      try {
+        previewImages = await uploadImages(files);
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : 'Image upload failed.');
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+
+    mutation.mutate({ ...formData, previewImages });
   };
+
+  const isSubmitting = isUploading || mutation.isPending;
+  const submitLabel = isUploading
+    ? 'Uploading images…'
+    : mutation.isPending
+      ? 'Submitting…'
+      : 'Submit App for Review';
+
+  const error = uploadError ?? (mutation.isError ? mutation.error.message : null);
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
@@ -42,10 +70,14 @@ export function SubmitContainer() {
 
       <SubmitForm
         onSubmit={handleSubmit}
-        isSubmitting={mutation.isPending}
-        error={mutation.isError ? mutation.error.message : null}
+        isSubmitting={isSubmitting}
+        submitLabel={submitLabel}
+        error={error}
         isSuccess={mutation.isSuccess}
-        onReset={() => mutation.reset()}
+        onReset={() => {
+          mutation.reset();
+          setUploadError(null);
+        }}
       />
     </div>
   );

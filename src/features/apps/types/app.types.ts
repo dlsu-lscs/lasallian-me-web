@@ -2,10 +2,11 @@ export interface Application {
   id: number;
   title: string;
   slug: string;
-  description: string;
-  url: string;
-  previewImages: string[];
-  tags: string[];
+  description: string | null;
+  url: string | null;
+  githubLink: string;
+  previewImages: string[] | null;
+  tags: string[] | null;
   userId: string;
   userEmail?: string;
   isApproved: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REMOVED';

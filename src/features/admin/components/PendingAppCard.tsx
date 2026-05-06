@@ -1,9 +1,11 @@
 import { Application } from '@/features/apps/types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { Button } from '@/components/atoms/Button';
+import type { AdminApplicationStatus } from '../services/admin.service';
 
 interface PendingAppCardProps {
   app: Application;
+  tab: AdminApplicationStatus;
   onApprove: (id: number) => void;
   onReject: (id: number) => void;
   onRemove: (id: number) => void;
@@ -15,6 +17,7 @@ interface PendingAppCardProps {
 
 export function PendingAppCard({
   app,
+  tab,
   onApprove,
   onReject,
   onRemove,
@@ -24,6 +27,10 @@ export function PendingAppCard({
   isRemoving,
 }: PendingAppCardProps) {
   const isBusy = isApproving || isRejecting || isRemoving;
+
+  const showApprove = tab === 'PENDING' || tab === 'REJECTED' || tab === 'REMOVED';
+  const showDecline = tab === 'PENDING';
+  const showRemove  = tab === 'APPROVED' || tab === 'PENDING' || tab === 'REJECTED';
   const visibleTags = app.tags?.slice(0, 3) ?? [];
   const extraTags = (app.tags?.length ?? 0) - 3;
 
@@ -70,7 +77,7 @@ export function PendingAppCard({
         </div>
 
         <div className="flex gap-2 mt-auto pt-2 flex-wrap">
-          {app.isApproved !== 'APPROVED' && (
+          {showApprove && (
             <Button
               size="sm"
               variant="primary"
@@ -81,7 +88,7 @@ export function PendingAppCard({
               {isApproving ? 'Approving…' : 'Approve'}
             </Button>
           )}
-          {app.isApproved !== 'APPROVED' && (
+          {showDecline && (
             <Button
               size="sm"
               variant="primary"
@@ -92,15 +99,17 @@ export function PendingAppCard({
               {isRejecting ? 'Declining…' : 'Decline'}
             </Button>
           )}
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={isBusy}
-            onClick={() => onRemove(app.id)}
-            className="flex-1 bg-gray-700 hover:bg-gray-800 focus:ring-gray-500 disabled:opacity-60"
-          >
-            {isRemoving ? 'Removing…' : 'Remove'}
-          </Button>
+          {showRemove && (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={isBusy}
+              onClick={() => onRemove(app.id)}
+              className="flex-1 bg-gray-700 hover:bg-gray-800 focus:ring-gray-500 disabled:opacity-60"
+            >
+              {isRemoving ? 'Removing…' : 'Remove'}
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"
