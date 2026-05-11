@@ -31,7 +31,7 @@ export function LoginForm({ onGoogleSignIn, isLoading, error }: LoginFormProps) 
         <div className="relative z-20">
           <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
             <h1 className="text-2xl font-bold tracking-tight text-white">
-              LaSallian.Me
+              pana
             </h1>
           </Link>
         </div>
@@ -77,7 +77,7 @@ export function LoginForm({ onGoogleSignIn, isLoading, error }: LoginFormProps) 
           <div className="lg:hidden mb-12 mt-4">
             <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
               <h1 className="text-3xl font-bold tracking-tight text-[#062c1e]">
-                LaSallian<span className="text-[#84a938]">.Me</span>
+                pana
               </h1>
             </Link>
           </div>

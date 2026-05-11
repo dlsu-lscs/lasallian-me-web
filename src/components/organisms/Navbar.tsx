@@ -57,7 +57,7 @@ export function Navbar() {
           <div className="flex items-center space-x-10">
          
             <h1 className="text-white font-bold text-[35px] leading-[150%] font-sans m-0 p-0 flex items-center transition-colors">
-              LaSallian.Me
+              pana
             </h1>
         
 
