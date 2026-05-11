@@ -271,22 +271,35 @@ The glass system is the visual core of pana. Every surface that floats — cards
 
 #### Glass Tiers
 
+The system uses a **split light/dark strategy**: cards and panels are dark-based (deep green-black tint) so they read as solid, weighty surfaces against the bg. The navbar stays light-based to create visual hierarchy.
+
 ```css
-/* Light mode glass */
---glass-sm:   rgba(255, 255, 255, 0.55);   /* blur: 8px  — subtle pill, chip */
---glass-md:   rgba(255, 255, 255, 0.45);   /* blur: 16px — card, panel */
---glass-lg:   rgba(255, 255, 255, 0.35);   /* blur: 24px — modal, drawer */
---glass-xl:   rgba(255, 255, 255, 0.25);   /* blur: 40px — navbar, overlay */
+/* Light glass — navbar login pill, small chips */
+.glass-sm:  rgba(255, 255, 255, 0.62)   blur: 12px
 
-/* Dark mode glass */
---glass-sm-dark:   rgba(15, 23, 42, 0.55);
---glass-md-dark:   rgba(15, 23, 42, 0.50);
---glass-lg-dark:   rgba(15, 23, 42, 0.45);
---glass-xl-dark:   rgba(15, 23, 42, 0.40);
+/* Dark glass — cards, filter bar, panels */
+.glass-md:  rgba(5, 22, 12, 0.72)       blur: 22px   ← primary card tier
 
-/* Green-tinted glass — for primary surfaces */
---glass-primary:  rgba(22, 163, 74, 0.08);  /* blur: 16px */
+/* Dark glass — modals, drawers */
+.glass-lg:  rgba(5, 22, 12, 0.65)       blur: 28px
+
+/* Light glass — navbar (stays lighter to contrast with dark cards) */
+.glass-xl:  rgba(255, 255, 255, 0.28)   blur: 48px
+
+/* Green-tinted glass — primary action pill */
+.glass-primary:  rgba(22, 163, 74, 0.12)  blur: 16px
 ```
+
+**Text on dark glass** (`glass-md`, `glass-lg`) uses white-scale:
+- Titles: `text-white/90`
+- Body: `text-white/60`
+- Meta / secondary: `text-white/45`
+- Muted / disabled: `text-white/35`
+
+**Text on light glass** (`glass-sm`, `glass-xl`) uses neutral-scale:
+- Primary: `text-neutral-800`
+- Secondary: `text-neutral-600`
+- Muted: `text-neutral-400`
 
 #### Glass Border
 
@@ -409,11 +422,11 @@ Liquid glass demands generously rounded corners. Never use sharp (0px) edges on 
 
 | Token | Value | Component |
 |-------|-------|-----------|
-| `rounded-sm` (custom: `--radius-sm`) | 8px | Chips, inline badges |
-| `rounded-md` (custom: `--radius-md`) | 12px | Inputs, small buttons |
-| `rounded-lg` (custom: `--radius-lg`) | 16px | Cards, dropdowns |
-| `rounded-xl` (custom: `--radius-xl`) | 24px | Large cards, panels |
-| `rounded-2xl` (custom: `--radius-2xl`) | 32px | Modals, sheets |
+| `rounded-sm` | 8px | Chips, inline badges |
+| `rounded-md` | 12px | Inputs, small buttons |
+| `rounded-lg` | 16px | Image thumbnails inside cards |
+| `rounded-xl` | 24px | **Cards, filter bar, dropdowns** |
+| `rounded-2xl` | 32px | Modals, sheets, navbar |
 | `rounded-full` | 9999px | Pill buttons, avatars, tags |
 
 ---
@@ -586,29 +599,19 @@ Animations should feel **fluid and physical** — not snappy or mechanical.
 
 ### Background Treatments
 
-Glass only looks good on a rich, layered background. Avoid plain white or plain dark.
-
-**Light mode background:**
+The page uses `public/bg.png` — a fixed wavy green-dominant pattern — as the page backdrop. `background-attachment: fixed` keeps it still while content scrolls, giving glass panels the parallax illusion of sliding over a physical surface.
 
 ```css
 body {
-  background-color: #f0fdf4; /* green-50 */
-  background-image:
-    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(134, 239, 172, 0.30) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(74, 222, 128, 0.20) 0%, transparent 60%);
+  background-color: #0d5c35; /* fallback if image hasn't loaded */
+  background-image: url('/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 ```
 
-**Dark mode background:**
-
-```css
-.dark body {
-  background-color: #0c1117;
-  background-image:
-    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(22, 163, 74, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(21, 128, 61, 0.08) 0%, transparent 60%);
-}
-```
+The dark-based `glass-md` / `glass-lg` cards appear as deep tinted panels floating over the green waves. The light `glass-xl` navbar floats above everything, creating a clear three-layer depth stack: **bg → cards → navbar**.
 
 ---
 

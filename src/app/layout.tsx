@@ -52,7 +52,9 @@ export default function RootLayout({
       >
         <QueryProvider>
           <Navbar />
-          {children}
+          <main className="pt-4">
+            {children}
+          </main>
         </QueryProvider>
       </body>
     </html>

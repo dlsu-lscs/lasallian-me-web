@@ -4,10 +4,9 @@ import { Application } from '../types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { useRouter } from 'next/navigation';
 import { FiBookmark } from 'react-icons/fi';
-import { FaBookmark } from 'react-icons/fa';
+import { FaStar } from 'react-icons/fa';
 import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
 import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
-import { FaStar } from 'react-icons/fa';
 
 export interface AppCardProps {
   app: Application;
@@ -19,12 +18,10 @@ export function AppCard({ app }: AppCardProps) {
   const { isFavorited, toggle, isPending, isLoggedIn } = useFavoriteToggle(app.id);
   const { data: ratingsData } = useApplicationRatingsQuery(app.slug);
 
-  const handleCardClick = () => {
-    router.push(`/${app.slug}`);
-  };
+  const handleCardClick = () => router.push(`/${app.slug}`);
 
-  const handleBookmarkClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevents the card navigation from triggering
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     toggle();
   };
 
@@ -35,78 +32,83 @@ export function AppCard({ app }: AppCardProps) {
     }
   };
 
+  const visibleTags = app.tags?.slice(0, 2) ?? [];
+  const extraTagCount = (app.tags?.length ?? 0) - visibleTags.length;
+
   return (
     <div
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-xl transition-all p-3 h-full flex flex-col text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="bg-black/60 backdrop-blur-lg shadow-[var(--shadow-lifted)] rounded-md overflow-hidden h-full flex flex-col cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-300/40 hover:shadow-[var(--shadow-lifted)] hover:-translate-y-0.5 transition-all duration-300"
     >
-      {/* App Photo */}
-      <div className="w-full h-45 mb-4 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
+      {/* Preview image — edge-to-edge, tags overlaid top-left */}
+      <div className="relative w-full h-44 bg-white/10 shrink-0">
         {app.previewImages?.[0] ? (
           <img
             src={app.previewImages[0]}
-            alt={`${app.title} photo header`}
+            alt={`${app.title} preview`}
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-gray-300 text-4xl font-bold">Photo</span>
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-white/25 text-3xl font-bold font-display select-none">
+              {app.title.charAt(0)}
+            </span>
+          </div>
+        )}
+
+        {visibleTags.length > 0 && (
+          <div className="absolute top-2 left-2 flex items-center gap-1.5">
+            {visibleTags.map((tag, index) => (
+              <Badge key={index} variant="default">{tag}</Badge>
+            ))}
+            {extraTagCount > 0 && (
+              <span className="text-xs font-medium text-white/70">+{extraTagCount}</span>
+            )}
+          </div>
         )}
       </div>
 
-      {/* App Header */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center space-x-3 flex-1 justify-between">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
+      {/* Info section — text left, Launch button right */}
+      <div className="p-3 flex items-center gap-3">
+        {/* Left: title row with inline stats + description */}
+        <div className="flex flex-col flex-1 min-w-0 gap-1">
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-display text-base font-bold text-white/90 truncate">
               {app.title}
             </h3>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
             {ratingsData && ratingsData.total > 0 && (
-              <span className="flex items-center gap-1 text-sm text-gray-600">
-                <FaStar className="text-yellow-400"/>
-                <span className="text-xs">{ratingsData.averageScore.toFixed(1)}</span>
+              <span className="flex items-center gap-1 text-white/50 shrink-0">
+                <FaStar className="w-3 h-3 text-white/50" />
+                <span className="text-xs font-medium">{ratingsData.averageScore.toFixed(1)}</span>
               </span>
             )}
-
-            <button
-              onClick={handleBookmarkClick}
-              disabled={isPending || !isLoggedIn}
-              title={isLoggedIn ? (isFavorited ? 'Remove from favorites' : 'Add to favorites') : 'Sign in to favorite'}
-              className="flex items-center gap-1 text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed hover:text-yellow-500 transition-colors z-10"
-            >
-              {isFavorited ? (
-                <FaBookmark className="w-4 h-4 text-yellow-500" />
-              ) : (
-                <FiBookmark className="w-4 h-4" />
-              )}
+            <span className="flex items-center gap-1 text-white/40 shrink-0">
+              <FiBookmark className="w-3.5 h-3.5" />
               {app.favoritesCount !== undefined && (
-                <span className="text-sm font-semibold">{app.favoritesCount}</span>
+                <span className="text-xs font-semibold">{app.favoritesCount}</span>
               )}
-            </button>
+            </span>
           </div>
+          <h3 className="text-white/60 text-sm font-semibold leading-relaxed truncate">
+            {app.description}
+          </h3>
         </div>
-      </div>
 
-      {/* Description */}
-      <p className="text-gray-600 text-sm mb-2 line-clamp-3 flex-grow">
-        {app.description}
-      </p>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2 mb-1">
-        {app.tags?.slice(0, 3).map((tag, index) => (
-          <Badge key={index} variant="success">
-            {tag}
-          </Badge>
-        ))}
-        {app.tags?.length > 3 && (
-          <Badge variant="default">+{app.tags.length - 3}</Badge>
-        )}
+        {/* Right: Save button */}
+        <button
+          onClick={handleSaveClick}
+          disabled={isPending || !isLoggedIn}
+          className={`px-3 py-1 rounded-full text-base font-semibold transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
+            isFavorited
+              ? 'bg-black/50 text-white hover:bg-white/10'
+              : 'bg-white text-black hover:bg-white/80'
+          }`}
+        >
+          {isFavorited ? 'Saved' : 'Save'}
+        </button>
       </div>
     </div>
   );
