@@ -166,12 +166,12 @@ src/
 
 ## 7. 🎨 Design System
 
-pana uses a **Liquid Glass** design language — a modern, translucent aesthetic built on blur, soft edges, and layered depth. The system is intentionally tactile: surfaces feel like frosted glass resting on a lush green world.
+pana uses a **Dark Liquid Glass** design language — dark-tinted frosted panels floating over a lush green backdrop. Every interactive surface is animated with **Motion spring physics** (via `motion/react`), making the UI feel physical and tactile.
 
 ### Guiding Principles
 
-1. **Depth over flatness** — layers feel physical; foreground elements float over background.
-2. **Softness with intent** — blur and transparency are purposeful, not decorative noise.
+1. **Dark glass over light** — all panels use `bg-black/60` tint, not white-based glass. This keeps cards readable against the green background.
+2. **Spring, not easing** — all hover and tap interactions use `type: 'spring'` via `motion/react`. CSS `transition-*` is only used for color/opacity changes.
 3. **Green as life** — `green-600` anchors the palette; it evokes LSCS's identity and organic warmth.
 4. **Type that breathes** — generous spacing, unhurried reading rhythm.
 
@@ -265,74 +265,37 @@ Slate pairs cleanly with green and reads as modern without being cold.
 
 ---
 
-### Glass System
+### Glass Surface Recipe
 
-The glass system is the visual core of pana. Every surface that floats — cards, modals, navbars, dropdowns — uses one of these glass tiers.
+All floating surfaces share a single dark-glass recipe applied directly via Tailwind utilities — there are no `.glass-*` utility classes in use:
 
-#### Glass Tiers
+```tsx
+// Standard panel / card surface
+className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-xl"
 
-The system uses a **split light/dark strategy**: cards and panels are dark-based (deep green-black tint) so they read as solid, weighty surfaces against the bg. The navbar stays light-based to create visual hierarchy.
-
-```css
-/* Light glass — navbar login pill, small chips */
-.glass-sm:  rgba(255, 255, 255, 0.62)   blur: 12px
-
-/* Dark glass — cards, filter bar, panels */
-.glass-md:  rgba(5, 22, 12, 0.72)       blur: 22px   ← primary card tier
-
-/* Dark glass — modals, drawers */
-.glass-lg:  rgba(5, 22, 12, 0.65)       blur: 28px
-
-/* Light glass — navbar (stays lighter to contrast with dark cards) */
-.glass-xl:  rgba(255, 255, 255, 0.28)   blur: 48px
-
-/* Green-tinted glass — primary action pill */
-.glass-primary:  rgba(22, 163, 74, 0.12)  blur: 16px
+// With inner shadow (profile card — gives a pressed/inset depth)
+className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass-inset)] rounded-xl"
 ```
 
-**Text on dark glass** (`glass-md`, `glass-lg`) uses white-scale:
-- Titles: `text-white/90`
-- Body: `text-white/60`
-- Meta / secondary: `text-white/45`
-- Muted / disabled: `text-white/35`
+**Text scale on dark glass:**
 
-**Text on light glass** (`glass-sm`, `glass-xl`) uses neutral-scale:
-- Primary: `text-neutral-800`
-- Secondary: `text-neutral-600`
-- Muted: `text-neutral-400`
+| Usage | Token |
+|-------|-------|
+| Headings / primary text | `text-white` / `text-white/90` |
+| Body text | `text-white/80` |
+| Secondary / descriptions | `text-white/60` |
+| Meta / email / subtitles | `text-white/45` |
+| Section labels (uppercase) | `text-white/40` |
+| Muted / disabled | `text-white/25` – `text-white/30` |
 
-#### Glass Border
-
-Glass surfaces always carry a luminous 1px border on all sides, with a brighter top edge simulating a light source above:
+#### CSS Variables (`globals.css`)
 
 ```css
-/* Standard glass border */
-border: 1px solid rgba(255, 255, 255, 0.25);
-
-/* Primary glass border */
-border: 1px solid rgba(22, 163, 74, 0.25);
-
-/* Inner highlight using box-shadow instead of border-top */
-box-shadow:
-  inset 0 1px 0 rgba(255, 255, 255, 0.45),  /* top highlight */
-  0 8px 32px rgba(0, 0, 0, 0.08),            /* ambient shadow */
-  0 2px 8px rgba(0, 0, 0, 0.06);             /* close shadow */
-```
-
-#### Tailwind v4 Implementation
-
-Define these in `globals.css` under `@theme` so Tailwind can generate utilities:
-
-```css
-@import "tailwindcss";
-
 @theme {
-  /* Fonts */
   --font-display: var(--font-sora), 'Sora', sans-serif;
   --font-body:    var(--font-dm-sans), 'DM Sans', sans-serif;
   --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
 
-  /* Primary palette */
   --color-primary-50:  #f0fdf4;
   --color-primary-100: #dcfce7;
   --color-primary-200: #bbf7d0;
@@ -343,74 +306,6 @@ Define these in `globals.css` under `@theme` so Tailwind can generate utilities:
   --color-primary-700: #15803d;
   --color-primary-800: #166534;
   --color-primary-900: #14532d;
-
-  /* Radius */
-  --radius-sm:  0.5rem;   /* 8px  — chips, badges */
-  --radius-md:  0.75rem;  /* 12px — inputs, small cards */
-  --radius-lg:  1rem;     /* 16px — cards */
-  --radius-xl:  1.5rem;   /* 24px — large cards */
-  --radius-2xl: 2rem;     /* 32px — modals, panels */
-  --radius-pill: 9999px;  /* buttons, tags */
-
-  /* Blur */
-  --blur-glass-sm: 8px;
-  --blur-glass-md: 16px;
-  --blur-glass-lg: 24px;
-  --blur-glass-xl: 40px;
-
-  /* Animation easings */
-  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-smooth:  cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-sharp:   cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Glass utility classes */
-@layer utilities {
-  .glass-sm {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 4px 16px rgba(0, 0, 0, 0.06);
-  }
-
-  .glass-md {
-    background: rgba(255, 255, 255, 0.45);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 8px 32px rgba(0, 0, 0, 0.08);
-  }
-
-  .glass-lg {
-    background: rgba(255, 255, 255, 0.35);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 16px 48px rgba(0, 0, 0, 0.1);
-  }
-
-  .glass-xl {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 24px 64px rgba(0, 0, 0, 0.12);
-  }
-
-  .glass-primary {
-    background: rgba(22, 163, 74, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(22, 163, 74, 0.22);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 32px rgba(22, 163, 74, 0.08);
-  }
-
-  /* Dark mode glass overrides */
-  .dark .glass-sm  { background: rgba(15, 23, 42, 0.55); border-color: rgba(255, 255, 255, 0.08); }
-  .dark .glass-md  { background: rgba(15, 23, 42, 0.50); border-color: rgba(255, 255, 255, 0.07); }
-  .dark .glass-lg  { background: rgba(15, 23, 42, 0.45); border-color: rgba(255, 255, 255, 0.06); }
-  .dark .glass-xl  { background: rgba(15, 23, 42, 0.40); border-color: rgba(255, 255, 255, 0.05); }
 }
 ```
 
@@ -431,169 +326,221 @@ Liquid glass demands generously rounded corners. Never use sharp (0px) edges on 
 
 ---
 
-### Shadow & Glow
+### Shadow Tokens
 
-Shadows in the glass system are diffuse and optionally color-tinted. Hard shadows are avoided.
+All shadows are heavier than typical UI systems — this is intentional. The dark glass panels need clear lift against the green background.
 
 ```css
-/* Ambient — base floating surface */
---shadow-glass:    0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+/* Panels, filter bar, favorites, profile card */
+--shadow-glass:       0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16);
 
-/* Lifted — hovered or active card */
---shadow-lifted:   0 16px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
+/* Profile card variant — adds inset depth (pressed/etched feel) */
+--shadow-glass-inset: 0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16),
+                      inset 0 2px 16px rgba(0, 0, 0, 0.35),
+                      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 
-/* Modal — layered above page */
---shadow-modal:    0 24px 80px rgba(0, 0, 0, 0.16), 0 8px 24px rgba(0, 0, 0, 0.08);
+/* App cards — elevated above panels */
+--shadow-lifted:      0 16px 48px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(0, 0, 0, 0.22);
 
-/* Primary glow — green highlight */
---shadow-glow:     0 0 24px rgba(22, 163, 74, 0.20), 0 0 8px rgba(22, 163, 74, 0.12);
+/* Modals, dropdowns — topmost layer */
+--shadow-modal:       0 24px 80px rgba(0, 0, 0, 0.52), 0 8px 24px rgba(0, 0, 0, 0.28);
+
+/* Primary glow — green accent */
+--shadow-glow:        0 0 28px rgba(22, 163, 74, 0.30), 0 0 10px rgba(22, 163, 74, 0.16);
 
 /* Focus ring */
---shadow-focus:    0 0 0 3px rgba(22, 163, 74, 0.30);
+--shadow-focus:       0 0 0 3px rgba(134, 239, 172, 0.35);
 ```
 
 ---
 
 ### Component Recipes
 
-#### Button — Primary
+#### Navbar
+
+Full-width sticky dark glass bar, `h-11` (44px). Wordmark uses `font-display`, search uses a pill input with `bg-white/[0.06]`. Profile avatar opens a `rounded-xl` dropdown with `bg-black/70`.
 
 ```tsx
-// className breakdown:
-// glass-primary     → green-tinted frosted glass
-// rounded-pill      → full pill shape
-// px-6 py-2.5      → comfortable padding
-// font-display      → Sora for all buttons
-// text-primary-700  → readable green text
-// hover:shadow-glow → green glow on hover
-// transition-all    → smooth all properties
-
-<button className="
-  glass-primary
-  rounded-full
-  px-6 py-2.5
-  font-display text-sm font-semibold text-primary-700
-  hover:bg-primary/15 hover:shadow-[var(--shadow-glow)]
-  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
-  active:scale-[0.97]
-  transition-all duration-200
-">
-  Get Started
-</button>
+<header className="sticky top-0 z-50 w-full bg-black/60 backdrop-blur-lg border-b border-white/10">
+  <nav className="flex items-center justify-between h-11 gap-4 max-w-7xl mx-auto px-5 sm:px-8">
+    {/* wordmark */}
+    <Link className="font-display font-bold text-lg text-white/90 tracking-tight">
+      pana<span className="text-primary-600 font-normal">.tools</span>
+    </Link>
+    {/* search pill */}
+    <div className="bg-white/[0.06] border border-white/10 rounded-full px-3 h-7 focus-within:border-white/25">
+      <input className="bg-transparent text-xs text-white/80 placeholder:text-white/30" />
+    </div>
+  </nav>
+</header>
 ```
 
-#### Card
+#### App Card
+
+`motion.div` with spring lift on hover. `rounded-md` (not `rounded-xl`) keeps cards compact in the grid.
 
 ```tsx
-<div className="
-  glass-md
-  rounded-2xl
-  p-6
-  hover:shadow-[var(--shadow-lifted)] hover:-translate-y-0.5
-  transition-all duration-300 ease-[var(--ease-smooth)]
-">
-  {children}
+<motion.div
+  className="bg-black/60 backdrop-blur-lg shadow-[var(--shadow-lifted)] rounded-md overflow-hidden h-full flex flex-col cursor-pointer"
+  whileHover={{ y: -4, scale: 1.01 }}
+  whileTap={{ scale: 0.98 }}
+  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+>
+  {/* h-44 preview image, edge-to-edge */}
+  {/* p-3 info row: title + stats left, Save pill button right */}
+</motion.div>
+```
+
+#### Filter Panel
+
+Glass panel with pill-shaped tag filter buttons. Each tag is a `motion.button` with spring scale.
+
+```tsx
+<div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-xl px-5 py-4">
+  <div className="flex items-start gap-3">
+    <div className="shrink-0">
+      <p className="text-xs font-semibold text-white/40 uppercase tracking-wide">Filter</p>
+      <p className="text-xs text-white/25">by tag</p>
+    </div>
+    <div className="flex items-center gap-2 flex-wrap">
+      <motion.button
+        className="px-3 py-1 rounded-full text-xs font-medium bg-white text-black" /* active */
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.94 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+      />
+    </div>
+  </div>
 </div>
 ```
 
-#### Input
+#### Profile Panel
+
+Responsive glass card with Motion spring, decorative SVG overlay, and two-initial avatar fallback.
 
 ```tsx
-<input className="
-  w-full
-  glass-sm
-  rounded-xl
-  px-4 py-2.5
-  font-body text-sm text-neutral-800
-  placeholder:text-neutral-400
-  focus:outline-none focus:ring-2 focus:ring-primary/30
-  focus:border-primary/40
-  transition-all duration-200
-" />
+<motion.div
+  className="
+    relative overflow-hidden bg-black/60 backdrop-blur-lg border border-white/10
+    shadow-[var(--shadow-glass-inset)] rounded-xl shrink-0
+    flex flex-row items-center gap-4 px-5 py-4          /* mobile: horizontal */
+    lg:flex-col lg:items-start lg:justify-between lg:w-80 lg:min-h-72 lg:px-8 lg:py-7
+  "
+  whileHover={{ y: -4, scale: 1.01 }}
+  whileTap={{ scale: 0.98 }}
+  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+>
+  {/* Decorative overlay: /public/bow-arrow.svg, opacity-[0.04], brightness(0) invert(1) */}
+  {/* Avatar: rounded-xl on mobile, rounded-full lg */}
+  {/* Name (text-base / lg:text-2xl), email (text-white/45), "Lasallian" label */}
+  {/* Mobile: FiChevronRight hint on the right */}
+</motion.div>
 ```
 
-#### Navbar
+#### Favorites Panel
+
+Full-height glass panel with a three-dot `FiMoreHorizontal` menu. In **delete mode**, icons enter an iPhone-style jiggle loop and show a red `-` badge.
 
 ```tsx
-<nav className="
-  glass-xl
-  sticky top-0 z-50
-  px-6 py-4
-  rounded-none  /* full-width, flush */
-  border-x-0 border-t-0  /* only bottom border */
-  border-b border-white/15
-">
+<div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-xl flex-1 flex flex-col">
+  {/* Header: "FAVORITES" label left, three-dot button right (always rendered, invisible when empty) */}
+  {/* Dropdown: motion.div spring pop-in, bg-black/40 backdrop-blur-xl rounded-lg */}
+
+  {/* Icon grid: flex flex-wrap justify-center, icon size scales with count */}
+  <motion.div
+    animate={isDeleteMode ? { rotate: [-2, 2] } : { rotate: 0 }}
+    transition={isDeleteMode
+      ? { repeat: Infinity, repeatType: 'mirror', duration: 0.15, delay: index * 0.03 }
+      : { type: 'spring', stiffness: 300, damping: 20 }}
+    whileHover={isDeleteMode ? {} : { scale: 1.05 }}
+    whileTap={isDeleteMode ? {} : { scale: 0.95 }}
+  >
+    {/* rounded-xl icon, title label below */}
+    {/* Delete mode: motion.button badge, -top-1.5 -right-1.5, bg-red-500, FiMinus */}
+  </motion.div>
+</div>
 ```
 
-#### Modal / Sheet
+**Icon size scaling** (adapts to count so there's minimal dead space):
+
+| Favorites count | Icon size | Gap |
+|----------------|-----------|-----|
+| ≤ 2 | `w-28 h-28` | `gap-8` |
+| ≤ 4 | `w-24 h-24` | `gap-7` |
+| ≤ 8 | `w-20 h-20` | `gap-6` |
+| 9+ | `w-16 h-16` | `gap-x-5 gap-y-4` |
+
+#### Dropdown Menu
 
 ```tsx
-<div className="
-  glass-lg
-  rounded-3xl
-  p-8
-  shadow-[var(--shadow-modal)]
-  max-w-lg w-full
-">
-```
-
-#### Badge / Tag
-
-```tsx
-<span className="
-  glass-sm
-  rounded-full
-  px-3 py-1
-  font-display text-micro font-medium text-primary-700
-  tracking-wide uppercase
-">
-  Tag
-</span>
+<motion.div
+  initial={{ opacity: 0, scale: 0.9, y: -4 }}
+  animate={{ opacity: 1, scale: 1, y: 0 }}
+  exit={{ opacity: 0, scale: 0.9, y: -4 }}
+  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+  className="absolute right-0 bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg shadow-[var(--shadow-modal)] overflow-hidden min-w-28"
+>
+  <button className="w-full px-4 py-2.5 text-left text-sm text-white/80 hover:bg-white/8 font-medium" />
+</motion.div>
 ```
 
 ---
 
 ### Motion
 
-Animations should feel **fluid and physical** — not snappy or mechanical.
+All interactive animations use **`motion/react`** (Motion for React) spring physics — not CSS `transition` or `animation`. CSS transitions are only used for color/opacity changes (`transition-colors`).
 
-| Name | Curve | Duration | Use |
-|------|-------|----------|-----|
-| `spring` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | 400ms | Entrance, scale-up, hover lift |
-| `smooth` | `cubic-bezier(0.22, 1, 0.36, 1)` | 300ms | Fade, slide, color transitions |
-| `sharp` | `cubic-bezier(0.4, 0, 0.2, 1)` | 200ms | State changes (active/pressed) |
+**Standard spring presets:**
 
-**Staggered entrance (page load):**
+| Preset | Config | Used on |
+|--------|--------|---------|
+| Card lift | `stiffness: 300, damping: 20` | AppCard, ProfileCard |
+| Badge bounce | `stiffness: 400, damping: 20` | Filter tags, small buttons |
+| Dropdown pop | `stiffness: 400, damping: 25` | Menus, tooltips |
+| Badge enter | `stiffness: 500, damping: 25` | Delete-mode `-` badge |
 
-```css
-/* Each child staggers by 60ms */
-.stagger-1 { animation-delay: 0ms; }
-.stagger-2 { animation-delay: 60ms; }
-.stagger-3 { animation-delay: 120ms; }
-.stagger-4 { animation-delay: 180ms; }
+**Hover / tap pattern (applied to all interactive surfaces):**
 
-@keyframes glass-enter {
-  from {
-    opacity: 0;
-    transform: translateY(16px) scale(0.97);
-    filter: blur(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
+```tsx
+<motion.div
+  whileHover={{ y: -4, scale: 1.01 }}   // cards: lift + scale
+  whileTap={{ scale: 0.98 }}
+  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+/>
 
-.animate-glass-enter {
-  animation: glass-enter 500ms var(--ease-smooth) both;
-}
+<motion.button
+  whileHover={{ scale: 1.08 }}           // small buttons: scale only
+  whileTap={{ scale: 0.94 }}
+  transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+/>
 ```
 
-**Micro-interactions:**
-- Buttons: `active:scale-[0.97]` — subtle press
-- Cards on hover: `hover:-translate-y-0.5 hover:shadow-lifted`
-- Glass surfaces gaining focus: ring fades in with `transition-shadow`
+**Jiggle / delete mode (iOS-style icon shake):**
+
+```tsx
+<motion.div
+  animate={isDeleteMode ? { rotate: [-2, 2] } : { rotate: 0 }}
+  transition={isDeleteMode
+    ? { repeat: Infinity, repeatType: 'mirror', duration: 0.15, delay: index * 0.03 }
+    : { type: 'spring', stiffness: 300, damping: 20 }}
+/>
+// delay: (index % 5) * 0.03 staggers icons so they don't all move in lockstep
+```
+
+**Presence animations (mount/unmount):**
+
+```tsx
+<AnimatePresence>
+  {isVisible && (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: -4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: -4 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+    />
+  )}
+</AnimatePresence>
+```
 
 ---
 
@@ -636,16 +583,23 @@ The dark-based `glass-md` / `glass-lg` cards appear as deep tinted panels floati
 ### Design System Quick Reference
 
 ```
-Primary color:   #16a34a (green-600)
-Font – Display:  Sora
-Font – Body:     DM Sans
-Font – Mono:     JetBrains Mono
+Primary color:    #16a34a (green-600)
+Font – Display:   Sora        → font-display, headings, wordmark, buttons
+Font – Body:      DM Sans     → font-body, UI text
+Font – Mono:      JetBrains   → font-mono, code
 
-Glass tiers:     .glass-sm / .glass-md / .glass-lg / .glass-xl / .glass-primary
-Radius:          8px / 12px / 16px / 24px / 32px / pill
-Shadows:         --shadow-glass / --shadow-lifted / --shadow-modal / --shadow-glow
-Easing:          --ease-spring / --ease-smooth / --ease-sharp
+Glass recipe:     bg-black/60 backdrop-blur-lg border border-white/10
+Glass inset:      + shadow-[var(--shadow-glass-inset)]
+
+Shadows:          --shadow-glass / --shadow-glass-inset / --shadow-lifted / --shadow-modal / --shadow-glow
+Border radius:    rounded-md (cards) / rounded-xl (panels) / rounded-full (pills, avatars)
+Text on glass:    white/90 → white/80 → white/60 → white/45 → white/40 → white/25
+
+Animation lib:    motion/react (spring physics — no CSS keyframes for interactions)
+Spring presets:   stiffness 300 / damping 20  (cards, panels)
+                  stiffness 400 / damping 20  (small buttons, tags)
+                  stiffness 400 / damping 25  (dropdowns, menus)
 ```
 
 ### NOTE
-This design system clause was generated by Claude, and will be used for mastering the frontend.
+This design system section reflects the actual implementation as of the `feat/design-revamp` branch.
