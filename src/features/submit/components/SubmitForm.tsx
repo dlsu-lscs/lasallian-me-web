@@ -92,7 +92,7 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
         </div>
         <div>
           <h2 className="text-xl font-bold text-white mb-1">Submitted for review!</h2>
-          <p className="text-white/50 text-sm">Your app is pending admin approval. We'll get to it soon.</p>
+          <p className="text-white/50 text-sm">Your app is pending admin approval. We&apos;ll get to it soon.</p>
         </div>
         <button
           onClick={onReset}
