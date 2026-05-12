@@ -67,7 +67,8 @@
   --ease-sharp:  cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Shadows — tuned for dark background */
-  --shadow-glass:  0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16);
+  --shadow-glass:       0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16);
+  --shadow-glass-inset: 0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16), inset 0 2px 16px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow-lifted: 0 16px 48px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(0, 0, 0, 0.22);
   --shadow-modal:  0 24px 80px rgba(0, 0, 0, 0.52), 0 8px 24px rgba(0, 0, 0, 0.28);
   --shadow-glow:   0 0 28px rgba(22, 163, 74, 0.30), 0 0 10px rgba(22, 163, 74, 0.16);

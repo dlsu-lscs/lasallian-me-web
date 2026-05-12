@@ -54,7 +54,7 @@ export function Navbar() {
           {/* Left: wordmark + search bar */}
           <div className="flex items-center gap-4 min-w-0">
             <Link href="/" className="font-display font-bold text-lg text-white/90 tracking-tight hover:text-white transition-colors shrink-0">
-              pana
+              pana<span className="text-primary-600 font-normal">.tools</span>
             </Link>
 
             <div className="hidden md:flex items-center gap-1.5 bg-white/[0.06] border border-white/10 rounded-full px-3 h-7 w-48 lg:w-64 focus-within:border-white/25 transition-colors">

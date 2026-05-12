@@ -12,7 +12,7 @@ export function Badge({
   className = '',
 }: BadgeProps) {
   const variantStyles = {
-    default: 'bg-white/10 text-white/55 border border-white/12',
+    default: 'bg-white/10 text-white/55 backdrop-blur-lg border border-white/12',
     primary: 'bg-primary-400/20 text-primary-300 border border-primary-400/30',
     secondary: 'bg-white/10 text-white/55 border border-white/12',
     success: 'bg-white text-black border border-white/80',

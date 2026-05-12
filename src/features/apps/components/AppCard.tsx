@@ -1,27 +1,34 @@
 'use client';
 
+import { motion } from 'motion/react';
 import { Application } from '../types/app.types';
 import { Badge } from '@/components/atoms/Badge';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { FiBookmark } from 'react-icons/fi';
 import { FaStar } from 'react-icons/fa';
 import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
 import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { imgSrc } from '@/lib/img-src';
 
 export interface AppCardProps {
   app: Application;
   onClick?: (app: Application) => void;
+  showTags?: boolean;
+  className?: string;
 }
 
-export function AppCard({ app }: AppCardProps) {
+export function AppCard({ app, showTags = true, className }: AppCardProps) {
   const router = useRouter();
   const { isFavorited, toggle, isPending, isLoggedIn } = useFavoriteToggle(app.id);
   const { data: ratingsData } = useApplicationRatingsQuery(app.slug);
+  const [localCount, setLocalCount] = useState(app.favoritesCount);
 
   const handleCardClick = () => router.push(`/${app.slug}`);
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (localCount !== undefined) setLocalCount(isFavorited ? localCount - 1 : localCount + 1);
     toggle();
   };
 
@@ -36,18 +43,21 @@ export function AppCard({ app }: AppCardProps) {
   const extraTagCount = (app.tags?.length ?? 0) - visibleTags.length;
 
   return (
-    <div
+    <motion.div
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      className="bg-black/60 backdrop-blur-lg shadow-[var(--shadow-lifted)] rounded-md overflow-hidden h-full flex flex-col cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-300/40 hover:shadow-[var(--shadow-lifted)] hover:-translate-y-0.5 transition-all duration-300"
+      className={`bg-black/60 backdrop-blur-lg shadow-[var(--shadow-lifted)] rounded-md overflow-hidden h-full flex flex-col cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-300/40 ${className ?? ''}`}
+      whileHover={{ y: -4, scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       {/* Preview image — edge-to-edge, tags overlaid top-left */}
       <div className="relative w-full h-44 bg-white/10 shrink-0">
         {app.previewImages?.[0] ? (
           <img
-            src={app.previewImages[0]}
+            src={imgSrc(app.previewImages[0])}
             alt={`${app.title} preview`}
             className="w-full h-full object-cover"
           />
@@ -87,8 +97,8 @@ export function AppCard({ app }: AppCardProps) {
             )}
             <span className="flex items-center gap-1 text-white/40 shrink-0">
               <FiBookmark className="w-3.5 h-3.5" />
-              {app.favoritesCount !== undefined && (
-                <span className="text-xs font-semibold">{app.favoritesCount}</span>
+              {localCount !== undefined && (
+                <span className="text-xs font-semibold">{localCount}</span>
               )}
             </span>
           </div>
@@ -101,7 +111,7 @@ export function AppCard({ app }: AppCardProps) {
         <button
           onClick={handleSaveClick}
           disabled={isPending || !isLoggedIn}
-          className={`px-3 py-1 rounded-full text-base font-semibold transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
+          className={`px-3 py-1 cursor-pointer rounded-full text-base font-semibold transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
             isFavorited
               ? 'bg-black/50 text-white hover:bg-white/10'
               : 'bg-white text-black hover:bg-white/80'
@@ -110,6 +120,6 @@ export function AppCard({ app }: AppCardProps) {
           {isFavorited ? 'Saved' : 'Save'}
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

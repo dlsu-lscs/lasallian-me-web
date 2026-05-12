@@ -21,49 +21,43 @@ export async function getAdminApplications(
   return response.json();
 }
 
-export async function approveApplication(id: number): Promise<Application> {
+export async function approveApplication(id: number): Promise<void> {
   const response = await fetch(`${BASE}/admin/${id}/review`, {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ isApproved: 'APPROVED' }),
+    body: JSON.stringify({ status: 'APPROVED' }),
   });
 
   if (!response.ok) {
     throw new Error('Failed to approve application');
   }
-
-  return response.json();
 }
 
-export async function rejectApplication(id: number, reason: string): Promise<Application> {
+export async function rejectApplication(id: number, reason: string): Promise<void> {
   const response = await fetch(`${BASE}/admin/${id}/review`, {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ isApproved: 'REJECTED', rejectionReason: reason }),
+    body: JSON.stringify({ status: 'REJECTED', rejectionReason: reason }),
   });
 
   if (!response.ok) {
     throw new Error('Failed to reject application');
   }
-
-  return response.json();
 }
 
-export async function removeApplication(id: number, reason: string): Promise<Application> {
+export async function removeApplication(id: number, reason: string): Promise<void> {
   const response = await fetch(`${BASE}/admin/${id}/review`, {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ isApproved: 'REMOVED', rejectionReason: reason }),
+    body: JSON.stringify({ status: 'REMOVED', rejectionReason: reason }),
   });
 
   if (!response.ok) {
     throw new Error('Failed to remove application');
   }
-
-  return response.json();
 }
 
 export async function editApplication(

@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/atoms/Input';
 import { Button } from '@/components/atoms/Button';
 import { SubmitApplicationForm } from '../types/submit.types';
 
 interface SubmitFormProps {
-  onSubmit: (data: SubmitApplicationForm) => void;
+  onSubmit: (data: SubmitApplicationForm, files: File[]) => void;
   isSubmitting: boolean;
+  submitLabel: string;
   error: string | null;
   isSuccess: boolean;
   onReset: () => void;
@@ -18,14 +19,17 @@ function toSlug(title: string): string {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-export function SubmitForm({ onSubmit, isSubmitting, error, isSuccess, onReset }: SubmitFormProps) {
+export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSuccess, onReset }: SubmitFormProps) {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [slugEdited, setSlugEdited] = useState(false);
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
+  const [githubLink, setGithubLink] = useState('');
   const [tags, setTags] = useState('');
-  const [previewImages, setPreviewImages] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!slugEdited) {
@@ -33,18 +37,42 @@ export function SubmitForm({ onSubmit, isSubmitting, error, isSuccess, onReset }
     }
   }, [title, slugEdited]);
 
+  // Create and revoke object URLs as selectedFiles changes
+  useEffect(() => {
+    const urls = selectedFiles.map((f) => URL.createObjectURL(f));
+    setPreviewUrls(urls);
+    return () => {
+      urls.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, [selectedFiles]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const incoming = Array.from(e.target.files ?? []);
+    setSelectedFiles((prev) => {
+      const combined = [...prev, ...incoming];
+      return combined.slice(0, 5);
+    });
+    // Reset input so the same file can be re-added after removal
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      title: title.trim(),
-      slug: slug.trim(),
-      description: description.trim() || undefined,
-      url: url.trim() || undefined,
-      tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
-      previewImages: previewImages
-        ? previewImages.split('\n').map((u) => u.trim()).filter(Boolean)
-        : undefined,
-    });
+    onSubmit(
+      {
+        title: title.trim(),
+        slug: slug.trim(),
+        githubLink: githubLink.trim(),
+        description: description.trim() || undefined,
+        url: url.trim() || undefined,
+        tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
+      },
+      selectedFiles,
+    );
   };
 
   if (isSuccess) {
@@ -110,6 +138,14 @@ export function SubmitForm({ onSubmit, isSubmitting, error, isSuccess, onReset }
           placeholder="https://myapp.example.com"
         />
         <Input
+          label="GitHub Link *"
+          type="url"
+          value={githubLink}
+          onChange={(e) => setGithubLink(e.target.value)}
+          placeholder="https://github.com/user/repo"
+          required
+        />
+        <Input
           label="Tags (comma-separated)"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
@@ -117,16 +153,48 @@ export function SubmitForm({ onSubmit, isSubmitting, error, isSuccess, onReset }
         />
         <div className="w-full">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Preview Image URLs
+            Preview Images
           </label>
-          <textarea
-            value={previewImages}
-            onChange={(e) => setPreviewImages(e.target.value)}
-            rows={3}
-            placeholder={"https://example.com/screenshot1.png\nhttps://example.com/screenshot2.png"}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
-          />
-          <p className="mt-1 text-xs text-gray-500">One URL per line.</p>
+          <div
+            className="border-2 border-dashed border-gray-300 rounded-md px-4 py-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <p className="text-sm text-gray-500">
+              Click to select images{' '}
+              <span className="text-gray-400 text-xs">(up to 5, max 5 MB each)</span>
+            </p>
+          </div>
+
+          {previewUrls.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-3">
+              {previewUrls.map((url, i) => (
+                <div key={i} className="relative group w-24 h-24">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt={selectedFiles[i]?.name}
+                    className="w-24 h-24 object-cover rounded-md border border-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeFile(i)}
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove image"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -140,10 +208,10 @@ export function SubmitForm({ onSubmit, isSubmitting, error, isSuccess, onReset }
         type="submit"
         variant="primary"
         size="lg"
-        disabled={isSubmitting || !title.trim() || !slug.trim()}
+        disabled={isSubmitting || !title.trim() || !slug.trim() || !githubLink.trim()}
         className="disabled:opacity-60"
       >
-        {isSubmitting ? 'Submitting…' : 'Submit App for Review'}
+        {submitLabel}
       </Button>
     </form>
   );

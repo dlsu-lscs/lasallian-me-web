@@ -15,6 +15,8 @@ import { useUIStore } from '@/store/uiStore';
 import { Application } from '../types/app.types';
 import { useMemo, useEffect, useCallback } from 'react';
 import { FavoritesContainer } from '@/features/favorites/containers/FavoritesContainer';
+import { useUserRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { UserReviewItem } from '@/features/ratings/components/UserReviewItem';
 
 interface ProfileContainerProps {
   slug: string;
@@ -41,7 +43,6 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
   });
 
   const { data: session, isPending: sessionPending } = authClient.useSession();
-  const { showSearch, showFilters } = useUIStore();
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
@@ -73,6 +74,10 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
     setSearchQuery('');
     setSelectedTags([]);
   }, []);
+
+  const { data: userRatings, isLoading: ratingsLoading } = useUserRatingsQuery(
+    !sessionPending && !!session,
+  );
 
   const updateMutation = useUpdateApplicationMutation();
   const deleteMutation = useDeleteApplicationMutation();
@@ -111,38 +116,6 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
-        {activeTab === 'apps' && (showSearch || showFilters || hasActiveFilters) && (
-          <div className="mb-8 p-4 border border-gray-200 rounded-xl bg-gray-50">
-            {showSearch && (
-              <div className="mb-4">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  placeholder="Search your apps..."
-                />
-              </div>
-            )}
-            {showFilters && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-medium text-gray-700 mr-2">Tags:</span>
-                {uniqueTags.map((tag) => (
-                  <FilterButton
-                    key={tag}
-                    label={tag}
-                    isActive={selectedTags.includes(tag)}
-                    onClick={() => toggleTag(tag)}
-                  />
-                ))}
-                {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-auto">
-                    Clear filters
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
         <div className="py-4">
           {activeTab === 'apps' && (
             <>
@@ -155,10 +128,10 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
                   {apps.map((app) => {
                     const status = STATUS_BADGE[app.isApproved] ?? STATUS_BADGE.PENDING;
                     return (
-                      <div key={app.id} className="flex flex-col gap-2">
-                        <AppCard app={app} onClick={() => window.open(app.url, '_blank')} />
-                        <div className="flex items-center justify-between px-1">
-                          <div className="flex flex-col gap-1">
+                      <div key={app.id} className="flex flex-col border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                        <AppCard app={app} showTags={false} className="border-0 shadow-none rounded-none flex-1" onClick={() => app.url && window.open(app.url, '_blank')} />
+                        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-t border-gray-200">
+                          <div className="flex flex-col gap-0.5">
                             <Badge variant={status.variant}>{status.label}</Badge>
                             {(app.isApproved === 'REJECTED' || app.isApproved === 'REMOVED') &&
                               app.rejectionReason && (
@@ -202,9 +175,19 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
           )}
 
           {activeTab === 'my reviews' && (
-            <div className="text-center py-12 text-gray-500">
-              No reviews available for this profile yet.
-            </div>
+            <>
+              {ratingsLoading ? (
+                <div className="text-center py-12 text-gray-500">Loading...</div>
+              ) : !userRatings || userRatings.ratings.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">No reviews yet.</div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {userRatings.ratings.map((rating) => (
+                    <UserReviewItem key={rating.applicationId} rating={rating} />
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {activeTab === 'favorites' && session?.user?.id && (

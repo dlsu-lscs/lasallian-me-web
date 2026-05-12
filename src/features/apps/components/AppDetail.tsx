@@ -1,8 +1,9 @@
 import React from 'react';
 import { Application } from '../types/app.types';
-import { FiBookmark } from 'react-icons/fi';
+import { FiBookmark, FiExternalLink } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { StarRating } from '@/features/ratings/components/StarRating';
+import { ImageGallery } from './ImageGallery';
 
 export interface AppDetailProps {
   app: Application;
@@ -38,17 +39,7 @@ export function AppDetail({
           <div className="flex-1 min-w-0">
 
             {/* App Icon/Image */}
-            <div className="w-full h-48 sm:h-64 mb-6 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
-              {app.previewImages?.[0] ? (
-                <img
-                  src={app.previewImages[0]}
-                  alt={`${app.title} header image`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-gray-300 text-3xl font-bold">App Image Placeholder</span>
-              )}
-            </div>
+            <ImageGallery images={app.previewImages} title={app.title} />
 
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-extrabold text-gray-900">
@@ -56,7 +47,7 @@ export function AppDetail({
               </h1>
             </div>
 
-            <p className="text-xl text-gray-600 mt-1">By Author Name</p>
+            <p className="text-xl text-gray-600 mt-1">By {app.userEmail?.split('@')[0] ?? 'Unknown'}</p>
 
             <div className="mt-2 flex items-center gap-4 flex-wrap">
               {/* Favorites */}
@@ -86,30 +77,58 @@ export function AppDetail({
             </div>
           </div>
 
-          {/* Main Content Tabs/Sections */}
-          <div className="border-b border-gray-200 mb-6 mt-6">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-              {['Description', 'Tags', 'How to use?', 'Links'].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className={`
-                    ${item === 'Description' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
-                    whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm
-                  `}
-                  aria-current={item === 'Description' ? 'page' : undefined}
-                >
-                  {item}
-                </a>
-              ))}
-            </nav>
-          </div>
+          <hr className="border-gray-100 my-6" />
 
-          {/* Description Content */}
-          <div className="prose max-w-none text-gray-700">
-            <h2 className="text-2xl font-bold mb-3">Description</h2>
-            <p className="mb-4">{app.description}</p>
-          </div>
+          {/* Description */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">About</h2>
+            <p className="text-gray-700 leading-relaxed">{app.description ?? 'No description provided.'}</p>
+          </section>
+
+          <hr className="border-gray-100 my-6" />
+
+          {/* Links */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Links</h2>
+            {app.url ? (
+              <a
+                href={app.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-green-600 hover:text-blue-800 hover:underline break-all text-sm"
+              >
+                <FiExternalLink className="w-4 h-4 shrink-0" />
+                {app.url}
+              </a>
+            ) : (
+              <p className="text-gray-500 text-sm">No links provided.</p>
+            )}
+          </section>
+
+          <hr className="border-gray-100 my-6" />
+
+          {/* Tags */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-3">Tags</h2>
+            {(app.tags ?? []).length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {[...new Set(app.tags ?? [])].map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No tags added yet.</p>
+            )}
+          </section>
+
+      
+
+          
 
         </div>
 
