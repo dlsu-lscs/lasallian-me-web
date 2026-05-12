@@ -1,30 +1,41 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Sora, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/organisms/Navbar';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { Toaster } from '@/components/atoms/Toaster';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const sora = Sora({
   subsets: ['latin'],
+  variable: '--font-sora',
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const dmSans = DM_Sans({
   subsets: ['latin'],
+  variable: '--font-dm-sans',
+  weight: ['300', '400', '500'],
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  weight: ['400', '500'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: {
-    template: '%s | LaSallian.Me',
-    default: 'LaSallian.Me',
+    template: '%s | pana',
+    default: 'pana',
   },
   description:
     'Discover apps built by LSCS — La Salle Computer Society, the tech org of De La Salle University.',
   openGraph: {
-    siteName: 'LaSallian.Me',
+    siteName: 'pana',
     type: 'website',
   },
 };
@@ -37,12 +48,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${sora.variable} ${dmSans.variable} ${jetbrainsMono.variable} antialiased`}
         suppressHydrationWarning
       >
         <QueryProvider>
           <Navbar />
-          {children}
+          <main className="pt-4">
+            {children}
+          </main>
           <Toaster />
         </QueryProvider>
       </body>

@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/atoms/Skeleton';
 
 export function AppCardSkeleton() {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3 flex flex-col">
+    <div className="glass-md rounded-xl p-3 flex flex-col">
       {/* Image */}
       <Skeleton className="w-full h-45 mb-4 rounded-xl" />
 

@@ -6,17 +6,21 @@ import { useApplicationsQuery } from '../queries/apps.queries';
 import { Application } from '../types/app.types';
 
 export function useAppsContainer() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
 
+  const { searchQuery } = useUIStore();
+
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(1);
+    }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-   const query = useApplicationsQuery({ searchQuery: debouncedSearch, selectedTags }, { page });
+  const query = useApplicationsQuery({ searchQuery: debouncedSearch, selectedTags }, { page });
 
   const apps = useMemo(() => query.data?.data ?? [], [query.data]);
   const meta = query.data?.meta;
@@ -27,14 +31,7 @@ export function useAppsContainer() {
     return Array.from(tags).sort();
   }, [apps]);
 
-  const { showSearch, showFilters } = useUIStore();
-
   const hasActiveFilters = searchQuery !== '' || selectedTags.length > 0;
-
-  const handleSearchChange = useCallback((value: string) => {
-    setSearchQuery(value);
-    setPage(1);
-  }, []);
 
   const toggleTag = useCallback((tag: string) => {
     setSelectedTags((prev) =>
@@ -44,7 +41,6 @@ export function useAppsContainer() {
   }, []);
 
   const clearFilters = useCallback(() => {
-    setSearchQuery('');
     setSelectedTags([]);
     setPage(1);
   }, []);
@@ -62,12 +58,9 @@ export function useAppsContainer() {
     setPage,
     filters: { searchQuery, selectedTags },
     uniqueTags,
-    handleSearchChange,
     toggleTag,
     clearFilters,
     handleAppClick,
-    showSearch,
-    showFilters,
     hasActiveFilters,
     isLoading: query.isLoading,
     isError: query.isError,

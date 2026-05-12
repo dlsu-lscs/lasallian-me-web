@@ -1,14 +1,168 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ──────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  color-scheme: light;
+  --background: #0d5c35;
+  --foreground: #ffffff;
 }
 
+@theme {
+  /* Fonts */
+  --font-display: var(--font-sora), 'Sora', sans-serif;
+  --font-body:    var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
 
+  /* Surfaces */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Primary — Green-600 */
+  --color-primary-50:  #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #22c55e;
+  --color-primary:     #16a34a;
+  --color-primary-700: #15803d;
+  --color-primary-800: #166534;
+  --color-primary-900: #14532d;
+
+  /* Neutrals — Slate */
+  --color-neutral-50:  #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+  --color-neutral-950: #020617;
+
+  /* Semantic */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error:   #dc2626;
+  --color-info:    #0284c7;
+
+  /* Border Radius */
+  --radius-sm:   0.5rem;
+  --radius-md:   0.75rem;
+  --radius-lg:   1rem;
+  --radius-xl:   1.5rem;
+  --radius-2xl:  2rem;
+  --radius-pill: 9999px;
+
+  /* Blur levels */
+  --blur-glass-sm: 8px;
+  --blur-glass-md: 16px;
+  --blur-glass-lg: 24px;
+  --blur-glass-xl: 40px;
+
+  /* Animation easings */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-sharp:  cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Shadows — tuned for dark background */
+  --shadow-glass:       0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16);
+  --shadow-glass-inset: 0 8px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.16), inset 0 2px 16px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-lifted: 0 16px 48px rgba(0, 0, 0, 0.42), 0 4px 16px rgba(0, 0, 0, 0.22);
+  --shadow-modal:  0 24px 80px rgba(0, 0, 0, 0.52), 0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-glow:   0 0 28px rgba(22, 163, 74, 0.30), 0 0 10px rgba(22, 163, 74, 0.16);
+  --shadow-focus:  0 0 0 3px rgba(134, 239, 172, 0.35);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: url('/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  min-height: 100dvh;
+}
+
+/* ─── Glass Utilities ────────────────────────────────────────────────────── */
+@layer utilities {
+  /* Light glass — navbar login pill, small chips */
+  .glass-sm {
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 4px 16px rgba(0, 0, 0, 0.10);
+  }
+
+  /* Dark glass — cards, filter bar, panels */
+  .glass-md {
+    background: rgba(5, 22, 12, 0.72);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 8px 32px rgba(0, 0, 0, 0.38);
+  }
+
+  /* Dark glass — modals, drawers */
+  .glass-lg {
+    background: rgba(5, 22, 12, 0.65);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 16px 48px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Light glass — navbar (stays lighter to contrast with dark cards) */
+  .glass-xl {
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(48px);
+    -webkit-backdrop-filter: blur(48px);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.40), 0 24px 64px rgba(0, 0, 0, 0.18);
+  }
+
+  /* Green-tinted glass — primary action pill */
+  .glass-primary {
+    background: rgba(22, 163, 74, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(22, 163, 74, 0.30);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 32px rgba(22, 163, 74, 0.12);
+  }
+
+  /* Staggered entrance animation */
+  .stagger-1 { animation-delay: 0ms; }
+  .stagger-2 { animation-delay: 60ms; }
+  .stagger-3 { animation-delay: 120ms; }
+  .stagger-4 { animation-delay: 180ms; }
+
+  .animate-glass-enter {
+    animation: glass-enter 500ms var(--ease-smooth) both;
+  }
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes glass-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

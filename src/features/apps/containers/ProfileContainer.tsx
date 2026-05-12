@@ -43,7 +43,6 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
   });
 
   const { data: session, isPending: sessionPending } = authClient.useSession();
-  const { showSearch, showFilters } = useUIStore();
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
@@ -116,38 +115,6 @@ export default function ProfileContainer({ slug: _slug }: ProfileContainerProps)
         <div className="mb-8">
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
-
-        {activeTab === 'apps' && (showSearch || showFilters || hasActiveFilters) && (
-          <div className="mb-8 p-4 border border-gray-200 rounded-xl bg-gray-50">
-            {showSearch && (
-              <div className="mb-4">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  placeholder="Search your apps..."
-                />
-              </div>
-            )}
-            {showFilters && (
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-medium text-gray-700 mr-2">Tags:</span>
-                {uniqueTags.map((tag) => (
-                  <FilterButton
-                    key={tag}
-                    label={tag}
-                    isActive={selectedTags.includes(tag)}
-                    onClick={() => toggleTag(tag)}
-                  />
-                ))}
-                {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-auto">
-                    Clear filters
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
 
         <div className="py-4">
           {activeTab === 'apps' && (
