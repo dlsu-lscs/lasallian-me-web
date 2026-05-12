@@ -81,14 +81,31 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
         )}
       </div>
 
-      {/* Info section — text left, Launch button right */}
+      {/* Info section — icon + text + save button */}
       <div className="p-3 flex items-center gap-3">
-        {/* Left: title row with inline stats + description */}
-        <div className="flex flex-col flex-1 min-w-0 gap-1">
+        {/* App icon */}
+        <div className="w-12 h-12 rounded-md overflow-hidden bg-black/50 border border-white/8 shrink-0">
+          {app.previewImages?.[0] ? (
+            <img
+              src={imgSrc(app.previewImages[0])}
+              alt={app.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-white/40 text-lg font-bold font-display select-none">
+                {app.title.charAt(0)}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Title row with inline stats + description */}
+        <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center gap-2 min-w-0">
-            <h3 className="font-display text-base font-bold text-white/90 truncate">
+            <p className="font-display text-base font-bold text-white/90 truncate">
               {app.title}
-            </h3>
+            </p>
             {ratingsData && ratingsData.total > 0 && (
               <span className="flex items-center gap-1 text-white/50 shrink-0">
                 <FaStar className="w-3 h-3 text-white/50" />
@@ -102,9 +119,9 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
               )}
             </span>
           </div>
-          <h3 className="text-white/60 text-sm font-semibold leading-relaxed truncate">
+          <p className="text-white/60 text-sm font-semibold leading-relaxed truncate">
             {app.description}
-          </h3>
+          </p>
         </div>
 
         {/* Right: Save button */}

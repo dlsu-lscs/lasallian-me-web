@@ -44,7 +44,7 @@ export function SubmitContainer() {
       setIsUploading(true);
       try {
         const uploaded = await uploadImages(files);
-        previewImages = uploaded.map((r) => r.key); // store keys, not signed URLs
+        previewImages = uploaded.map((r) => r.key);
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : 'Image upload failed.');
         setIsUploading(false);
@@ -61,25 +61,33 @@ export function SubmitContainer() {
     ? 'Uploading images…'
     : mutation.isPending
       ? 'Submitting…'
-      : 'Submit App for Review';
+      : 'Submit for Review';
 
   const error = uploadError ?? (mutation.isError ? mutation.error.message : null);
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Submit an App</h1>
+      <div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-2xl px-8 py-8">
+        <div className="mb-8">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-1">Submit an App</p>
+          <h1 className="text-2xl font-bold text-white">Share your project</h1>
+          <p className="text-white/45 text-sm mt-1">
+            Apps are reviewed by the LSCS team before going live.
+          </p>
+        </div>
 
-      <SubmitForm
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-        submitLabel={submitLabel}
-        error={error}
-        isSuccess={mutation.isSuccess}
-        onReset={() => {
-          mutation.reset();
-          setUploadError(null);
-        }}
-      />
+        <SubmitForm
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          submitLabel={submitLabel}
+          error={error}
+          isSuccess={mutation.isSuccess}
+          onReset={() => {
+            mutation.reset();
+            setUploadError(null);
+          }}
+        />
+      </div>
     </div>
   );
 }

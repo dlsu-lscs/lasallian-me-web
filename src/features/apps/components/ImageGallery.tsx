@@ -15,8 +15,8 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
 
   if (list.length === 0) {
     return (
-      <div className="w-full aspect-video mb-6 rounded-xl bg-gray-100 overflow-hidden flex items-center justify-center">
-        <span className="text-gray-300 text-3xl font-bold">App Image Placeholder</span>
+      <div className="w-full aspect-video mb-6 rounded-xl bg-white/5 overflow-hidden flex items-center justify-center">
+        <span className="text-white/20 text-xl font-bold">No preview available</span>
       </div>
     );
   }
@@ -26,7 +26,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
 
   return (
     <div className="w-full mb-6">
-      <div className="relative w-full aspect-video rounded-xl bg-gray-100 overflow-hidden">
+      <div className="relative w-full aspect-video rounded-xl bg-white/5 overflow-hidden">
         <img
           src={imgSrc(list[index])}
           alt={`${title} preview ${index + 1}`}
