@@ -9,5 +9,12 @@ export async function GET(req: NextRequest) {
   }
 
   const signedUrl = await getSignedImageUrl(key);
-  return NextResponse.redirect(signedUrl);
+
+  return new NextResponse(null, {
+  status: 307,
+  headers: {
+    'Location': signedUrl,
+    'Cache-Control': 'public, max-age=3300', // Get fresh image link after 55 minutes
+  },
+});
 }

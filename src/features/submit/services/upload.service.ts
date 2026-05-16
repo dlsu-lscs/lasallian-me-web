@@ -1,24 +1,33 @@
 export interface UploadResult {
   key: string;
-  signedUrl: string;
 }
 
 export async function uploadImages(files: File[]): Promise<UploadResult[]> {
-  const formData = new FormData();
+  const results: UploadResult[] = [];
+
   for (const file of files) {
-    formData.append('files', file);
+    const params = new URLSearchParams({ fileName: file.name, contentType: file.type });
+    const presignResponse = await fetch(`/api/upload?${params}`);
+
+    if (!presignResponse.ok) {
+      const err = await presignResponse.json().catch(() => ({}));
+      throw new Error(err?.error ?? 'Failed to get upload URL. Please try again.');
+    }
+
+    const { presignedUrl, key } = await presignResponse.json();
+
+    const uploadResponse = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error(`Failed to upload "${file.name}". Please try again.`);
+    }
+
+    results.push({ key });
   }
 
-  const response = await fetch('/api/upload', {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error ?? 'Image upload failed. Please try again.');
-  }
-
-  const data = await response.json();
-  return data.files as UploadResult[];
+  return results;
 }
