@@ -7,7 +7,9 @@ interface ReviewItemProps {
 }
 
 export function ReviewItem({ rating }: ReviewItemProps) {
-  const displayName = rating.isAnonymous || !rating.userEmail ? 'Anonymous' : rating.userEmail;
+  const displayName = rating.isAnonymous || (!rating.userName && !rating.userEmail)
+    ? 'Anonymous'
+    : (rating.userName ?? rating.userEmail!);
 
   return (
     <div className="py-4 first:pt-0 last:pb-0">

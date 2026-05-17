@@ -4,6 +4,7 @@ export interface Rating {
   comment: string | null;
   isAnonymous: boolean;
   userEmail: string | null;
+  userName: string | null;
 }
 
 export interface ApplicationRatings {
