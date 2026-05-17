@@ -61,9 +61,11 @@ export function AppDetail({
               </button>
             </div>
 
-            <p className="text-white/45 text-sm">
-              By <span className="text-white/65 font-semibold">{app.userEmail?.split('@')[0] ?? 'Unknown'}</span>
-            </p>
+            {(app.author || app.userEmail) && (
+              <p className="text-white/45 text-sm">
+                By <span className="text-white/65 font-semibold">{app.author ?? app.userEmail?.split('@')[0]}</span>
+              </p>
+            )}
 
             {/* Stats row */}
             <div className="flex items-center gap-4 flex-wrap">

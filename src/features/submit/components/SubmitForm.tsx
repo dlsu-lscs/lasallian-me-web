@@ -33,6 +33,7 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
   const [slugEdited, setSlugEdited] = useState(false);
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
+  const [author, setAuthor] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [tags, setTags] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -78,6 +79,7 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
         githubLink: githubLink.trim(),
         description: description.trim() || undefined,
         url: url.trim() || undefined,
+        author: author.trim() || undefined,
         tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
       },
       selectedFiles,
@@ -143,6 +145,13 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="https://myapp.example.com"
+      />
+
+      <Input
+        label="Author"
+        value={author}
+        onChange={(e) => setAuthor(e.target.value)}
+        placeholder="e.g. Jane Doe or LSCS Dev Team"
       />
 
       <Input

@@ -17,6 +17,7 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [url, setUrl] = useState('');
+  const [author, setAuthor] = useState('');
   const [tags, setTags] = useState('');
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
       setSlug(application.slug ?? '');
       setDescription(application.description ?? '');
       setUrl(application.url ?? '');
+      setAuthor(application.author ?? '');
       setTags(application.tags?.join(', ') ?? '');
     }
   }, [application]);
@@ -36,6 +38,7 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
       slug: slug.trim() || undefined,
       description: description.trim() || undefined,
       url: url.trim() || undefined,
+      author: author.trim() || undefined,
       tags: tags
         ? tags.split(',').map((t) => t.trim()).filter(Boolean)
         : undefined,
@@ -68,6 +71,12 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
           label="URL"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
+        />
+        <Input
+          label="Author"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          placeholder="e.g. Jane Doe or LSCS Dev Team"
         />
         <Input
           label="Tags (comma-separated)"

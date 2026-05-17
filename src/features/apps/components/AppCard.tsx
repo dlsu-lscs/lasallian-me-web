@@ -119,6 +119,9 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
               )}
             </span>
           </div>
+          {app.author && (
+            <p className="text-white/40 text-xs truncate">{app.author}</p>
+          )}
           <p className="text-white/60 text-sm font-semibold leading-relaxed truncate">
             {app.description}
           </p>
