@@ -4,6 +4,7 @@ export interface SubmitApplicationForm {
   githubLink: string;
   description?: string;
   url?: string;
+  author?: string;
   tags?: string[];
   previewImages?: string[];
 }

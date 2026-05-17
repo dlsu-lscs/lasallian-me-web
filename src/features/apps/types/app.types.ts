@@ -9,6 +9,7 @@ export interface Application {
   tags: string[] | null;
   userId: string;
   userEmail?: string;
+  author?: string | null;
   isApproved: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REMOVED';
   rejectionReason?: string | null;
   createdAt: string;
