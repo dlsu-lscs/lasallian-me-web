@@ -5,6 +5,7 @@ interface UserProfileCardProps {
   name?: string | null;
   image?: string | null;
   email?: string | null;
+  onClick?: () => void;
 }
 
 function getInitials(name?: string | null): string {
@@ -14,7 +15,7 @@ function getInitials(name?: string | null): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-export function UserProfileCard({ name, image, email }: UserProfileCardProps) {
+export function UserProfileCard({ name, image, email, onClick }: UserProfileCardProps) {
   const avatar = image ? (
     <img
       src={image}
@@ -31,6 +32,7 @@ export function UserProfileCard({ name, image, email }: UserProfileCardProps) {
 
   return (
     <motion.div
+      onClick={onClick}
       className="
         relative overflow-hidden
         bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-xl shrink-0

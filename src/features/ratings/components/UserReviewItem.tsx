@@ -8,12 +8,12 @@ interface UserReviewItemProps {
 
 export function UserReviewItem({ rating }: UserReviewItemProps) {
   return (
-    <div className="border border-gray-100 rounded-xl p-4">
+    <div className="bg-white/4 border border-white/8 rounded-xl p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
           <Link
             href={`/${rating.application.slug}`}
-            className="text-sm font-semibold text-blue-600 hover:underline"
+            className="text-sm font-semibold text-white/80 hover:text-white transition-colors"
           >
             {rating.application.title}
           </Link>
@@ -22,11 +22,11 @@ export function UserReviewItem({ rating }: UserReviewItemProps) {
           </div>
         </div>
         {rating.isAnonymous && (
-          <span className="text-xs text-gray-400 shrink-0">Anonymous</span>
+          <span className="text-xs text-white/30 shrink-0">Anonymous</span>
         )}
       </div>
       {rating.comment && (
-        <p className="text-gray-700 text-sm mt-2">{rating.comment}</p>
+        <p className="text-white/50 text-sm mt-2 leading-relaxed">{rating.comment}</p>
       )}
     </div>
   );

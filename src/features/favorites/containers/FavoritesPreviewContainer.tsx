@@ -89,11 +89,10 @@ export function FavoritesPreviewContainer({ userId }: FavoritesPreviewContainerP
         <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">
           {isDeleteMode ? 'Editing — tap outside to finish' : 'Favorites'}
         </p>
-        {!isLoading && favoriteApps.length > 0 && (
-          <div className="relative">
+        <div className="relative">
             <button
               onClick={handleThreeDots}
-              className="text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors p-2 rounded-sm focus:outline-none cursor-pointer"
+              className={`text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors p-2 rounded-sm focus:outline-none cursor-pointer ${!isLoading && favoriteApps.length > 0 ? '' : 'invisible pointer-events-none'}`}
             >
               <FiMoreHorizontal className="w-4 h-4" />
             </button>
@@ -118,7 +117,6 @@ export function FavoritesPreviewContainer({ userId }: FavoritesPreviewContainerP
               )}
             </AnimatePresence>
           </div>
-        )}
       </div>
 
       {isLoading ? (
@@ -133,7 +131,7 @@ export function FavoritesPreviewContainer({ userId }: FavoritesPreviewContainerP
             </div>
             <p className="text-white/50 text-sm font-semibold leading-snug">Your saved apps live here</p>
             <p className="text-white/25 text-xs leading-snug">
-              Hit <span className="text-white/40 font-semibold">Save</span> on any application to pin it to this panel.
+              Hit <span className="text-white/40 font-semibold">Save</span> on any application to pin it to this panel. Bookmark <span className="text-white/40 font-semibold">pana.tools</span> to go back to this anytime!
             </p>
           </div>
         </div>

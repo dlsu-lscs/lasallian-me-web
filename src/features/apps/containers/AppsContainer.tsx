@@ -6,13 +6,15 @@ import { AppCard } from '../components/AppCard';
 import { useAppsContainer } from '@/features/apps/hooks/useAppsContainer';
 import { Pagination } from '@/components/molecules/Pagination';
 import { AppCardSkeleton } from '@/components/molecules/AppCardSkeleton';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { authClient } from '@/lib/auth-client';
 import { UserProfileCard } from '../components/UserProfileCard';
 import { FavoritesPreviewContainer } from '@/features/favorites/containers/FavoritesPreviewContainer';
+import ProfileContainer from './ProfileContainer';
 
 export default function AppsContainer() {
   const [hasMounted, setHasMounted] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { data: session } = authClient.useSession();
 
   const {
@@ -47,14 +49,14 @@ export default function AppsContainer() {
       {session?.user && (
         <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-3">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-stretch">
-            <UserProfileCard name={session.user.name} image={session.user.image} email={session.user.email} />
+            <UserProfileCard name={session.user.name} image={session.user.image} email={session.user.email} onClick={() => setIsProfileOpen(true)} />
             <FavoritesPreviewContainer userId={session.user.id} />
           </div>
         </div>
       )}
 
       {/* Filter / search panel — glass card */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-3">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-8">
         <div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-xl px-5 py-4">
           <div className="flex items-start gap-3">
             <div className="shrink-0 pt-0.5">
@@ -147,6 +149,15 @@ export default function AppsContainer() {
           />
         )}
       </div>
+
+      <AnimatePresence>
+        {isProfileOpen && session?.user && (
+          <ProfileContainer
+            slug={session.user.id}
+            onClose={() => setIsProfileOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
