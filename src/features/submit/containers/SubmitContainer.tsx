@@ -44,7 +44,9 @@ export function SubmitContainer() {
       setIsUploading(true);
       try {
         const uploaded = await uploadImages(files);
-        previewImages = uploaded.map((r) => r.key); // store keys, not signed URLs
+        previewImages = uploaded.map(
+          (r) => `${window.location.origin}/api/image?key=${encodeURIComponent(r.key)}`
+        );
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : 'Image upload failed.');
         setIsUploading(false);
