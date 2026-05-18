@@ -1,10 +1,10 @@
 export interface SubmitApplicationForm {
   title: string;
   slug: string;
-  githubLink: string;
+  url: string;
   description?: string;
-  url?: string;
   author?: string;
+  githubLink?: string;
   tags?: string[];
   previewImages?: string[];
 }

@@ -3,8 +3,8 @@ export interface Application {
   title: string;
   slug: string;
   description: string | null;
-  url: string | null;
-  githubLink: string;
+  url: string;
+  githubLink: string | null;
   previewImages: string[] | null;
   tags: string[] | null;
   userId: string;
