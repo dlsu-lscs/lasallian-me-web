@@ -85,9 +85,9 @@ export function AppCard({ app, showTags = true, className }: AppCardProps) {
       <div className="p-3 flex items-center gap-3">
         {/* App icon */}
         <div className="w-12 h-12 rounded-md overflow-hidden bg-black/50 border border-white/8 shrink-0">
-          {app.previewImages?.[0] ? (
+          {(app.icon ?? app.previewImages?.[0]) ? (
             <img
-              src={imgSrc(app.previewImages[0])}
+              src={imgSrc((app.icon ?? app.previewImages![0])!)}
               alt={app.title}
               className="w-full h-full object-cover"
             />

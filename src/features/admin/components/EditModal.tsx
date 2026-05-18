@@ -19,6 +19,7 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
   const [url, setUrl] = useState('');
   const [author, setAuthor] = useState('');
   const [tags, setTags] = useState('');
+  const [icon, setIcon] = useState('');
 
   useEffect(() => {
     if (application) {
@@ -28,6 +29,7 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
       setUrl(application.url ?? '');
       setAuthor(application.author ?? '');
       setTags(application.tags?.join(', ') ?? '');
+      setIcon(application.icon ?? '');
     }
   }, [application]);
 
@@ -42,6 +44,7 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
       tags: tags
         ? tags.split(',').map((t) => t.trim()).filter(Boolean)
         : undefined,
+      icon: icon.trim() || undefined,
     });
   };
 
@@ -83,6 +86,12 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="e.g. productivity, social"
+        />
+        <Input
+          label="Icon URL"
+          value={icon}
+          onChange={(e) => setIcon(e.target.value)}
+          placeholder="/api/image?key=icons/..."
         />
 
         <div className="flex justify-end gap-3 pt-2">

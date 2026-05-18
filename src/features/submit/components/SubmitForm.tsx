@@ -4,7 +4,7 @@ import { SubmitApplicationForm } from '../types/submit.types';
 import { FiUpload, FiX, FiCheck } from 'react-icons/fi';
 
 interface SubmitFormProps {
-  onSubmit: (data: SubmitApplicationForm, files: File[]) => void;
+  onSubmit: (data: SubmitApplicationForm, files: File[], iconFile?: File) => void;
   isSubmitting: boolean;
   submitLabel: string;
   error: string | null;
@@ -38,8 +38,11 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
   const [tags, setTags] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [iconFile, setIconFile] = useState<File | null>(null);
+  const [iconPreviewUrl, setIconPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const iconInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!slugEdited) setSlug(toSlug(title));
@@ -50,6 +53,13 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
     setPreviewUrls(urls);
     return () => { urls.forEach((u) => URL.revokeObjectURL(u)); };
   }, [selectedFiles]);
+
+  useEffect(() => {
+    if (!iconFile) { setIconPreviewUrl(null); return; }
+    const url = URL.createObjectURL(iconFile);
+    setIconPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [iconFile]);
 
   const addFiles = (incoming: File[]) => {
     setSelectedFiles((prev) => [...prev, ...incoming].slice(0, 5));
@@ -83,6 +93,7 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
         tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
       },
       selectedFiles,
+      iconFile ?? undefined,
     );
   };
 
@@ -171,8 +182,57 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
       />
       <FieldHint>Comma-separated list of tags.</FieldHint>
 
-      {/* Image upload */}
+      {/* App Icon upload */}
       <div className="w-full -mt-3">
+        <FieldLabel>App Icon</FieldLabel>
+        <div
+          onClick={() => iconInputRef.current?.click()}
+          className="border-2 border-dashed rounded-xl px-4 py-6 text-center cursor-pointer transition-colors border-white/10 hover:border-white/20 hover:bg-white/3"
+        >
+          <input
+            ref={iconInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setIconFile(file);
+              if (iconInputRef.current) iconInputRef.current.value = '';
+            }}
+          />
+          {iconPreviewUrl ? (
+            <div className="flex items-center justify-center gap-3">
+              <div className="relative group w-16 h-16 shrink-0">
+                <img
+                  src={iconPreviewUrl}
+                  alt="Icon preview"
+                  className="w-16 h-16 object-cover rounded-lg border border-white/10"
+                />
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setIconFile(null); }}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  aria-label="Remove icon"
+                >
+                  <FiX className="w-3 h-3" strokeWidth={3} />
+                </button>
+              </div>
+              <span className="text-sm text-white/50">{iconFile?.name}</span>
+            </div>
+          ) : (
+            <>
+              <FiUpload className="w-5 h-5 text-white/30 mx-auto mb-2" />
+              <p className="text-sm text-white/40">
+                Drop icon here or <span className="text-white/60 font-semibold">click to browse</span>
+              </p>
+            </>
+          )}
+        </div>
+        <FieldHint>A square image representing your app (JPEG, PNG, WebP — max 5 MB).</FieldHint>
+      </div>
+
+      {/* Preview Images upload */}
+      <div className="w-full">
         <FieldLabel>Preview Images</FieldLabel>
         <div
           onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
