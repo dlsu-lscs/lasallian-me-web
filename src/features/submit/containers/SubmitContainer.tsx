@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { SubmitForm } from '../components/SubmitForm';
 import { useSubmitApplicationMutation } from '../queries/submit.queries';
-import { uploadImages } from '../services/upload.service';
+import { uploadImages, uploadIcon } from '../services/upload.service';
 import type { SubmitApplicationForm } from '../types/submit.types';
 
 export function SubmitContainer() {
@@ -35,10 +35,11 @@ export function SubmitContainer() {
     return null;
   }
 
-  const handleSubmit = async (formData: SubmitApplicationForm, files: File[]) => {
+  const handleSubmit = async (formData: SubmitApplicationForm, files: File[], iconFile?: File) => {
     setUploadError(null);
 
     let previewImages: string[] | undefined;
+    let icon: string | undefined;
 
     if (files.length > 0) {
       setIsUploading(true);
@@ -55,12 +56,25 @@ export function SubmitContainer() {
       setIsUploading(false);
     }
 
-    mutation.mutate({ ...formData, previewImages });
+    if (iconFile) {
+      setIsUploading(true);
+      try {
+        const uploaded = await uploadIcon(iconFile);
+        icon = `${window.location.origin}/api/image?key=${encodeURIComponent(uploaded.key)}`;
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : 'Icon upload failed.');
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
+    }
+
+    mutation.mutate({ ...formData, previewImages, icon });
   };
 
   const isSubmitting = isUploading || mutation.isPending;
   const submitLabel = isUploading
-    ? 'Uploading images…'
+    ? 'Uploading…'
     : mutation.isPending
       ? 'Submitting…'
       : 'Submit for Review';

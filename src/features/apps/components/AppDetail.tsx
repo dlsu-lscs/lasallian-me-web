@@ -4,6 +4,7 @@ import { FiBookmark, FiExternalLink } from 'react-icons/fi';
 import { FaBookmark } from 'react-icons/fa';
 import { FaStar } from 'react-icons/fa';
 import { ImageGallery } from './ImageGallery';
+import { imgSrc } from '@/lib/img-src';
 
 export interface AppDetailProps {
   app: Application;
@@ -40,7 +41,14 @@ export function AppDetail({
           {/* Title + author + stats */}
           <div className="flex flex-col gap-2">
             <div className="flex items-start justify-between gap-4 flex-wrap">
-              <h1 className="text-3xl font-extrabold text-white leading-tight">{app.title}</h1>
+              <div className="flex items-center gap-3">
+                {app.icon && (
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-black/50 border border-white/10 shrink-0">
+                    <img src={imgSrc(app.icon)} alt={`${app.title} icon`} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <h1 className="text-3xl font-extrabold text-white leading-tight">{app.title}</h1>
+              </div>
 
               {/* Save button */}
               <button

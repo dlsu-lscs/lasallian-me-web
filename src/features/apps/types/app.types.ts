@@ -6,6 +6,7 @@ export interface Application {
   url: string;
   githubLink: string | null;
   previewImages: string[] | null;
+  icon?: string | null;
   tags: string[] | null;
   userId: string;
   userEmail?: string;
