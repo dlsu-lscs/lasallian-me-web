@@ -76,10 +76,10 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
       {
         title: title.trim(),
         slug: slug.trim(),
-        githubLink: githubLink.trim(),
+        url: url.trim(),
         description: description.trim() || undefined,
-        url: url.trim() || undefined,
         author: author.trim() || undefined,
+        githubLink: githubLink.trim() || undefined,
         tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
       },
       selectedFiles,
@@ -140,11 +140,12 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
       </div>
 
       <Input
-        label="App URL"
+        label="App URL *"
         type="url"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="https://myapp.example.com"
+        required
       />
 
       <Input
@@ -155,12 +156,11 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
       />
 
       <Input
-        label="GitHub Link *"
+        label="GitHub Link"
         type="url"
         value={githubLink}
         onChange={(e) => setGithubLink(e.target.value)}
         placeholder="https://github.com/user/repo"
-        required
       />
 
       <Input
@@ -231,7 +231,7 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
 
       <button
         type="submit"
-        disabled={isSubmitting || !title.trim() || !slug.trim() || !githubLink.trim()}
+        disabled={isSubmitting || !title.trim() || !slug.trim() || !url.trim()}
         className="w-full py-3 rounded-full text-sm font-semibold bg-white text-black hover:bg-white/80 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed mt-1"
       >
         {submitLabel}
