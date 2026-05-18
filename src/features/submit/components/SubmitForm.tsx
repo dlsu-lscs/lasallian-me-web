@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
+import {
+  FiUpload, FiX, FiCheck,
+  FiLayers, FiLink, FiUsers, FiImage,
+  FiGlobe, FiGithub, FiUser, FiTag, FiHash,
+} from 'react-icons/fi';
 import { Input } from '@/components/atoms/Input';
 import { SubmitApplicationForm } from '../types/submit.types';
-import { FiUpload, FiX, FiCheck } from 'react-icons/fi';
 
 interface SubmitFormProps {
   onSubmit: (data: SubmitApplicationForm, files: File[], iconFile?: File) => void;
@@ -19,12 +23,28 @@ function toSlug(title: string): string {
     .replace(/[^a-z0-9-]/g, '');
 }
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm font-medium text-white/60 mb-1.5">{children}</p>;
-}
-
-function FieldHint({ children }: { children: React.ReactNode }) {
-  return <p className="mt-1.5 text-xs text-white/30">{children}</p>;
+function FormSection({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: React.ElementType;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-2.5">
+      <div className="flex items-center gap-1.5">
+        <Icon className="w-3.5 h-3.5 text-white/40" />
+        <span className="text-[11px] font-semibold text-white/40 uppercase tracking-widest">
+          {label}
+        </span>
+      </div>
+      <div className="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-4 sm:p-5 grid gap-4">
+        {children}
+      </div>
+    </div>
+  );
 }
 
 export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSuccess, onReset }: SubmitFormProps) {
@@ -119,169 +139,199 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <Input
-        label="Title *"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="My Awesome App"
-        required
-      />
-
-      <div className="w-full">
-        <FieldLabel>Slug *</FieldLabel>
-        <input
-          value={slug}
-          onChange={(e) => { setSlug(e.target.value); setSlugEdited(true); }}
-          placeholder="my-awesome-app"
+      {/* App Info */}
+      <FormSection icon={FiLayers} label="App Info">
+        <Input
+          label="Title *"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="My Awesome App"
           required
-          className="w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white placeholder:text-white/25 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-colors"
         />
-        <FieldHint>Auto-generated from title. Lowercase letters, numbers, and hyphens only.</FieldHint>
-      </div>
 
-      <div className="w-full">
-        <FieldLabel>Description</FieldLabel>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-          placeholder="What does your app do?"
-          className="w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white placeholder:text-white/25 text-sm focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-colors resize-none"
-        />
-      </div>
-
-      <Input
-        label="App URL *"
-        type="url"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="https://myapp.example.com"
-        required
-      />
-
-      <Input
-        label="Author"
-        value={author}
-        onChange={(e) => setAuthor(e.target.value)}
-        placeholder="e.g. Jane Doe or LSCS Dev Team"
-      />
-
-      <Input
-        label="GitHub Link"
-        type="url"
-        value={githubLink}
-        onChange={(e) => setGithubLink(e.target.value)}
-        placeholder="https://github.com/user/repo"
-      />
-
-      <Input
-        label="Tags"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
-        placeholder="productivity, social, tools"
-      />
-      <FieldHint>Comma-separated list of tags.</FieldHint>
-
-      {/* App Icon upload */}
-      <div className="w-full -mt-3">
-        <FieldLabel>App Icon</FieldLabel>
-        <div
-          onClick={() => iconInputRef.current?.click()}
-          className="border-2 border-dashed rounded-xl px-4 py-6 text-center cursor-pointer transition-colors border-white/10 hover:border-white/20 hover:bg-white/3"
-        >
-          <input
-            ref={iconInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/gif,image/webp"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setIconFile(file);
-              if (iconInputRef.current) iconInputRef.current.value = '';
-            }}
-          />
-          {iconPreviewUrl ? (
-            <div className="flex items-center justify-center gap-3">
-              <div className="relative group w-16 h-16 shrink-0">
-                <img
-                  src={iconPreviewUrl}
-                  alt="Icon preview"
-                  className="w-16 h-16 object-cover rounded-lg border border-white/10"
-                />
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); setIconFile(null); }}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                  aria-label="Remove icon"
-                >
-                  <FiX className="w-3 h-3" strokeWidth={3} />
-                </button>
-              </div>
-              <span className="text-sm text-white/50">{iconFile?.name}</span>
+        <div className="w-full">
+          <label className="block text-sm font-medium text-white/60 mb-1.5">Slug *</label>
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+              <FiHash className="w-4 h-4 text-white/30" />
             </div>
-          ) : (
-            <>
-              <FiUpload className="w-5 h-5 text-white/30 mx-auto mb-2" />
-              <p className="text-sm text-white/40">
-                Drop icon here or <span className="text-white/60 font-semibold">click to browse</span>
-              </p>
-            </>
-          )}
-        </div>
-        <FieldHint>A square image representing your app (JPEG, PNG, WebP — max 5 MB).</FieldHint>
-      </div>
-
-      {/* Preview Images upload */}
-      <div className="w-full">
-        <FieldLabel>Preview Images</FieldLabel>
-        <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl px-4 py-8 text-center cursor-pointer transition-colors ${
-            isDragging
-              ? 'border-white/30 bg-white/5'
-              : 'border-white/10 hover:border-white/20 hover:bg-white/3'
-          }`}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <FiUpload className="w-5 h-5 text-white/30 mx-auto mb-2" />
-          <p className="text-sm text-white/40">
-            Drop images here or <span className="text-white/60 font-semibold">click to browse</span>
-          </p>
-          <p className="text-xs text-white/25 mt-1">Up to 5 images, max 5 MB each</p>
-        </div>
-
-        {previewUrls.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {previewUrls.map((previewUrl, i) => (
-              <div key={i} className="relative group w-20 h-20 shrink-0">
-                <img
-                  src={previewUrl}
-                  alt={selectedFiles[i]?.name}
-                  className="w-20 h-20 object-cover rounded-lg border border-white/10"
-                />
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                  aria-label="Remove image"
-                >
-                  <FiX className="w-3 h-3" strokeWidth={3} />
-                </button>
-              </div>
-            ))}
+            <input
+              value={slug}
+              onChange={(e) => { setSlug(e.target.value); setSlugEdited(true); }}
+              placeholder="my-awesome-app"
+              required
+              className="w-full pl-9 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white placeholder:text-white/25 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-colors"
+            />
           </div>
-        )}
-      </div>
+          <p className="mt-1.5 text-xs text-white/30">
+            Auto-generated from title. Lowercase, numbers, and hyphens.
+          </p>
+        </div>
+
+        <div className="w-full">
+          <label className="block text-sm font-medium text-white/60 mb-1.5">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            placeholder="What does your app do?"
+            className="w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white placeholder:text-white/25 text-sm focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-colors resize-none"
+          />
+        </div>
+      </FormSection>
+
+      {/* Links */}
+      <FormSection icon={FiLink} label="Links">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input
+            label="App URL *"
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://myapp.example.com"
+            required
+            startIcon={FiGlobe}
+          />
+          <Input
+            label="GitHub"
+            type="url"
+            value={githubLink}
+            onChange={(e) => setGithubLink(e.target.value)}
+            placeholder="https://github.com/user/repo"
+            startIcon={FiGithub}
+          />
+        </div>
+      </FormSection>
+
+      {/* Team */}
+      <FormSection icon={FiUsers} label="Team">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input
+            label="Author"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            placeholder="Jane Doe or LSCS Dev Team"
+            startIcon={FiUser}
+          />
+          <div className="w-full">
+            <label className="block text-sm font-medium text-white/60 mb-1.5">Tags</label>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+                <FiTag className="w-4 h-4 text-white/30" />
+              </div>
+              <input
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="productivity, social, tools"
+                className="w-full pl-9 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white placeholder:text-white/25 text-sm focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-colors"
+              />
+            </div>
+            <p className="mt-1.5 text-xs text-white/30">Comma-separated list</p>
+          </div>
+        </div>
+      </FormSection>
+
+      {/* Media */}
+      <FormSection icon={FiImage} label="Media">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* App Icon */}
+          <div>
+            <p className="text-sm font-medium text-white/60 mb-1.5">App Icon</p>
+            <div
+              onClick={() => iconInputRef.current?.click()}
+              className="border-2 border-dashed rounded-xl px-4 py-5 text-center cursor-pointer transition-colors border-white/10 hover:border-white/20 hover:bg-white/5 min-h-[96px] flex items-center justify-center"
+            >
+              <input
+                ref={iconInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setIconFile(file);
+                  if (iconInputRef.current) iconInputRef.current.value = '';
+                }}
+              />
+              {iconPreviewUrl ? (
+                <div className="flex items-center gap-3">
+                  <div className="relative w-14 h-14 shrink-0">
+                    <img
+                      src={iconPreviewUrl}
+                      alt="Icon preview"
+                      className="w-14 h-14 object-cover rounded-xl border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setIconFile(null); }}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center cursor-pointer shadow-sm"
+                      aria-label="Remove icon"
+                    >
+                      <FiX className="w-3 h-3" strokeWidth={3} />
+                    </button>
+                  </div>
+                  <span className="text-xs text-white/40 truncate max-w-[80px]">{iconFile?.name}</span>
+                </div>
+              ) : (
+                <div>
+                  <FiUpload className="w-5 h-5 text-white/30 mx-auto mb-2" />
+                  <p className="text-sm text-white/40">Click to browse</p>
+                </div>
+              )}
+            </div>
+            <p className="mt-1.5 text-xs text-white/30">Square image, max 5 MB</p>
+          </div>
+
+          {/* Preview Images */}
+          <div>
+            <p className="text-sm font-medium text-white/60 mb-1.5">Preview Images</p>
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-xl px-4 py-5 text-center cursor-pointer transition-colors min-h-[96px] flex flex-col items-center justify-center ${
+                isDragging ? 'border-white/30 bg-white/5' : 'border-white/10 hover:border-white/20 hover:bg-white/5'
+              }`}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <FiUpload className="w-5 h-5 text-white/30 mb-2" />
+              <p className="text-sm text-white/40">
+                Drop or <span className="text-white/60 font-semibold">browse</span>
+              </p>
+              <p className="text-xs text-white/25 mt-1">Up to 5 images</p>
+            </div>
+
+            {previewUrls.length > 0 && (
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                {previewUrls.map((previewUrl, i) => (
+                  <div key={i} className="relative w-14 h-14 shrink-0">
+                    <img
+                      src={previewUrl}
+                      alt={selectedFiles[i]?.name}
+                      className="w-14 h-14 object-cover rounded-lg border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center cursor-pointer shadow-sm"
+                      aria-label="Remove image"
+                    >
+                      <FiX className="w-3 h-3" strokeWidth={3} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </FormSection>
 
       {error && (
         <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
@@ -292,7 +342,7 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
       <button
         type="submit"
         disabled={isSubmitting || !title.trim() || !slug.trim() || !url.trim()}
-        className="w-full py-3 rounded-full text-sm font-semibold bg-white text-black hover:bg-white/80 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed mt-1"
+        className="w-full py-3 rounded-full text-sm font-semibold bg-white text-black hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitLabel}
       </button>

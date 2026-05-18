@@ -54,7 +54,10 @@ export function useUpdateApplicationMutation() {
   return useMutation({
     mutationFn: ({ id, updates }: { id: number; updates: Partial<Application> }) =>
       updateApplication(id, updates),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['applications'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['applications'] });
+      qc.invalidateQueries({ queryKey: ['application'] });
+    },
   });
 }
 

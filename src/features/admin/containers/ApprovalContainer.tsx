@@ -1,17 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Application } from '@/features/apps/types/app.types';
 import { PendingAppCard } from '../components/PendingAppCard';
 import { RejectModal } from '../components/RejectModal';
 import { RemoveModal } from '../components/RemoveModal';
-import { EditModal } from '../components/EditModal';
 import {
   useAdminApplicationsQuery,
   useApproveApplicationMutation,
   useRejectApplicationMutation,
   useRemoveApplicationMutation,
-  useEditApplicationMutation,
 } from '../queries/admin.queries';
 import type { RejectModalState, RemoveModalState, EditModalState } from '../types/admin.types';
 import type { AdminApplicationStatus } from '../services/admin.service';
@@ -52,7 +51,6 @@ export function ApprovalContainer() {
   const approveMutation = useApproveApplicationMutation();
   const rejectMutation = useRejectApplicationMutation();
   const removeMutation = useRemoveApplicationMutation();
-  const editMutation = useEditApplicationMutation();
 
   const { addToast } = useToastStore();
 
@@ -68,10 +66,7 @@ export function ApprovalContainer() {
     reason: '',
   });
 
-  const [editModal, setEditModal] = useState<EditModalState>({
-    isOpen: false,
-    application: null,
-  });
+  const router = useRouter();
 
   const handleApprove = (id: number) => {
     approveMutation.mutate(id, {
@@ -117,21 +112,9 @@ export function ApprovalContainer() {
   };
 
   const handleOpenEdit = (app: Application) => {
-    setEditModal({ isOpen: true, application: app });
+    router.push(`/applications/${encodeURIComponent(app.slug)}/edit`);
   };
 
-  const handleSaveEdit = (id: number, updates: Partial<Application>) => {
-    editMutation.mutate(
-      { id, updates },
-      {
-        onSuccess: () => {
-          setEditModal({ isOpen: false, application: null });
-          addToast('Application updated', 'success');
-        },
-        onError: () => addToast('Failed to update application', 'error'),
-      },
-    );
-  };
 
   return (
     <div>
@@ -225,13 +208,6 @@ export function ApprovalContainer() {
         isSubmitting={removeMutation.isPending}
       />
 
-      <EditModal
-        isOpen={editModal.isOpen}
-        onClose={() => setEditModal({ isOpen: false, application: null })}
-        application={editModal.application}
-        onSave={handleSaveEdit}
-        isSubmitting={editMutation.isPending}
-      />
     </div>
   );
 }

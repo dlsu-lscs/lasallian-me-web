@@ -3,12 +3,13 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { FiMinus } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { Badge } from '@/components/atoms/Badge';
 import { AppCard } from '../components/AppCard';
-import { EditModal } from '@/features/admin/components/EditModal';
-import { useApplicationsQuery, useUpdateApplicationMutation, useDeleteApplicationMutation } from '../queries/apps.queries';
+import { useApplicationsQuery, useDeleteApplicationMutation, useUpdateApplicationMutation } from '../queries/apps.queries';
 import { Application } from '../types/app.types';
+import { EditModal } from '@/features/admin/components/EditModal';
 import { FavoritesContainer } from '@/features/favorites/containers/FavoritesContainer';
 import { useUserRatingsQuery } from '@/features/ratings/queries/ratings.queries';
 import { UserReviewItem } from '@/features/ratings/components/UserReviewItem';
@@ -42,10 +43,7 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [editModal, setEditModal] = useState<{ isOpen: boolean; application: Application | null }>({
-    isOpen: false,
-    application: null,
-  });
+  const router = useRouter();
 
   const { data: session, isPending: sessionPending } = authClient.useSession();
 
@@ -72,8 +70,20 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
     !sessionPending && !!session,
   );
 
-  const updateMutation = useUpdateApplicationMutation();
   const deleteMutation = useDeleteApplicationMutation();
+  const updateMutation = useUpdateApplicationMutation();
+
+  const [editModal, setEditModal] = useState<{ isOpen: boolean; application: Application | null }>({
+    isOpen: false,
+    application: null,
+  });
+
+  const handleSaveEdit = useCallback((id: number, updates: Partial<Application>) => {
+    updateMutation.mutate(
+      { id, updates },
+      { onSuccess: () => setEditModal({ isOpen: false, application: null }) },
+    );
+  }, [updateMutation]);
 
   const clearFilters = useCallback(() => {
     setSearchQuery('');
@@ -83,13 +93,6 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
   const handleDelete = (id: number) => {
     if (!confirm('Delete this app? This cannot be undone.')) return;
     deleteMutation.mutate(id);
-  };
-
-  const handleSaveEdit = (id: number, updates: Partial<Application>) => {
-    updateMutation.mutate(
-      { id, updates },
-      { onSuccess: () => setEditModal({ isOpen: false, application: null }) },
-    );
   };
 
   const inner = (
@@ -193,7 +196,7 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
                         </div>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => setEditModal({ isOpen: true, application: app })}
+                            onClick={() => router.push(`/${encodeURIComponent(app.slug)}/edit`)}
                             className="px-3 py-1 text-xs font-semibold rounded-full bg-white/8 text-white/70 hover:bg-white/12 hover:text-white transition-colors cursor-pointer"
                           >
                             Edit
@@ -294,13 +297,6 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
           {inner}
         </div>
       </div>
-      <EditModal
-        isOpen={editModal.isOpen}
-        onClose={() => setEditModal({ isOpen: false, application: null })}
-        application={editModal.application}
-        onSave={handleSaveEdit}
-        isSubmitting={updateMutation.isPending}
-      />
     </div>
   );
 }

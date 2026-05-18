@@ -49,8 +49,8 @@ export async function getApplicationFavoritesCount(
 
 export async function updateApplication(
   id: number,
-  updates: Partial<Pick<Application, 'title' | 'slug' | 'description' | 'url' | 'tags' | 'previewImages'>>,
-): Promise<Application> {
+  updates: Partial<Pick<Application, 'title' | 'slug' | 'description' | 'url' | 'githubLink' | 'tags' | 'previewImages' | 'icon'>>,
+): Promise<{ slug: string }> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${id}`,
     {

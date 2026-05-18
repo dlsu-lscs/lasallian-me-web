@@ -1,0 +1,16 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "pana.tools" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - textbox "Search apps..." [ref=e11]
+      - generic [ref=e12]:
+        - link "Apps" [ref=e13] [cursor=pointer]:
+          - /url: /
+        - link "LSCS" [ref=e14] [cursor=pointer]:
+          - /url: https://dlsu-lscs.org/
+  - main [ref=e17]:
+    - paragraph [ref=e19]: Loading apps...
