@@ -1,4 +1,5 @@
 
+import Image from 'next/image';
 
 interface ProfileHeaderProps {
   name?: string;
@@ -12,9 +13,9 @@ export function ProfileHeader({ name, email, image }: ProfileHeaderProps) {
   return (
     <div className="flex items-center space-x-10 py-12">
       {/* Avatar */}
-      <div className="w-48 h-48 rounded-full border-2 border-gray-200 bg-gray-50 flex-shrink-0 overflow-hidden flex items-center justify-center">
+      <div className="relative w-48 h-48 rounded-full border-2 border-gray-200 bg-gray-50 flex-shrink-0 overflow-hidden flex items-center justify-center">
         {image ? (
-          <img src={image} alt={name || "Profile Name"} className="w-full h-full object-cover" />
+          <Image fill unoptimized src={image} alt={name || "Profile Name"} className="object-cover" />
         ) : (
           <span className="text-5xl font-bold text-gray-400">
             {name?.charAt(0) ?? '?'}

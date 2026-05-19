@@ -1,9 +1,11 @@
-import React from 'react';
+'use client';
+
+import React, { useRef, useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Application } from '../types/app.types';
-import { FiBookmark, FiExternalLink } from 'react-icons/fi';
-import { FaBookmark } from 'react-icons/fa';
-import { FaStar } from 'react-icons/fa';
-import { ImageGallery } from './ImageGallery';
+import { FiBookmark, FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
+import { FaBookmark, FaStar, FaPlay } from 'react-icons/fa';
+import { LuTag, LuSquareUser } from 'react-icons/lu';
 import { imgSrc } from '@/lib/img-src';
 
 export interface AppDetailProps {
@@ -16,6 +18,8 @@ export interface AppDetailProps {
   averageScore?: number;
   totalRatings?: number;
   ratingsSection?: React.ReactNode;
+  /** When true, strips the outer page-padding wrapper so the card fills its container. */
+  preview?: boolean;
 }
 
 export function AppDetail({
@@ -28,121 +32,299 @@ export function AppDetail({
   averageScore,
   totalRatings,
   ratingsSection,
+  preview = false,
 }: AppDetailProps) {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  const screenshotRef = useRef<HTMLDivElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
 
-        {/* Left column — main app info */}
-        <div className="lg:col-span-2 bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-2xl p-6 flex flex-col gap-6">
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const [descExpanded, setDescExpanded] = useState(false);
+  const [descOverflows, setDescOverflows] = useState(false);
 
-          <ImageGallery images={app.previewImages} title={app.title} />
+  const tagline = (app.description ?? '').split('\n')[0];
+  const previewImages = app.previewImages ?? [];
+  const tags = [...new Set(app.tags ?? [])];
 
-          {/* Title + author + stats */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                {app.icon && (
-                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-black/50 border border-white/10 shrink-0">
-                    <img src={imgSrc(app.icon)} alt={`${app.title} icon`} className="w-full h-full object-cover" />
-                  </div>
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+    setDescOverflows(el.scrollHeight > el.clientHeight + 1);
+  }, [app.description]);
+
+  useEffect(() => {
+    if (!lightboxImg) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxImg(null);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [lightboxImg]);
+
+  const showTagMeta = tags.length > 0;
+  const showAuthorMeta = !!(app.author || app.userEmail);
+
+  const card = (
+    <div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-2xl overflow-hidden flex flex-col">
+
+          {/* ── 1. Hero ── */}
+          <div className="relative h-56 shrink-0">
+            {previewImages[0] ? (
+              <div className="absolute inset-0 overflow-hidden">
+                <Image
+                  fill
+                  unoptimized
+                  src={imgSrc(previewImages[0])}
+                  alt=""
+                  className="object-cover scale-125 blur-xl brightness-50"
+                />
+              </div>
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-white/8 to-transparent" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+
+            <div className="absolute bottom-0 left-0 right-0 flex items-end gap-4 p-5">
+              {app.icon && (
+                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/20 shrink-0 shadow-xl">
+                  <Image fill unoptimized src={imgSrc(app.icon)} alt={app.title} className="object-cover" />
+                </div>
+              )}
+
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-extrabold text-white leading-tight truncate">{app.title}</h1>
+                {tagline && (
+                  <p className="text-white/55 text-sm mt-0.5 truncate">{tagline}</p>
                 )}
-                <h1 className="text-3xl font-extrabold text-white leading-tight">{app.title}</h1>
               </div>
 
-              {/* Save button */}
-              <button
-                onClick={onToggleFavorite}
-                disabled={isFavoritePending || !isLoggedIn}
-                title={isLoggedIn ? (isFavorited ? 'Remove from favorites' : 'Save to favorites') : 'Sign in to save'}
-                className={`px-4 py-1.5 cursor-pointer rounded-full text-sm font-semibold transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
-                  isFavorited
-                    ? 'bg-black/50 text-white hover:bg-white/10'
-                    : 'bg-white text-black hover:bg-white/80'
-                }`}
-              >
-                {isFavorited ? (
-                  <span className="flex items-center gap-1.5"><FaBookmark className="w-3.5 h-3.5" /> Saved</span>
-                ) : (
-                  <span className="flex items-center gap-1.5"><FiBookmark className="w-3.5 h-3.5" /> Save</span>
+              <div className="flex items-center gap-2 shrink-0">
+                {app.url && (
+                  <a
+                    href={app.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
+                  >
+                    <FaPlay className="w-3 h-3" /> Open 
+                  </a>
                 )}
-              </button>
-            </div>
-
-            {(app.author || app.userEmail) && (
-              <p className="text-white/45 text-sm">
-                By <span className="text-white/65 font-semibold">{app.author ?? app.userEmail?.split('@')[0]}</span>
-              </p>
-            )}
-
-            {/* Stats row */}
-            <div className="flex items-center gap-4 flex-wrap">
-              {favoritesCount !== undefined && (
-                <span className="flex items-center gap-1.5 text-white/40 text-sm">
-                  <FiBookmark className="w-3.5 h-3.5" />
-                  {favoritesCount} {favoritesCount === 1 ? 'save' : 'saves'}
-                </span>
-              )}
-              {averageScore !== undefined && totalRatings !== undefined && totalRatings > 0 && (
-                <span className="flex items-center gap-1.5 text-white/40 text-sm">
-                  <FaStar className="w-3.5 h-3.5" />
-                  {averageScore.toFixed(1)} <span className="text-white/25">({totalRatings})</span>
-                </span>
-              )}
+                <button
+                  onClick={onToggleFavorite}
+                  disabled={isFavoritePending || !isLoggedIn}
+                  title={
+                    isLoggedIn
+                      ? isFavorited ? 'Remove from favorites' : 'Save to favorites'
+                      : 'Sign in to save'
+                  }
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                    isFavorited
+                      ? 'bg-white/15 text-white hover:bg-white/20'
+                      : 'bg-white/10 border border-white/20 text-white hover:bg-white/15'
+                  }`}
+                >
+                  {isFavorited ? <FaBookmark className="w-3.5 h-3.5" /> : <FiBookmark className="w-3.5 h-3.5" />}
+                  {isFavorited ? 'Saved' : 'Save'}
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="border-t border-white/8" />
+          {/* ── 2. Meta Row ── */}
+          <div className="flex items-stretch divide-x divide-white/8 border-b border-white/8">
 
-          {/* About */}
-          <section className="flex flex-col gap-2">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">About</h2>
-            <p className="text-white/70 leading-relaxed text-sm">{app.description ?? 'No description provided.'}</p>
-          </section>
+            {/* Reviews — always visible */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-1 px-4 py-4">
+              <span className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">
+                {totalRatings ?? 0} Reviews
+              </span>
+              <span className="text-xl font-bold text-white leading-none">
+                {(averageScore ?? 0).toFixed(1)}
+              </span>
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <FaStar
+                    key={i}
+                    className={`w-2.5 h-2.5 ${i < Math.round(averageScore ?? 0) ? 'text-white' : 'text-white/20'}`}
+                  />
+                ))}
+              </div>
+            </div>
 
-          <div className="border-t border-white/8" />
+            {/* Favorites — always visible */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-1 px-4 py-4">
+              <span className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">
+                Favorites
+              </span>
+              <span className="flex items-center gap-1.5 text-white font-bold text-xl leading-none">
+                <FiBookmark className="w-4 h-4" />
+                {favoritesCount ?? 0}
+              </span>
+              <span className="text-white/35 text-[10px]">Saved this app</span>
+            </div>
 
-          {/* Links */}
-          <section className="flex flex-col gap-2">
-            <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Links</h2>
-            {app.url ? (
-              <a
-                href={app.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm break-all group"
-              >
-                <FiExternalLink className="w-4 h-4 shrink-0 text-white/40 group-hover:text-white/70 transition-colors" />
-                {app.url}
-              </a>
-            ) : (
-              <p className="text-white/30 text-sm">No links provided.</p>
+            {/* Category */}
+            {showTagMeta && (
+              <div className="flex-1 flex flex-col items-center justify-center gap-1 px-4 py-4">
+                <span className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">
+                  Category
+                </span>
+                <LuTag className="w-5 h-5 text-white/70" />
+                <span className="text-white/35 text-[10px] text-center max-w-[80px] truncate">
+                  {tags[0]}
+                </span>
+              </div>
             )}
-          </section>
 
-          {(app.tags ?? []).length > 0 && (
-            <>
-              <div className="border-t border-white/8" />
-              <section className="flex flex-col gap-2">
-                <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Tags</h2>
-                <div className="flex flex-wrap gap-2">
-                  {[...new Set(app.tags ?? [])].map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/8 text-white/60 border border-white/10"
+            {/* Author */}
+            {showAuthorMeta && (
+              <div className="flex-1 flex flex-col items-center justify-center gap-1 px-4 py-4">
+                <span className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">
+                  Author
+                </span>
+                <LuSquareUser className="w-5 h-5 text-white/70" />
+                <span className="text-white/35 text-[10px] text-center max-w-[80px] truncate">
+                  {app.author ?? app.userEmail?.split('@')[0]}
+                </span>
+              </div>
+            )}
+
+          </div>
+
+          {/* ── 3. Screenshots Carousel ── */}
+          {previewImages.length > 0 && (
+            <div className="border-b border-white/8 py-5">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3 px-6">
+                Screenshots
+              </h2>
+              <div className="relative group/screenshots">
+                <button
+                  onClick={() => screenshotRef.current?.scrollBy({ left: -300, behavior: 'smooth' })}
+                  aria-label="Scroll left"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-10 rounded-lg p-2 bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white/80 transition-all opacity-0 group-hover/screenshots:opacity-100"
+                >
+                  <FiChevronLeft className="w-4 h-4" />
+                </button>
+
+                <div
+                  ref={screenshotRef}
+                  className="flex gap-1 overflow-x-auto px-6 pb-1"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {previewImages.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setLightboxImg(img)}
+                      className="relative shrink-0 h-44 w-72 rounded-xl overflow-hidden bg-white/5 cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                     >
-                      {tag}
-                    </span>
+                      <Image
+                        fill
+                        unoptimized
+                        src={imgSrc(img)}
+                        alt={`${app.title} screenshot ${i + 1}`}
+                        className="object-cover transition-transform hover:scale-[1.02]"
+                      />
+                    </button>
                   ))}
                 </div>
-              </section>
-            </>
-          )}
-        </div>
 
-        {/* Right column — ratings */}
-        {ratingsSection}
+                <button
+                  onClick={() => screenshotRef.current?.scrollBy({ left: 300, behavior: 'smooth' })}
+                  aria-label="Scroll right"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-10 rounded-lg p-2 bg-white/5 border border-white/10 text-white/40 hover:bg-white/10 hover:text-white/80 transition-all opacity-0 group-hover/screenshots:opacity-100"
+                >
+                  <FiChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── 4. Description ── */}
+          {app.description && (
+            <div className="px-6 py-5 border-b border-white/8">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-2">
+                Description
+              </h2>
+              <p
+                ref={descRef}
+                className={`text-white/70 text-sm leading-relaxed whitespace-pre-line ${!descExpanded ? 'line-clamp-5' : ''}`}
+              >
+                {app.description}
+              </p>
+              {descOverflows && (
+                <button
+                  onClick={() => setDescExpanded((v) => !v)}
+                  className="mt-2 text-xs text-white/45 hover:text-white/70 transition-colors cursor-pointer"
+                >
+                  {descExpanded ? 'Show less' : 'Read more'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ── 5. Ratings ── */}
+          {ratingsSection}
+
+          {/* ── 6. Tags ── */}
+          {tags.length > 0 && (
+            <div className="px-6 py-5">
+              <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest mb-3">
+                Tags
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/8 text-white/60 border border-white/10"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+    </div>
+  );
+
+  const lightbox = lightboxImg ? (
+    <div
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center"
+      onClick={() => setLightboxImg(null)}
+    >
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imgSrc(lightboxImg)}
+          alt="Screenshot preview"
+          style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain' }}
+          className="rounded-xl shadow-2xl"
+        />
+        <button
+          onClick={() => setLightboxImg(null)}
+          aria-label="Close preview"
+          className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 hover:bg-black/80 border border-white/10 text-white/60 hover:text-white transition-colors"
+        >
+          <FiX className="w-4 h-4" />
+        </button>
       </div>
     </div>
+  ) : null;
+
+  if (preview) {
+    return (
+      <>
+        {card}
+        {lightbox}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {card}
+      </div>
+      {lightbox}
+    </>
   );
 }

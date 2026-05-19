@@ -134,6 +134,37 @@ body {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 32px rgba(22, 163, 74, 0.12);
   }
 
+  /*
+   * app-card-compact — Compact app card variant
+   *
+   * Usage: add class="app-card-compact" to the card root.
+   * The preview image is used as a blurred background; content sits on top.
+   * Structure:
+   *   <div class="app-card-compact relative overflow-hidden rounded-xl">
+   *     <Image fill class="object-cover opacity-[0.18]" />          ← background
+   *     <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 to-black/40" />
+   *     <div class="relative flex items-center gap-3 p-3">          ← content row
+   *       icon (w-10 h-10 rounded-lg) | title + description | action
+   *     </div>
+   *   </div>
+   *
+   * Action slot: pass any ReactNode — default is Save toggle; for owned apps use
+   * an outline square-pen icon button (border border-white/15, w-8 h-8).
+   */
+  .app-card-compact {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Sidebar nav — settings / admin / multi-tab panels */
+  .sidebar-nav {
+    background: rgba(0, 0, 0, 0.30);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
   /* Staggered entrance animation */
   .stagger-1 { animation-delay: 0ms; }
   .stagger-2 { animation-delay: 60ms; }

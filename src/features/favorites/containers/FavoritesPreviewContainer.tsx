@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { FiBookmark, FiMoreHorizontal, FiMinus } from 'react-icons/fi';
@@ -158,12 +159,14 @@ export function FavoritesPreviewContainer({ userId }: FavoritesPreviewContainerP
               >
                 {/* Icon wrapper — relative so the "-" badge can be positioned */}
                 <div className="relative">
-                  <div className={`${iconClass} rounded-xl overflow-hidden bg-black/50 shadow-md`}>
-                    {app.previewImages?.[0] ? (
-                      <img
-                        src={imgSrc(app.previewImages[0])}
+                  <div className={`relative ${iconClass} rounded-xl overflow-hidden bg-black/50 shadow-md`}>
+                    {app.icon ? (
+                      <Image
+                        fill
+                        unoptimized
+                        src={imgSrc(app.icon)}
                         alt={app.title}
-                        className="w-full h-full object-cover"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

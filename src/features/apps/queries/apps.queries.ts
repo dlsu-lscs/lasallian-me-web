@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getApplications,
+  getMyApplications,
   getApplicationBySlug,
+  getOwnApplicationBySlug,
   getApplicationFavoritesCount,
   updateApplication,
   deleteApplication,
@@ -33,10 +35,27 @@ export function useApplicationsQuery(filters: Partial<AppFilters> = {}, options?
   });
 }
 
+export function useMyApplicationsQuery(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ['my-applications'],
+    queryFn: getMyApplications,
+    retry: 1,
+    enabled: options?.enabled ?? true,
+  });
+}
+
 export function useApplicationBySlugQuery(slug: string) {
   return useQuery({
     queryKey: ['application', slug],
     queryFn: () => getApplicationBySlug(slug),
+    enabled: !!slug,
+  });
+}
+
+export function useOwnApplicationBySlugQuery(slug: string) {
+  return useQuery({
+    queryKey: ['own-application', slug],
+    queryFn: () => getOwnApplicationBySlug(slug),
     enabled: !!slug,
   });
 }

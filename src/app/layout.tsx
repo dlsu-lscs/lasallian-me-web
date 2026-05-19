@@ -4,6 +4,7 @@ import './globals.css';
 import { Navbar } from '@/components/organisms/Navbar';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { Toaster } from '@/components/atoms/Toaster';
+import { GlobalLoginModal } from '@/features/auth/containers/GlobalLoginModal';
 
 const sora = Sora({
   subsets: ['latin'],
@@ -57,6 +58,7 @@ export default function RootLayout({
             {children}
           </main>
           <Toaster />
+          <GlobalLoginModal />
         </QueryProvider>
       </body>
     </html>

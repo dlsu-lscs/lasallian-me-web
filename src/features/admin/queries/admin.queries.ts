@@ -3,7 +3,7 @@ import { Application, ApplicationsListResponse } from '@/features/apps/types/app
 import {
   getAdminApplications,
   approveApplication,
-  rejectApplication,
+  requestChanges,
   removeApplication,
   editApplication,
   type AdminApplicationStatus,
@@ -11,10 +11,10 @@ import {
 
 const ADMIN_KEY = ['admin', 'applications'] as const;
 
-export function useAdminApplicationsQuery(page = 1, status: AdminApplicationStatus = 'PENDING') {
+export function useAdminApplicationsQuery(page = 1, status: AdminApplicationStatus = 'PENDING', limit = 20) {
   return useQuery({
-    queryKey: [...ADMIN_KEY, status, page],
-    queryFn: () => getAdminApplications(page, 20, status),
+    queryKey: [...ADMIN_KEY, status, page, limit],
+    queryFn: () => getAdminApplications(page, limit, status),
     retry: 1,
   });
 }
@@ -39,11 +39,11 @@ export function useApproveApplicationMutation() {
   });
 }
 
-export function useRejectApplicationMutation() {
+export function useRequestChangesMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, reason }: { id: number; reason: string }) =>
-      rejectApplication(id, reason),
+      requestChanges(id, reason),
     onMutate: async ({ id }) => {
       await qc.cancelQueries({ queryKey: ADMIN_KEY });
       const snapshots = qc.getQueriesData<ApplicationsListResponse>({ queryKey: ADMIN_KEY });

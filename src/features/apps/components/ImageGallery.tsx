@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { imgSrc } from '@/lib/img-src';
@@ -27,10 +28,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
   return (
     <div className="w-full mb-6">
       <div className="relative w-full aspect-video rounded-xl bg-white/5 overflow-hidden">
-        <img
+        <Image
+          fill
+          unoptimized
           src={imgSrc(list[index])}
           alt={`${title} preview ${index + 1}`}
-          className="w-full h-full object-cover"
+          className="object-cover"
         />
 
         {list.length > 1 && (

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import {
   FiUpload, FiX,
@@ -289,8 +290,8 @@ export function EditApplicationForm({
             {(existingPreviewImages.length > 0 || newPreviewUrls.length > 0) && (
               <div className="mt-3 grid grid-cols-3 gap-2.5">
                 {existingPreviewImages.map((preview, index) => (
-                  <div key={`existing-${preview}-${index}`} className="relative overflow-hidden rounded-xl border border-white/10">
-                    <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-20 object-cover" />
+                  <div key={`existing-${preview}-${index}`} className="relative h-20 overflow-hidden rounded-xl border border-white/10">
+                    <Image fill unoptimized src={preview} alt={`Preview ${index + 1}`} className="object-cover" />
                     <button
                       type="button"
                       onClick={() => removeExistingPreviewImage(index)}
@@ -302,8 +303,8 @@ export function EditApplicationForm({
                   </div>
                 ))}
                 {newPreviewUrls.map((preview, index) => (
-                  <div key={`new-${index}`} className="relative overflow-hidden rounded-xl border border-white/10">
-                    <img src={preview} alt={`New preview ${index + 1}`} className="w-full h-20 object-cover" />
+                  <div key={`new-${index}`} className="relative h-20 overflow-hidden rounded-xl border border-white/10">
+                    <Image fill unoptimized src={preview} alt={`New preview ${index + 1}`} className="object-cover" />
                     <button
                       type="button"
                       onClick={() => removeNewPreviewFile(index)}
@@ -334,11 +335,13 @@ export function EditApplicationForm({
               />
               {currentIconPreview ? (
                 <div className="flex flex-col items-center gap-2">
-                  <div className="relative w-20 h-20">
-                    <img
+                  <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-white/10">
+                    <Image
+                      fill
+                      unoptimized
                       src={currentIconPreview}
                       alt="Icon preview"
-                      className="w-20 h-20 object-cover rounded-2xl border border-white/10"
+                      className="object-cover"
                     />
                     <button
                       type="button"

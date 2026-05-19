@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { motion } from 'motion/react';
 import { FiChevronRight } from 'react-icons/fi';
 
@@ -17,11 +18,9 @@ function getInitials(name?: string | null): string {
 
 export function UserProfileCard({ name, image, email, onClick }: UserProfileCardProps) {
   const avatar = image ? (
-    <img
-      src={image}
-      alt={name ?? 'User'}
-      className="w-12 h-12 lg:w-28 lg:h-28 rounded-full object-cover border border-white/15 shadow-lg shrink-0"
-    />
+    <div className="relative w-12 h-12 lg:w-28 lg:h-28 rounded-full overflow-hidden border border-white/15 shadow-lg shrink-0">
+      <Image fill unoptimized src={image} alt={name ?? 'User'} className="object-cover" />
+    </div>
   ) : (
     <div className="w-12 h-12 lg:w-28 lg:h-28 rounded-full bg-white/10 border border-white/15 shadow-lg flex items-center justify-center shrink-0">
       <span className="text-white/70 text-xl lg:text-4xl font-bold font-display select-none">
@@ -45,13 +44,13 @@ export function UserProfileCard({ name, image, email, onClick }: UserProfileCard
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
       {/* Decorative bow-arrow overlay */}
-      <img
-        src="/bow-arrow.svg"
-        alt=""
+      <div
         aria-hidden="true"
         className="absolute -bottom-3 -right-3 w-28 h-28 lg:top-auto lg:-bottom-10 lg:-left-10 lg:right-auto lg:translate-y-0 lg:w-52 lg:h-52 opacity-[0.04] pointer-events-none"
         style={{ filter: 'brightness(0) invert(1) drop-shadow(0 2px 6px rgba(0,0,0,0.8)) drop-shadow(0 1px 2px rgba(0,0,0,0.9))' }}
-      />
+      >
+        <Image fill unoptimized src="/bow-arrow.svg" alt="" />
+      </div>
 
       <div className="flex flex-row items-center gap-4 min-w-0 flex-1 lg:flex-col lg:items-start lg:gap-5 lg:flex-none lg:w-full relative">
         {avatar}

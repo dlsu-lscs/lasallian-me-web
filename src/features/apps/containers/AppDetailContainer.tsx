@@ -22,21 +22,18 @@ export function AppDetailContainer({ slug }: AppDetailContainerProps) {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 bg-black/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6 flex flex-col gap-6">
-            <Skeleton className="w-full aspect-video rounded-xl" />
-            <Skeleton className="h-8 w-2/3" />
-            <Skeleton className="h-4 w-1/3" />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-black/60 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden">
+          <Skeleton className="w-full h-52" />
+          <div className="p-6 flex flex-col gap-4">
+            <div className="flex gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 flex-1 rounded-lg" />
+              ))}
+            </div>
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6" />
-            <div className="flex gap-2">
-              <Skeleton className="h-6 w-16 rounded-full" />
-              <Skeleton className="h-6 w-20 rounded-full" />
-            </div>
-          </div>
-          <div className="bg-black/60 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
-            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-4 w-4/6" />
           </div>
         </div>
       </div>

@@ -375,7 +375,7 @@ Full-width sticky dark glass bar, `h-11` (44px). Wordmark uses `font-display`, s
 </header>
 ```
 
-#### App Card
+#### App Card — Default
 
 `motion.div` with spring lift on hover. `rounded-md` (not `rounded-xl`) keeps cards compact in the grid.
 
@@ -389,6 +389,168 @@ Full-width sticky dark glass bar, `h-11` (44px). Wordmark uses `font-display`, s
   {/* h-44 preview image, edge-to-edge */}
   {/* p-3 info row: title + stats left, Save pill button right */}
 </motion.div>
+```
+
+#### App Card — Compact
+
+A single-row card where the preview image becomes a dim background. Used in dense lists (profile My Apps, admin queue). No top image region — the card is just the height of its content row (~56px).
+
+**How it differs from the default:**
+- No `h-44` preview region — preview image rendered as an `absolute fill` behind the content at `opacity-[0.18]`
+- `overflow-hidden` is on the **background layer only**, not the card root — this lets absolutely-positioned overlays (tooltips, status dots) escape the card boundary
+- `bg-gradient-to-r from-black/70 via-black/50 to-black/20` ensures left-side text is always readable regardless of image brightness
+- Icon is `w-10 h-10` (vs `w-12 h-12` in default)
+- Supports `iconOverlay`, `subtitle`, `badge`, and `action` slots (all optional)
+
+```tsx
+// Component: src/features/apps/components/AppCard.tsx
+// Usage: variant="compact"
+
+<AppCard
+  app={app}
+  variant="compact"
+  showTags={false}
+
+  // Status dot on bottom-right of icon — tooltip visible on hover
+  iconOverlay={
+    <div className="group/dot relative">
+      <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 block ring-[1.5px] ring-black/80" />
+      <span className="absolute bottom-full right-0 mb-1.5 px-2 py-0.5 rounded-md text-[10px]
+                       font-medium bg-black text-white whitespace-nowrap border border-white/10
+                       opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-20">
+        Pending review
+      </span>
+    </div>
+  }
+
+  // Replaces app.description — accepts any ReactNode
+  subtitle={
+    <div className="flex items-center gap-1.5">
+      <FiUser className="w-3 h-3 text-white/30 shrink-0" />
+      <span className="text-white/45 text-xs truncate">{app.userEmail}</span>
+    </div>
+  }
+
+  // Replaces the default Save toggle button
+  action={
+    <button className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white transition-colors">
+      <LuSquarePen className="w-4 h-4" />
+    </button>
+  }
+/>
+```
+
+**Status dot color map:**
+
+| Status | Color |
+|--------|-------|
+| `APPROVED` | `bg-green-400` |
+| `PENDING` | `bg-yellow-400` |
+| `REJECTED` | `bg-red-400` |
+| `REMOVED` | `bg-white/40` |
+
+**Prop slots (compact only):**
+
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `iconOverlay` | `ReactNode` | — | Absolutely positioned over icon's bottom-right corner (outside `overflow-hidden`) |
+| `subtitle` | `ReactNode` | `app.description` text | Replaces the description line below the title |
+| `badge` | `ReactNode` | — | Rendered inline after the title text |
+| `action` | `ReactNode` | Save/Saved toggle button | Right-side action; omit or pass icon buttons |
+
+**CSS utility (defined in `globals.css`):**
+
+```css
+.app-card-compact {
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+```
+
+---
+
+#### Sidebar Layout
+
+Full-height two-column layout used for settings-style pages (admin dashboard, profile). Left sidebar has a dark scrim nav; right content area is scrollable.
+
+```tsx
+// Component: src/components/organisms/SidebarLayout.tsx
+
+<SidebarLayout
+  title="Admin"                  // optional label above nav
+  sidebarWidth="w-52"            // optional, default "w-52"
+  sidebarHeader={<UserBlock />}  // optional ReactNode rendered above sections
+  sections={[
+    {
+      label: 'Content',           // optional section header (uppercase, muted)
+      items: [
+        { id: 'apps', label: 'Apps', icon: <FiGrid /> },
+      ],
+    },
+    {
+      label: 'Management',
+      items: [
+        { id: 'members', label: 'Members', icon: <FiUsers /> },
+      ],
+    },
+  ]}
+  activeId={activeTab}
+  onSelect={setActiveTab}
+>
+  {/* content rendered in the right pane */}
+  {activeTab === 'apps' && <AppsView />}
+</SidebarLayout>
+```
+
+**Anatomy:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ [sidebar-nav w-52]          │ [main flex-1 py-8 px-6–10]    │
+│                             │                               │
+│  sidebarHeader (optional)   │  {children}                   │
+│                             │                               │
+│  SECTION LABEL              │                               │
+│  ● Active item              │                               │
+│    Inactive item            │                               │
+│                             │                               │
+│  SECTION LABEL              │                               │
+│    Item                     │                               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Nav item states:**
+
+| State | Classes |
+|-------|---------|
+| Active | `bg-white/10 text-white rounded-lg` |
+| Inactive | `text-white/50 hover:text-white/80 hover:bg-white/[0.05] rounded-lg` |
+| Section label | `text-white/30 text-[11px] uppercase tracking-wider font-semibold` |
+
+**CSS utility (defined in `globals.css`):**
+
+```css
+.sidebar-nav {
+  background: rgba(0, 0, 0, 0.30);
+  backdrop-filter: blur(22px);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+}
+```
+
+**Page wrapper pattern** (admin dashboard, profile page):
+
+```tsx
+<div className="min-h-screen flex items-start justify-center px-4 py-10">
+  <div
+    className="glass-lg rounded-2xl overflow-hidden w-full max-w-7xl"
+    style={{ minHeight: 'calc(100vh - 5rem)' }}
+  >
+    <SidebarLayout ...>
+      {content}
+    </SidebarLayout>
+  </div>
+</div>
 ```
 
 #### Filter Panel

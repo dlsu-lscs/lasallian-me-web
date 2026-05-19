@@ -1,18 +1,22 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import { useState, useMemo, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { FiMinus } from 'react-icons/fi';
+import { FiX, FiGrid, FiStar, FiBookmark } from 'react-icons/fi';
+import { LuSquarePen } from 'react-icons/lu';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
-import { Badge } from '@/components/atoms/Badge';
 import { AppCard } from '../components/AppCard';
-import { useApplicationsQuery, useDeleteApplicationMutation, useUpdateApplicationMutation } from '../queries/apps.queries';
+import { SidebarLayout } from '@/components/organisms/SidebarLayout';
+import { useMyApplicationsQuery, useUpdateApplicationMutation } from '../queries/apps.queries';
 import { Application } from '../types/app.types';
 import { EditModal } from '@/features/admin/components/EditModal';
 import { FavoritesContainer } from '@/features/favorites/containers/FavoritesContainer';
 import { useUserRatingsQuery } from '@/features/ratings/queries/ratings.queries';
 import { UserReviewItem } from '@/features/ratings/components/UserReviewItem';
+
+type ProfileTab = 'apps' | 'my-reviews' | 'favorites';
 
 interface ProfileContainerProps {
   slug: string;
@@ -26,41 +30,31 @@ function getInitials(name?: string | null): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-const TABS = ['Apps', 'My Reviews', 'Favorites'];
-
-const STATUS_BADGE: Record<
-  Application['isApproved'],
-  { label: string; variant: 'success' | 'warning' | 'danger' | 'default' }
-> = {
-  APPROVED: { label: 'Approved', variant: 'success' },
-  PENDING:  { label: 'Pending review', variant: 'warning' },
-  REJECTED: { label: 'Rejected', variant: 'danger' },
-  REMOVED:  { label: 'Removed', variant: 'danger' },
+const STATUS_DOT: Record<Application['status'], { label: string; color: string }> = {
+  APPROVED:           { label: 'Approved',           color: 'bg-green-400' },
+  PENDING:            { label: 'In review',           color: 'bg-yellow-400' },
+  CHANGES_REQUESTED:  { label: 'Changes requested',  color: 'bg-amber-400' },
+  REMOVED:            { label: 'Removed',             color: 'bg-white/40' },
 };
 
-export default function ProfileContainer({ slug: _slug, onClose }: ProfileContainerProps) {
-  const [activeTab, setActiveTab] = useState('apps');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+const SIDEBAR_SECTIONS = [
+  {
+    label: 'Profile',
+    items: [
+      { id: 'apps' as ProfileTab,       label: 'My Apps',   icon: <FiGrid /> },
+      { id: 'my-reviews' as ProfileTab, label: 'Reviews',   icon: <FiStar /> },
+      { id: 'favorites' as ProfileTab,  label: 'Favorites', icon: <FiBookmark /> },
+    ],
+  },
+];
+
+export default function ProfileContainer({ onClose }: ProfileContainerProps) {
+  const [activeTab, setActiveTab] = useState<ProfileTab>('apps');
   const router = useRouter();
 
   const { data: session, isPending: sessionPending } = authClient.useSession();
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    if (!onClose) return;
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [onClose]);
-
-  const { data, isLoading, isError } = useApplicationsQuery(
-    { userId: session?.user?.id, searchQuery: debouncedSearch, selectedTags },
+  const { data, isLoading, isError } = useMyApplicationsQuery(
     { enabled: !sessionPending && !!session?.user?.id },
   );
 
@@ -70,7 +64,6 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
     !sessionPending && !!session,
   );
 
-  const deleteMutation = useDeleteApplicationMutation();
   const updateMutation = useUpdateApplicationMutation();
 
   const [editModal, setEditModal] = useState<{ isOpen: boolean; application: Application | null }>({
@@ -78,183 +71,141 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
     application: null,
   });
 
-  const handleSaveEdit = useCallback((id: number, updates: Partial<Application>) => {
-    updateMutation.mutate(
-      { id, updates },
-      { onSuccess: () => setEditModal({ isOpen: false, application: null }) },
-    );
-  }, [updateMutation]);
+  const handleSaveEdit = useCallback(
+    (id: number, updates: Partial<Application>) => {
+      updateMutation.mutate(
+        { id, updates },
+        { onSuccess: () => setEditModal({ isOpen: false, application: null }) },
+      );
+    },
+    [updateMutation],
+  );
 
-  const clearFilters = useCallback(() => {
-    setSearchQuery('');
-    setSelectedTags([]);
-  }, []);
 
-  const handleDelete = (id: number) => {
-    if (!confirm('Delete this app? This cannot be undone.')) return;
-    deleteMutation.mutate(id);
-  };
-
-  const inner = (
-    <div className="flex flex-col h-full">
-      {/* macOS-style close button */}
-      {onClose && (
-        <div
-          className="group absolute top-4 right-4 z-10 w-3 h-3 bg-red-500 rounded-full cursor-pointer flex items-center justify-center hover:bg-red-400 transition-colors"
-          onClick={onClose}
-        >
-          <FiMinus className="w-2 h-2 text-red-900 opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={4} />
+  const sidebarHeader = (
+    <div className="px-3 pb-4 border-b border-white/8">
+      <div className="flex items-center gap-3">
+        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/15 bg-white/10 shrink-0 flex items-center justify-center">
+          {session?.user?.image ? (
+            <Image
+              fill
+              unoptimized
+              src={session.user.image}
+              alt={session.user.name ?? 'Profile'}
+              className="object-cover"
+            />
+          ) : (
+            <span className="text-white/70 text-sm font-bold font-display select-none">
+              {getInitials(session?.user?.name)}
+            </span>
+          )}
         </div>
-      )}
-
-      {/* Profile header */}
-      <div className="relative overflow-hidden px-8 pt-8 pb-6 shrink-0">
-        <img
-          src="/bow-arrow.svg"
-          alt=""
-          aria-hidden="true"
-          className="absolute -bottom-6 -right-6 w-40 h-40 opacity-[0.04] pointer-events-none"
-          style={{ filter: 'brightness(0) invert(1)' }}
-        />
-        <div className="flex items-center gap-5 relative">
-          <div className="w-16 h-16 rounded-full overflow-hidden border border-white/15 shadow-lg shrink-0 bg-white/10 flex items-center justify-center">
-            {session?.user?.image ? (
-              <img
-                src={session.user.image}
-                alt={session.user.name ?? 'Profile'}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-white/70 text-xl font-bold font-display select-none">
-                {getInitials(session?.user?.name)}
-              </span>
-            )}
-          </div>
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <h2 className="text-white font-bold text-xl truncate">{session?.user?.name ?? 'Unknown User'}</h2>
-            {session?.user?.email && (
-              <p className="text-white/45 text-sm truncate">{session.user.email}</p>
-            )}
-            <p className="text-white/60 text-sm font-semibold">Lasallian</p>
-          </div>
+        <div className="min-w-0">
+          <p className="text-white font-semibold text-sm truncate">{session?.user?.name ?? 'Unknown'}</p>
+          <p className="text-white/40 text-xs truncate">{session?.user?.email}</p>
         </div>
-      </div>
-
-      {/* Divider */}
-      <div className="mx-8 border-t border-white/8 shrink-0" />
-
-      {/* Tabs */}
-      <div className="px-8 pt-4 pb-3 shrink-0 flex gap-1">
-        {TABS.map((tab) => {
-          const key = tab.toLowerCase();
-          const isActive = activeTab === key;
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(key)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer ${
-                isActive
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/40 hover:text-white/70 hover:bg-white/5'
-              }`}
-            >
-              {tab}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-8 pb-8 pt-2">
-        {activeTab === 'apps' && (
-          <>
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <p className="text-white/30 text-sm">Loading...</p>
-              </div>
-            ) : isError ? (
-              <div className="flex items-center justify-center py-16">
-                <p className="text-white/50 text-sm">Unable to load apps right now. Please try again later.</p>
-              </div>
-            ) : apps.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {apps.map((app) => {
-                  const status = STATUS_BADGE[app.isApproved] ?? STATUS_BADGE.PENDING;
-                  return (
-                    <div
-                      key={app.id}
-                      className="flex flex-col bg-white/4 border border-white/8 rounded-xl overflow-hidden"
-                    >
-                      <AppCard app={app} showTags={false} className="border-0 shadow-none rounded-none flex-1" />
-                      <div className="flex items-center justify-between px-3 py-2 border-t border-white/8">
-                        <div className="flex flex-col gap-0.5">
-                          <Badge variant={status.variant}>{status.label}</Badge>
-                          {(app.isApproved === 'REJECTED' || app.isApproved === 'REMOVED') &&
-                            app.rejectionReason && (
-                              <p className="text-xs text-red-400">{app.rejectionReason}</p>
-                            )}
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => router.push(`/${encodeURIComponent(app.slug)}/edit`)}
-                            className="px-3 py-1 text-xs font-semibold rounded-full bg-white/8 text-white/70 hover:bg-white/12 hover:text-white transition-colors cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            disabled={deleteMutation.isPending && deleteMutation.variables === app.id}
-                            onClick={() => handleDelete(app.id)}
-                            className="px-3 py-1 text-xs font-semibold rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer disabled:opacity-40"
-                          >
-                            {deleteMutation.isPending && deleteMutation.variables === app.id
-                              ? 'Deleting…'
-                              : 'Delete'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-2 py-16 text-center">
-                <p className="text-white/40 text-sm">No apps submitted yet.</p>
-                <button
-                  onClick={clearFilters}
-                  className="mt-2 px-4 py-1.5 text-sm font-semibold rounded-full bg-white/8 text-white/60 hover:bg-white/12 transition-colors cursor-pointer"
-                >
-                  Reset search
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
-        {activeTab === 'my reviews' && (
-          <>
-            {ratingsLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <p className="text-white/30 text-sm">Loading...</p>
-              </div>
-            ) : !userRatings || userRatings.ratings.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-16 text-center">
-                <p className="text-white/40 text-sm">No reviews yet.</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {userRatings.ratings.map((rating) => (
-                  <UserReviewItem key={rating.applicationId} rating={rating} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {activeTab === 'favorites' && session?.user?.id && (
-          <FavoritesContainer userId={session.user.id} />
-        )}
       </div>
     </div>
+  );
+
+  const content = (
+    <>
+      {activeTab === 'apps' && (
+        <>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <p className="text-white/30 text-sm">Loading...</p>
+            </div>
+          ) : isError ? (
+            <div className="flex items-center justify-center py-16">
+              <p className="text-white/50 text-sm">Unable to load apps. Please try again.</p>
+            </div>
+          ) : apps.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {apps.map((app) => {
+                const status = STATUS_DOT[app.status] ?? STATUS_DOT.PENDING;
+                return (
+                  <AppCard
+                    key={app.id}
+                    app={app}
+                    showTags={false}
+                    variant="compact"
+                    onClick={(a) => {
+                      onClose?.();
+                      router.push(
+                        (a.status === 'PENDING' || a.status === 'CHANGES_REQUESTED')
+                          ? `/${encodeURIComponent(a.slug)}/edit`
+                          : `/${encodeURIComponent(a.slug)}`,
+                      );
+                    }}
+                    iconOverlay={
+                      <div className="group/dot relative">
+                        <span className={`w-2.5 h-2.5 rounded-full ${status.color} block ring-[1.5px] ring-black/80`} />
+                        <span className="absolute bottom-full right-0 mb-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium bg-black text-white whitespace-nowrap border border-white/10 opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-20">
+                          {status.label}
+                        </span>
+                      </div>
+                    }
+                    action={
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClose?.();
+                          router.push(`/${encodeURIComponent(app.slug)}/edit`);
+                        }}
+                        className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white transition-colors shrink-0"
+                      >
+                        <LuSquarePen className="w-4 h-4" />
+                      </button>
+                    }
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 py-16 text-center">
+              <p className="text-white/40 text-sm">No apps submitted yet.</p>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === 'my-reviews' && (
+        <>
+          {ratingsLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <p className="text-white/30 text-sm">Loading...</p>
+            </div>
+          ) : !userRatings || userRatings.ratings.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-16 text-center">
+              <p className="text-white/40 text-sm">No reviews yet.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {userRatings.ratings.map((rating) => (
+                <UserReviewItem key={rating.applicationId} rating={rating} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === 'favorites' && session?.user?.id && (
+        <FavoritesContainer userId={session.user.id} />
+      )}
+    </>
+  );
+
+  const layout = (
+    <SidebarLayout
+      sections={SIDEBAR_SECTIONS}
+      activeId={activeTab}
+      onSelect={setActiveTab}
+      sidebarHeader={sidebarHeader}
+      sidebarWidth="w-56"
+    >
+      {content}
+    </SidebarLayout>
   );
 
   if (onClose) {
@@ -273,10 +224,16 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="relative w-full max-w-4xl h-[85vh] bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[var(--shadow-modal)] overflow-hidden flex flex-col"
+            className="relative w-[60vw] aspect-[4/3] max-h-[90vh] glass-lg rounded-2xl shadow-[var(--shadow-modal)] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {inner}
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 z-10 w-7 h-7 flex items-center justify-center rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <FiX className="w-4 h-4" />
+            </button>
+            {layout}
           </motion.div>
         </motion.div>
         <EditModal
@@ -291,12 +248,20 @@ export default function ProfileContainer({ slug: _slug, onClose }: ProfileContai
   }
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-black/60 backdrop-blur-lg border border-white/10 rounded-2xl shadow-[var(--shadow-glass)] overflow-hidden min-h-screen relative">
-          {inner}
-        </div>
+    <div className="min-h-screen flex items-start justify-center px-4 py-10">
+      <div
+        className="glass-lg rounded-2xl overflow-hidden w-full max-w-4xl"
+        style={{ minHeight: 'calc(100vh - 5rem)' }}
+      >
+        {layout}
       </div>
+      <EditModal
+        isOpen={editModal.isOpen}
+        onClose={() => setEditModal({ isOpen: false, application: null })}
+        application={editModal.application}
+        onSave={handleSaveEdit}
+        isSubmitting={updateMutation.isPending}
+      />
     </div>
   );
 }

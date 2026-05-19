@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useEffect, useState, useRef } from 'react';
 import {
   FiUpload, FiX,
@@ -267,11 +268,13 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
 
               {currentIconPreview ? (
                 <div className="flex items-center justify-center gap-3">
-                  <div className="relative w-14 h-14 shrink-0">
-                    <img
+                  <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-white/10">
+                    <Image
+                      fill
+                      unoptimized
                       src={currentIconPreview}
                       alt="App icon preview"
-                      className="w-14 h-14 object-cover rounded-xl border border-white/10"
+                      className="object-cover"
                     />
                     <button
                       type="button"
@@ -325,11 +328,13 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
             {(existingPreviewImages.length > 0 || newPreviewUrls.length > 0) && (
               <div className="mt-3 grid grid-cols-3 gap-2">
                 {existingPreviewImages.map((preview, index) => (
-                  <div key={`existing-${preview}-${index}`} className="relative overflow-hidden rounded-xl">
-                    <img
+                  <div key={`existing-${preview}-${index}`} className="relative h-20 overflow-hidden rounded-xl border border-white/10">
+                    <Image
+                      fill
+                      unoptimized
                       src={preview}
                       alt={`Existing preview ${index + 1}`}
-                      className="w-full h-20 object-cover rounded-xl border border-white/10"
+                      className="object-cover"
                     />
                     <button
                       type="button"
@@ -342,11 +347,13 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
                   </div>
                 ))}
                 {newPreviewUrls.map((preview, index) => (
-                  <div key={`new-${index}`} className="relative overflow-hidden rounded-xl">
-                    <img
+                  <div key={`new-${index}`} className="relative h-20 overflow-hidden rounded-xl border border-white/10">
+                    <Image
+                      fill
+                      unoptimized
                       src={preview}
                       alt={`New preview ${index + 1}`}
-                      className="w-full h-20 object-cover rounded-xl border border-white/10"
+                      className="object-cover"
                     />
                     <button
                       type="button"

@@ -2,7 +2,7 @@ import { Application, ApplicationsListResponse } from '@/features/apps/types/app
 
 const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/applications`;
 
-export type AdminApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'REMOVED';
+export type AdminApplicationStatus = 'PENDING' | 'APPROVED' | 'CHANGES_REQUESTED' | 'REMOVED';
 
 export async function getAdminApplications(
   page = 1,
@@ -34,16 +34,16 @@ export async function approveApplication(id: number): Promise<void> {
   }
 }
 
-export async function rejectApplication(id: number, reason: string): Promise<void> {
+export async function requestChanges(id: number, reason: string): Promise<void> {
   const response = await fetch(`${BASE}/admin/${id}/review`, {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: 'REJECTED', rejectionReason: reason }),
+    body: JSON.stringify({ status: 'CHANGES_REQUESTED', rejectionReason: reason }),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to reject application');
+    throw new Error('Failed to request changes for application');
   }
 }
 

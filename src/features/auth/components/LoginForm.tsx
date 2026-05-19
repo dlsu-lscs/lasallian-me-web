@@ -1,6 +1,7 @@
 import React from 'react';
-import { FiArrowLeft } from 'react-icons/fi'; 
-import { FcGoogle } from 'react-icons/fc'; // Make sure react-icons is installed
+import Image from 'next/image';
+import { FiArrowLeft } from 'react-icons/fi';
+import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
 
 export interface LoginFormProps {
@@ -20,10 +21,11 @@ export function LoginForm({ onGoogleSignIn, isLoading, error }: LoginFormProps) 
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-[#062c1e]/80 via-[#062c1e]/70 to-[#062c1e] z-10"></div>
         
-          <img  
+          <Image
+            fill
             src="/HenrySy.jpg"
-            alt="University Campus" 
-            className="w-full h-full object-cover opacity-40 mix-blend-luminosity" 
+            alt="University Campus"
+            className="object-cover opacity-40 mix-blend-luminosity"
           />
         </div>
 

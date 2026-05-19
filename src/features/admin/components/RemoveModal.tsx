@@ -27,15 +27,15 @@ export function RemoveModal({ isOpen, onClose, onConfirm, isSubmitting }: Remove
     <Modal isOpen={isOpen} onClose={handleClose} title="Remove Application">
       <div className="flex flex-col gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Removal reason <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-white/60 mb-1.5">
+            Removal reason <span className="text-red-400">*</span>
           </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
             placeholder="Explain why this app is being removed…"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+            className="w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white placeholder:text-white/25 text-sm focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-colors resize-none"
           />
         </div>
 
@@ -48,7 +48,7 @@ export function RemoveModal({ isOpen, onClose, onConfirm, isSubmitting }: Remove
             size="sm"
             onClick={handleConfirm}
             disabled={!reason.trim() || isSubmitting}
-            className="bg-red-600 hover:bg-red-700 focus:ring-red-500 disabled:opacity-60"
+            className="bg-red-600/70 hover:bg-red-600 border border-red-500/30 disabled:opacity-50"
           >
             {isSubmitting ? 'Removing…' : 'Confirm Remove'}
           </Button>

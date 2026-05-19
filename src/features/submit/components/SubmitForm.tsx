@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import {
   FiUpload, FiX, FiCheck,
@@ -254,11 +255,13 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
               />
               {iconPreviewUrl ? (
                 <div className="flex items-center gap-3">
-                  <div className="relative w-14 h-14 shrink-0">
-                    <img
+                  <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-white/10">
+                    <Image
+                      fill
+                      unoptimized
                       src={iconPreviewUrl}
                       alt="Icon preview"
-                      className="w-14 h-14 object-cover rounded-xl border border-white/10"
+                      className="object-cover"
                     />
                     <button
                       type="button"
@@ -311,11 +314,13 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
             {previewUrls.length > 0 && (
               <div className="mt-2.5 flex flex-wrap gap-2">
                 {previewUrls.map((previewUrl, i) => (
-                  <div key={i} className="relative w-14 h-14 shrink-0">
-                    <img
+                  <div key={i} className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden border border-white/10">
+                    <Image
+                      fill
+                      unoptimized
                       src={previewUrl}
-                      alt={selectedFiles[i]?.name}
-                      className="w-14 h-14 object-cover rounded-lg border border-white/10"
+                      alt={selectedFiles[i]?.name ?? `Preview ${i + 1}`}
+                      className="object-cover"
                     />
                     <button
                       type="button"

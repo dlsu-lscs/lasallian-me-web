@@ -3,10 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useIsAdmin } from '@/features/auth/hooks/useIsAdmin';
-import { AdminTabs } from '../components/AdminTabs';
+import { SidebarLayout } from '@/components/organisms/SidebarLayout';
 import { ApprovalContainer } from './ApprovalContainer';
-import AppsContainer from '@/features/apps/containers/AppsContainer';
+import { MembersContainer } from './MembersContainer';
 import type { AdminTab } from '../types/admin.types';
+import { FiGrid, FiUsers } from 'react-icons/fi';
+
+const SIDEBAR_SECTIONS = [
+  {
+    label: 'Content',
+    items: [{ id: 'apps' as AdminTab, label: 'Apps', icon: <FiGrid /> }],
+  },
+  {
+    label: 'Management',
+    items: [{ id: 'members' as AdminTab, label: 'Members', icon: <FiUsers /> }],
+  },
+];
 
 export function AdminDashboardContainer() {
   const router = useRouter();
@@ -26,7 +38,7 @@ export function AdminDashboardContainer() {
 
   if (!hasMounted || isPending) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-white/40">
         Loading…
       </div>
     );
@@ -37,13 +49,16 @@ export function AdminDashboardContainer() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
-        <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="mt-6">
-          {activeTab === 'apps' ? <AppsContainer /> : <ApprovalContainer />}
-        </div>
+    <div className="min-h-screen flex items-start justify-center px-4 py-10">
+      <div className="glass-lg rounded-2xl overflow-hidden w-full max-w-7xl" style={{ minHeight: 'calc(100vh - 5rem)' }}>
+        <SidebarLayout
+          title="Admin"
+          sections={SIDEBAR_SECTIONS}
+          activeId={activeTab}
+          onSelect={setActiveTab}
+        >
+          {activeTab === 'apps' ? <ApprovalContainer /> : <MembersContainer />}
+        </SidebarLayout>
       </div>
     </div>
   );

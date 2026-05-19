@@ -7,6 +7,8 @@
  * so old data doesn't break.
  */
 export function imgSrc(keyOrUrl: string): string {
-  if (keyOrUrl.startsWith('http')) return keyOrUrl;
+  if (keyOrUrl.startsWith('http') || keyOrUrl.startsWith('blob:') || keyOrUrl.startsWith('data:')) {
+    return keyOrUrl;
+  }
   return `/api/image?key=${encodeURIComponent(keyOrUrl)}`;
 }

@@ -1,23 +1,27 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { AnimatePresence } from 'motion/react';
 import { FiSearch, FiUser, FiLogOut, FiSettings } from 'react-icons/fi';
 import { useUIStore } from '@/store/uiStore';
 import { authClient } from '@/lib/auth-client';
 import { useIsAdmin } from '@/features/auth/hooks/useIsAdmin';
+import ProfileContainer from '@/features/apps/containers/ProfileContainer';
 
 export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const searchQuery = useUIStore((state) => state.searchQuery);
   const setSearchQuery = useUIStore((state) => state.setSearchQuery);
+  const openLoginModal = useUIStore((state) => state.openLoginModal);
 
   const router = useRouter();
-  const pathname = usePathname();
 
   const { data: session, isPending } = authClient.useSession();
   const { isAdmin } = useIsAdmin();
@@ -42,11 +46,8 @@ export function Navbar() {
     router.refresh();
   };
 
-  if (pathname === '/login') {
-    return null;
-  }
-
   return (
+    <>
     <header className="sticky top-0 z-50 w-full bg-black/60 backdrop-blur-lg border-b border-white/10">
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <nav className="flex items-center justify-between h-11 gap-4">
@@ -90,11 +91,15 @@ export function Navbar() {
                 <div className="relative" ref={dropdownRef}>
                   <button onClick={() => setProfileMenuOpen(!profileMenuOpen)} className="focus:outline-none">
                     {session.user.image ? (
-                      <img
-                        src={session.user.image}
-                        alt="Profile"
-                        className="w-7 h-7 rounded-full ring-2 ring-transparent hover:ring-white/30 transition-all object-cover"
-                      />
+                      <div className="relative w-7 h-7 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-white/30 transition-all">
+                        <Image
+                          fill
+                          unoptimized
+                          src={session.user.image}
+                          alt="Profile"
+                          className="object-cover"
+                        />
+                      </div>
                     ) : (
                       <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary-300 text-xs font-bold ring-2 ring-transparent hover:ring-white/30 transition-all">
                         {session.user.name?.charAt(0) || 'U'}
@@ -109,14 +114,13 @@ export function Navbar() {
                         <p className="text-xs text-white/40 truncate">{session.user.email}</p>
                       </div>
 
-                      <Link
-                        href={`/users/${session.user.id}`}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-white/60 hover:bg-white/10 hover:text-white/90 transition-colors"
-                        onClick={() => setProfileMenuOpen(false)}
+                      <button
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-white/60 hover:bg-white/10 hover:text-white/90 transition-colors"
+                        onClick={() => { setProfileMenuOpen(false); setProfileModalOpen(true); }}
                       >
                         <FiUser className="w-4 h-4" />
                         My Profile
-                      </Link>
+                      </button>
 
                       {isAdmin && (
                         <Link
@@ -140,12 +144,12 @@ export function Navbar() {
                   )}
                 </div>
               ) : (
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-white/60 hover:text-white/90 transition-colors"
+                <button
+                  onClick={openLoginModal}
+                  className="text-sm font-medium text-white/60 hover:text-white/90 transition-colors cursor-pointer"
                 >
                   Login
-                </Link>
+                </button>
               )}
             </div>
           </div>
@@ -195,12 +199,16 @@ export function Navbar() {
             {session ? (
               <>
                 <div className="flex items-center gap-2.5">
-                  {session.user.image && <img src={session.user.image} alt="" className="w-6 h-6 rounded-full" />}
+                  {session.user.image && (
+                    <div className="relative w-6 h-6 rounded-full overflow-hidden shrink-0">
+                      <Image fill unoptimized src={session.user.image} alt="" className="object-cover" />
+                    </div>
+                  )}
                   <span className="text-sm font-medium text-white/70">{session.user.name}</span>
                 </div>
-                <Link href={`/users/${session.user.id}`} className="text-sm text-white/50 hover:text-white/90 transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                <button className="text-left text-sm text-white/50 hover:text-white/90 transition-colors" onClick={() => { setMobileMenuOpen(false); setProfileModalOpen(true); }}>
                   My Profile
-                </Link>
+                </button>
                 <Link href="/submit" className="text-sm text-white/50 hover:text-white/90 transition-colors" onClick={() => setMobileMenuOpen(false)}>
                   Submit App
                 </Link>
@@ -214,13 +222,26 @@ export function Navbar() {
                 </button>
               </>
             ) : (
-              <Link href="/login" className="text-sm font-medium text-white/60 hover:text-white/90 transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              <button
+                onClick={() => { setMobileMenuOpen(false); openLoginModal(); }}
+                className="text-left text-sm font-medium text-white/60 hover:text-white/90 transition-colors cursor-pointer"
+              >
                 Login
-              </Link>
+              </button>
             )}
           </div>
         </div>
       )}
     </header>
+
+    <AnimatePresence>
+      {profileModalOpen && session && (
+        <ProfileContainer
+          slug={session.user.id}
+          onClose={() => setProfileModalOpen(false)}
+        />
+      )}
+    </AnimatePresence>
+    </>
   );
 }

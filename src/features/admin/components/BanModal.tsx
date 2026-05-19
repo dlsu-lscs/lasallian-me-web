@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Modal } from '@/components/atoms/Modal';
 import { Button } from '@/components/atoms/Button';
 
-interface RejectModalProps {
+interface BanModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => void;
   isSubmitting: boolean;
+  memberName: string;
 }
 
-export function RequestChangesModal({ isOpen, onClose, onConfirm, isSubmitting }: RejectModalProps) {
+export function BanModal({ isOpen, onClose, onConfirm, isSubmitting, memberName }: BanModalProps) {
   const [reason, setReason] = useState('');
 
   const handleClose = () => {
@@ -24,17 +25,17 @@ export function RequestChangesModal({ isOpen, onClose, onConfirm, isSubmitting }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Request Changes">
+    <Modal isOpen={isOpen} onClose={handleClose} title={`Ban ${memberName}`}>
       <div className="flex flex-col gap-4">
         <div>
           <label className="block text-sm font-medium text-white/60 mb-1.5">
-            Reason <span className="text-amber-400">*</span>
+            Reason <span className="text-red-400">*</span>
           </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
-            placeholder="Explain what changes are needed…"
+            placeholder="Explain why this member is being banned…"
             className="w-full px-4 py-2.5 bg-black/40 border border-white/10 rounded-lg text-white placeholder:text-white/25 text-sm focus:outline-none focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-colors resize-none"
           />
         </div>
@@ -48,9 +49,9 @@ export function RequestChangesModal({ isOpen, onClose, onConfirm, isSubmitting }
             size="sm"
             onClick={handleConfirm}
             disabled={!reason.trim() || isSubmitting}
-            className="bg-amber-600/70 hover:bg-amber-600 border border-amber-500/30 disabled:opacity-50"
+            className="bg-red-600/70 hover:bg-red-600 border border-red-500/30 disabled:opacity-50"
           >
-            {isSubmitting ? 'Sending…' : 'Request Changes'}
+            {isSubmitting ? 'Banning…' : 'Confirm Ban'}
           </Button>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { AppCardSkeleton } from '@/components/molecules/AppCardSkeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import { authClient } from '@/lib/auth-client';
 import { UserProfileCard } from '../components/UserProfileCard';
+import { GuestPanel } from '../components/GuestPanel';
 import { FavoritesPreviewContainer } from '@/features/favorites/containers/FavoritesPreviewContainer';
 import ProfileContainer from './ProfileContainer';
 
@@ -46,14 +47,16 @@ export default function AppsContainer() {
   return (
     <div className="min-h-screen">
       {/* User profile + favorites panel */}
-      {session?.user && (
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-3">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-3">
+        {session?.user ? (
           <div className="flex flex-col gap-3 lg:flex-row lg:items-stretch">
             <UserProfileCard name={session.user.name} image={session.user.image} email={session.user.email} onClick={() => setIsProfileOpen(true)} />
             <FavoritesPreviewContainer userId={session.user.id} />
           </div>
-        </div>
-      )}
+        ) : (
+          <GuestPanel />
+        )}
+      </div>
 
       {/* Filter / search panel — glass card */}
       <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-8">

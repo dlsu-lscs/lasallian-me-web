@@ -33,6 +33,19 @@ export async function getApplications(params: GetApplicationsParams = {}): Promi
   return response.json();
 }
 
+export async function getMyApplications(): Promise<ApplicationsListResponse> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/applications/me`,
+    { credentials: 'include' },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch my applications: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 export async function getApplicationFavoritesCount(
   applicationId: number,
 ): Promise<{ applicationId: number; count: number }> {
@@ -82,6 +95,19 @@ export async function deleteApplication(id: number): Promise<void> {
 export async function getApplicationBySlug(slug: string): Promise<Application> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${encodeURIComponent(slug)}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch application: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getOwnApplicationBySlug(slug: string): Promise<Application> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${encodeURIComponent(slug)}/edit`,
+    { credentials: 'include' },
   );
 
   if (!response.ok) {

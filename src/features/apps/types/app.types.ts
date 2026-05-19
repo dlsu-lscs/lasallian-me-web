@@ -11,11 +11,13 @@ export interface Application {
   userId: string;
   userEmail?: string;
   author?: string | null;
-  isApproved: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REMOVED';
+  status: 'PENDING' | 'APPROVED' | 'CHANGES_REQUESTED' | 'REMOVED';
   rejectionReason?: string | null;
   createdAt: string;
   updatedAt: string;
   favoritesCount?: number;
+  ratingCount?: number;
+  averageRating?: number | null;
 }
 
 export interface ApplicationsMeta {
