@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/atoms/Button';
 import { AppCard } from '../components/AppCard';
 import { useAppsContainer } from '@/features/apps/hooks/useAppsContainer';
-import { Pagination } from '@/components/molecules/Pagination';
 import { AppCardSkeleton } from '@/components/molecules/AppCardSkeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import { authClient } from '@/lib/auth-client';
@@ -17,12 +16,10 @@ export default function AppsContainer() {
   const [hasMounted, setHasMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { data: session } = authClient.useSession();
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const {
     apps,
-    meta,
-    page,
-    setPage,
     filters,
     uniqueTags,
     toggleTag,
@@ -30,11 +27,31 @@ export default function AppsContainer() {
     hasActiveFilters,
     isLoading,
     isError,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
   } = useAppsContainer();
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
+
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
+  );
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(handleObserver, { rootMargin: '200px' });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [handleObserver]);
 
   if (!hasMounted) {
     return (
@@ -114,11 +131,18 @@ export default function AppsContainer() {
             </p>
           </div>
         ) : apps.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {apps.map((app) => (
-              <AppCard key={app.id} app={app} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {apps.map((app) => (
+                <AppCard key={app.id} app={app} />
+              ))}
+              {isFetchingNextPage &&
+                Array.from({ length: 3 }).map((_, i) => (
+                  <AppCardSkeleton key={`next-${i}`} />
+                ))}
+            </div>
+            <div ref={sentinelRef} className="h-1" />
+          </>
         ) : (
           <div className="text-center py-20 flex flex-col items-center gap-2">
             <svg
@@ -142,14 +166,6 @@ export default function AppsContainer() {
               Clear all filters
             </Button>
           </div>
-        )}
-
-        {meta && (
-          <Pagination
-            page={page}
-            totalPages={meta.totalPages}
-            onPageChange={setPage}
-          />
         )}
       </div>
 

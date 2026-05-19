@@ -155,10 +155,13 @@ export function AppCard({ app, onClick, showTags = true, className, variant = 'd
           </div>
         )}
 
+        {/* Subtle gradient so tags stay readable over light screenshots */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-black/10 to-transparent pointer-events-none" />
+
         {showTags && visibleTags.length > 0 && (
           <div className="absolute top-2 left-2 flex items-center gap-1.5">
             {visibleTags.map((tag, index) => (
-              <Badge key={index} variant="default">{tag}</Badge>
+              <Badge key={index} variant="overlay">{tag}</Badge>
             ))}
             {extraTagCount > 0 && (
               <span className="text-xs font-medium text-white/70">+{extraTagCount}</span>

@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+  variant?: 'default' | 'overlay' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
   className?: string;
 }
 
@@ -13,6 +13,7 @@ export function Badge({
 }: BadgeProps) {
   const variantStyles = {
     default: 'bg-white/10 text-white/55 backdrop-blur-lg border border-white/12',
+    overlay: 'bg-black/50 text-white/90 backdrop-blur-sm border border-white/15',
     primary: 'bg-primary-400/20 text-primary-300 border border-primary-400/30',
     secondary: 'bg-white/10 text-white/55 border border-white/12',
     success: 'bg-white text-black border border-white/80',

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import {
   getApplications,
   getMyApplications,
@@ -30,6 +30,26 @@ export function useApplicationsQuery(filters: Partial<AppFilters> = {}, options?
         page,
         limit,
       }),
+    retry: 1,
+    enabled: options?.enabled ?? true,
+  });
+}
+
+export function useInfiniteApplicationsQuery(filters: Partial<AppFilters> = {}, options?: { enabled?: boolean }) {
+  return useInfiniteQuery({
+    queryKey: [...applicationsQueryKey(filters), 'infinite'],
+    queryFn: ({ pageParam }) =>
+      getApplications({
+        search: filters.searchQuery || undefined,
+        tags: filters.selectedTags && filters.selectedTags.length > 0 ? filters.selectedTags : undefined,
+        userId: filters.userId || undefined,
+        page: pageParam,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.meta;
+      return page < totalPages ? page + 1 : undefined;
+    },
     retry: 1,
     enabled: options?.enabled ?? true,
   });

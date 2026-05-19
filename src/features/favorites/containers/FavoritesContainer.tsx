@@ -9,6 +9,25 @@ interface FavoritesContainerProps {
   userId: string;
 }
 
+// For count >= 8, prefer the largest column count [4, 3, 2] that divides
+// evenly (no partial last row). If none divide evenly, pick the one whose
+// last row is fullest (highest ratio of remainder/cols).
+function getGridCols(count: number): 2 | 3 | 4 {
+  if (count < 8) return 2;
+  const candidates: (2 | 3 | 4)[] = [4, 3, 2];
+  const perfect = candidates.find((c) => count % c === 0);
+  if (perfect) return perfect;
+  return candidates.reduce((best, c) =>
+    (count % c) / c > (count % best) / best ? c : best
+  );
+}
+
+const colsClass: Record<2 | 3 | 4, string> = {
+  2: 'grid-cols-1 md:grid-cols-2',
+  3: 'grid-cols-1 md:grid-cols-3',
+  4: 'grid-cols-2 md:grid-cols-4',
+};
+
 export function FavoritesContainer({ userId }: FavoritesContainerProps) {
   const { data: favoritesData, isLoading: favLoading } = useUserFavoritesQuery(userId);
   const { data: appsData, isLoading: appsLoading } = useApplicationsQuery();
@@ -41,8 +60,10 @@ export function FavoritesContainer({ userId }: FavoritesContainerProps) {
     );
   }
 
+  const cols = getGridCols(favoriteApps.length);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div className={`grid ${colsClass[cols]} gap-3`}>
       {favoriteApps.map((app) => (
         <AppCard key={app.id} app={app} />
       ))}
