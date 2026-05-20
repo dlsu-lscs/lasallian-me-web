@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     default: 'pana',
   },
   description:
-    'Discover apps built by LSCS — La Salle Computer Society, the tech org of De La Salle University.',
+    'Discover apps built by the La Sallian community. Managed by LSCS, the premier tech organization of De La Salle University',
   openGraph: {
     siteName: 'pana',
     type: 'website',
