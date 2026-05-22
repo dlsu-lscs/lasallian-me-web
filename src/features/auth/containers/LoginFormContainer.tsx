@@ -24,7 +24,7 @@ export default function LoginFormContainer({ mode = 'page', isOpen = false, onCl
         callbackURL: window.location.origin,
       });
     } catch (err) {
-      console.error('Authentication failed:', err);
+      // console.error('Authentication failed:', err);
       setError('Failed to authenticate. Please ensure you are using a valid DLSU email.');
       setIsLoading(false);
     }
