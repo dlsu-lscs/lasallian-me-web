@@ -121,7 +121,7 @@ export default function ProfileContainer({ onClose }: ProfileContainerProps) {
               <p className="text-white/50 text-sm">Unable to load apps. Please try again.</p>
             </div>
           ) : apps.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {apps.map((app) => {
                 const status = STATUS_DOT[app.status] ?? STATUS_DOT.PENDING;
                 return (
@@ -135,7 +135,7 @@ export default function ProfileContainer({ onClose }: ProfileContainerProps) {
                       router.push(
                         (a.status === 'PENDING' || a.status === 'CHANGES_REQUESTED')
                           ? `/${encodeURIComponent(a.slug)}/edit`
-                          : `/${encodeURIComponent(a.slug)}`,
+                          : `/${encodeURIComponent(a.slug)}?from=profile`,
                       );
                     }}
                     iconOverlay={
@@ -224,7 +224,7 @@ export default function ProfileContainer({ onClose }: ProfileContainerProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 10 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="relative w-[60vw] aspect-[4/3] max-h-[90vh] glass-lg rounded-2xl shadow-[var(--shadow-modal)] overflow-hidden"
+            className="relative w-[92vw] h-[85vh] sm:w-[60vw] sm:h-auto sm:aspect-[4/3] sm:max-h-[90vh] glass-lg rounded-2xl shadow-[var(--shadow-modal)] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <button

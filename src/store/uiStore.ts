@@ -6,6 +6,9 @@ interface UIState {
   isLoginModalOpen: boolean;
   openLoginModal: () => void;
   closeLoginModal: () => void;
+  isProfileModalOpen: boolean;
+  openProfileModal: () => void;
+  closeProfileModal: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -14,4 +17,7 @@ export const useUIStore = create<UIState>((set) => ({
   isLoginModalOpen: false,
   openLoginModal: () => set({ isLoginModalOpen: true }),
   closeLoginModal: () => set({ isLoginModalOpen: false }),
+  isProfileModalOpen: false,
+  openProfileModal: () => set({ isProfileModalOpen: true }),
+  closeProfileModal: () => set({ isProfileModalOpen: false }),
 }));

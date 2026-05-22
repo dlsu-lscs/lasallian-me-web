@@ -21,6 +21,8 @@ export interface AppDetailProps {
   /** When true, strips the outer page-padding wrapper so the card fills its container. */
   preview?: boolean;
   onClaim?: () => void;
+  backLabel?: string;
+  onBack?: () => void;
 }
 
 export function AppDetail({
@@ -35,6 +37,8 @@ export function AppDetail({
   ratingsSection,
   preview = false,
   onClaim,
+  backLabel,
+  onBack,
 }: AppDetailProps) {
   const screenshotRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
@@ -65,11 +69,15 @@ export function AppDetail({
   const showTagMeta = tags.length > 0;
   const showAuthorMeta = !!(app.author || app.userEmail);
 
+  const cardClassName = preview
+    ? 'bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-2xl overflow-hidden flex flex-col'
+    : '-mx-4 sm:mx-0 bg-black/60 backdrop-blur-lg sm:border sm:border-white/10 sm:shadow-[var(--shadow-glass)] sm:rounded-2xl overflow-hidden flex flex-col';
+
   const card = (
-    <div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-2xl overflow-hidden flex flex-col">
+    <div className={cardClassName}>
 
           {/* ── 1. Hero ── */}
-          <div className="relative h-56 shrink-0">
+          <div className="relative h-72 sm:h-56 shrink-0">
             {previewImages[0] ? (
               <div className="absolute inset-0 overflow-hidden">
                 <Image
@@ -85,21 +93,58 @@ export function AppDetail({
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
-            <div className="absolute bottom-0 left-0 right-0 flex items-end gap-4 p-5">
-              {app.icon && (
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/20 shrink-0 shadow-xl">
-                  <Image fill unoptimized src={imgSrc(app.icon)} alt={app.title} className="object-cover" />
-                </div>
-              )}
+            {!preview && backLabel && (
+              <button
+                onClick={onBack}
+                className="absolute top-3 left-3 z-10 flex items-center gap-0.5 px-2.5 py-1 rounded-full bg-black/35 backdrop-blur-sm text-sm font-medium text-white/80 hover:text-white hover:bg-black/50 transition-all group"
+              >
+                <FiChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                Back to {backLabel}
+              </button>
+            )}
 
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-extrabold text-white leading-tight truncate">{app.title}</h1>
-                {tagline && (
-                  <p className="text-white/55 text-sm mt-0.5 truncate">{tagline}</p>
+            <div className="absolute bottom-0 left-0 right-0 p-5">
+              {/* Title row — always horizontal */}
+              <div className="flex items-end gap-4">
+                {app.icon && (
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/20 shrink-0 shadow-xl">
+                    <Image fill unoptimized src={imgSrc(app.icon)} alt={app.title} className="object-cover" />
+                  </div>
                 )}
+
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl font-extrabold text-white leading-tight truncate">{app.title}</h1>
+                  {tagline && (
+                    <p className="text-white/55 text-sm mt-0.5 truncate">{tagline}</p>
+                  )}
+                </div>
+
+                {/* Desktop: buttons inline with title */}
+                <div className="hidden sm:flex items-center gap-2 shrink-0">
+                  {app.url && (
+                    <a
+                      href={app.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
+                    >
+                      <FaPlay className="w-3 h-3" /> Open
+                    </a>
+                  )}
+                  <button
+                    onClick={onToggleFavorite}
+                    disabled={isFavoritePending || !isLoggedIn}
+                    title={isLoggedIn ? (isFavorited ? 'Remove from favorites' : 'Save to favorites') : 'Sign in to save'}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isFavorited ? 'bg-white/15 text-white hover:bg-white/20' : 'bg-white/10 border border-white/20 text-white hover:bg-white/15'}`}
+                  >
+                    {isFavorited ? <FaBookmark className="w-3.5 h-3.5" /> : <FiBookmark className="w-3.5 h-3.5" />}
+                    {isFavorited ? 'Saved' : 'Save'}
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              {/* Mobile: buttons below title */}
+              <div className="flex sm:hidden items-center gap-2 mt-3">
                 {app.url && (
                   <a
                     href={app.url}
@@ -107,22 +152,14 @@ export function AppDetail({
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
                   >
-                    <FaPlay className="w-3 h-3" /> Open 
+                    <FaPlay className="w-3 h-3" /> Open
                   </a>
                 )}
                 <button
                   onClick={onToggleFavorite}
                   disabled={isFavoritePending || !isLoggedIn}
-                  title={
-                    isLoggedIn
-                      ? isFavorited ? 'Remove from favorites' : 'Save to favorites'
-                      : 'Sign in to save'
-                  }
-                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                    isFavorited
-                      ? 'bg-white/15 text-white hover:bg-white/20'
-                      : 'bg-white/10 border border-white/20 text-white hover:bg-white/15'
-                  }`}
+                  title={isLoggedIn ? (isFavorited ? 'Remove from favorites' : 'Save to favorites') : 'Sign in to save'}
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${isFavorited ? 'bg-white/15 text-white hover:bg-white/20' : 'bg-white/10 border border-white/20 text-white hover:bg-white/15'}`}
                 >
                   {isFavorited ? <FaBookmark className="w-3.5 h-3.5" /> : <FiBookmark className="w-3.5 h-3.5" />}
                   {isFavorited ? 'Saved' : 'Save'}
@@ -335,7 +372,7 @@ export function AppDetail({
 
   return (
     <>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 sm:py-8 -mt-4 sm:mt-0">
         {card}
       </div>
       {lightbox}

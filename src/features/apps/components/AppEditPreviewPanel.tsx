@@ -130,38 +130,83 @@ export function AppEditPreviewPanel({
     }
   };
 
+  const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit');
+
   const isBusy = isSaving || isUploading;
   const error = uploadError ?? saveError ?? null;
 
-  const splitPane = (
-    <div className="flex w-full h-full overflow-hidden">
-      {/* Sidebar */}
+  const sidebarContent = (
+    <AppEditSidebar
+      formState={formState}
+      onFormChange={(updates) => setFormState((prev) => ({ ...prev, ...updates }))}
+      onSave={handleSave}
+      isSaving={isBusy}
+      error={error}
+      sidebarTop={sidebarTop}
+      iconPreviewUrl={iconPreviewUrl}
+      newPreviewUrls={newPreviewUrls}
+    />
+  );
+
+  const previewContent = (
+    <div className="h-full overflow-y-auto bg-black/20">
+      <AppDetailPreview app={mergedApp} />
+    </div>
+  );
+
+  // Mobile: tabbed view (sm:hidden)
+  const mobileView = (
+    <div className="flex flex-col h-full overflow-hidden sm:hidden">
+      <div className="shrink-0 flex items-stretch border-b border-white/8">
+        {(['edit', 'preview'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setMobileTab(tab)}
+            className={`flex-1 py-3 text-sm font-medium capitalize transition-colors border-b-2 ${
+              mobileTab === tab
+                ? 'text-white border-white'
+                : 'text-white/40 border-transparent hover:text-white/70'
+            }`}
+          >
+            {tab === 'edit' ? 'Edit' : 'Preview'}
+          </button>
+        ))}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="w-12 shrink-0 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+          >
+            <FiX className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+      <div className="flex-1 min-h-0 overflow-hidden">
+        {mobileTab === 'edit' ? (
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="px-4 pt-3 pb-2 border-b border-white/8 shrink-0">
+              <p className="text-xs font-semibold text-white/50">Edit Application</p>
+              <p className="text-white font-bold text-sm truncate mt-0.5">{mergedApp.title}</p>
+            </div>
+            <div className="flex-1 min-h-0">{sidebarContent}</div>
+          </div>
+        ) : (
+          previewContent
+        )}
+      </div>
+    </div>
+  );
+
+  // Desktop: side-by-side split pane (hidden sm:flex)
+  const desktopView = (
+    <div className="hidden sm:flex w-full h-full overflow-hidden">
       <div className="w-72 xl:w-80 shrink-0 border-r border-white/8 flex flex-col overflow-hidden">
         <div className="px-4 pt-4 pb-2 border-b border-white/8 shrink-0">
           <p className="text-xs font-semibold text-white/50">Edit Application</p>
           <p className="text-white font-bold text-sm truncate mt-0.5">{mergedApp.title}</p>
         </div>
-        {/* flex-1 min-h-0 lets AppEditSidebar fill remaining height without overflowing the header */}
-        <div className="flex-1 min-h-0">
-          <AppEditSidebar
-            formState={formState}
-            onFormChange={(updates) => setFormState((prev) => ({ ...prev, ...updates }))}
-            onSave={handleSave}
-            isSaving={isBusy}
-            error={error}
-            sidebarTop={sidebarTop}
-            iconPreviewUrl={iconPreviewUrl}
-            newPreviewUrls={newPreviewUrls}
-          />
-        </div>
+        <div className="flex-1 min-h-0">{sidebarContent}</div>
       </div>
-
-      {/* Preview */}
-      <div className="flex-1 overflow-hidden bg-black/20">
-        <div className="h-full overflow-y-auto">
-          <AppDetailPreview app={mergedApp} />
-        </div>
-      </div>
+      <div className="flex-1 overflow-hidden">{previewContent}</div>
     </div>
   );
 
@@ -187,27 +232,30 @@ export function AppEditPreviewPanel({
             className="relative w-[92vw] max-w-6xl h-[88vh] glass-lg rounded-2xl shadow-[var(--shadow-modal)] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Desktop-only close button — mobile gets it inside the tab bar */}
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 z-20 w-7 h-7 flex items-center justify-center rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+              className="hidden sm:flex absolute top-3 right-3 z-20 w-7 h-7 items-center justify-center rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
             >
               <FiX className="w-4 h-4" />
             </button>
-            {splitPane}
+            {mobileView}
+            {desktopView}
           </motion.div>
         </motion.div>
       </AnimatePresence>
     );
   }
 
-  // Page mode — same bounded container as the modal
+  // Page mode
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
       <div
         className="glass-lg rounded-2xl overflow-hidden shadow-[var(--shadow-modal)]"
         style={{ height: '82vh' }}
       >
-        {splitPane}
+        {mobileView}
+        {desktopView}
       </div>
     </div>
   );

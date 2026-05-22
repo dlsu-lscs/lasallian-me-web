@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUIStore } from '@/store/uiStore';
 import { useAppBySlug } from '@/features/apps/hooks/use-app-by-slug';
 import { useApplicationFavoritesCountQuery } from '../queries/apps.queries';
 import { AppDetail } from '../components/AppDetail';
@@ -14,9 +16,12 @@ import { Skeleton } from '@/components/atoms/Skeleton';
 
 export interface AppDetailContainerProps {
   slug: string;
+  from?: string;
 }
 
-export function AppDetailContainer({ slug }: AppDetailContainerProps) {
+export function AppDetailContainer({ slug, from }: AppDetailContainerProps) {
+  const router = useRouter();
+  const openProfileModal = useUIStore((state) => state.openProfileModal);
   const { data: app, isLoading, isError } = useAppBySlug(slug);
   const { data: favoritesData } = useApplicationFavoritesCountQuery(app?.id);
   const { data: ratingsData } = useApplicationRatingsQuery(slug);
@@ -57,6 +62,13 @@ export function AppDetailContainer({ slug }: AppDetailContainerProps) {
     notFound();
   }
 
+  const backLabel = from === 'profile' ? 'Profile' : from === 'home' ? 'Home' : undefined;
+
+  const handleBack = () => {
+    if (from === 'profile') openProfileModal();
+    router.back();
+  };
+
   return (
     <>
       <AppDetail
@@ -70,6 +82,8 @@ export function AppDetailContainer({ slug }: AppDetailContainerProps) {
         totalRatings={ratingsData?.total}
         ratingsSection={<RatingsContainer slug={slug} />}
         onClaim={app.unclaimed ? handleClaim : undefined}
+        backLabel={backLabel}
+        onBack={handleBack}
       />
 
       {session?.user && app.unclaimed && (

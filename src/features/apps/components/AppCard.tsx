@@ -28,7 +28,7 @@ export function AppCard({ app, onClick, showTags = true, className, variant = 'd
   const { isFavorited, toggle, isPending, isLoggedIn } = useFavoriteToggle(app.id);
   const [localCount, setLocalCount] = useState(app.favoritesCount);
 
-  const handleCardClick = () => onClick ? onClick(app) : router.push(`/${app.slug}`);
+  const handleCardClick = () => onClick ? onClick(app) : router.push(`/${app.slug}?from=home`);
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
