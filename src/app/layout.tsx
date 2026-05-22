@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Sora, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/organisms/Navbar';
+import { Footer } from '@/components/organisms/Footer';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { Toaster } from '@/components/atoms/Toaster';
 import { GlobalLoginModal } from '@/features/auth/containers/GlobalLoginModal';
@@ -57,6 +58,7 @@ export default function RootLayout({
           <main className="pt-4">
             {children}
           </main>
+          <Footer />
           <Toaster />
           <GlobalLoginModal />
         </QueryProvider>
