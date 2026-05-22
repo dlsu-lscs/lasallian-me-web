@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: {
     template: '%s | pana',
-    default: 'pana',
+    default: 'pana - Lasallian App Directory by the DLSU Community',
   },
   description:
     'Discover apps built by the La Sallian community. Managed by LSCS, the premier tech organization of De La Salle University',
