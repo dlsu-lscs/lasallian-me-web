@@ -7,7 +7,7 @@ export async function uploadImages(files: File[]): Promise<UploadResult[]> {
 
   for (const file of files) {
     const params = new URLSearchParams({ fileName: file.name, contentType: file.type });
-    const presignResponse = await fetch(`/api/upload?${params}`);
+    const presignResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/images/uploads/presigned?${params}`);
 
     if (!presignResponse.ok) {
       const err = await presignResponse.json().catch(() => ({}));
@@ -34,7 +34,7 @@ export async function uploadImages(files: File[]): Promise<UploadResult[]> {
 
 export async function uploadIcon(file: File): Promise<UploadResult> {
   const params = new URLSearchParams({ fileName: file.name, contentType: file.type, type: 'icon' });
-  const presignResponse = await fetch(`/api/upload?${params}`);
+  const presignResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/images/signed?${params}`);
 
   if (!presignResponse.ok) {
     const err = await presignResponse.json().catch(() => ({}));
