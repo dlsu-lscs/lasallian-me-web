@@ -1,6 +1,6 @@
 import { Application } from '@/features/apps/types/app.types';
 
-export type AdminTab = 'apps' | 'members';
+export type AdminTab = 'apps' | 'members' | 'claims';
 
 export type AdminApplication = Application & {
   userId: string;
@@ -74,6 +74,39 @@ export interface AddAdminModalState {
 export interface MemberReviewsModalState {
   isOpen: boolean;
   member: Member | null;
+}
+
+export type ClaimRequestStatus = 'PENDING' | 'APPROVED' | 'DECLINED';
+
+export interface ClaimRequest {
+  id: number;
+  applicationId: number;
+  applicationTitle: string;
+  applicationSlug: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userImage: string | null;
+  additionalInfo: string | null;
+  status: ClaimRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClaimRequestsListResponse {
+  data: ClaimRequest[];
+  meta: {
+    page: number;
+    limit: number;
+    count: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface DeclineClaimModalState {
+  isOpen: boolean;
+  claimId: number | null;
 }
 
 export interface MemberReview {

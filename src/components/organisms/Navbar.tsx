@@ -15,11 +15,13 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const searchQuery = useUIStore((state) => state.searchQuery);
   const setSearchQuery = useUIStore((state) => state.setSearchQuery);
   const openLoginModal = useUIStore((state) => state.openLoginModal);
+  const isProfileModalOpen = useUIStore((state) => state.isProfileModalOpen);
+  const openProfileModal = useUIStore((state) => state.openProfileModal);
+  const closeProfileModal = useUIStore((state) => state.closeProfileModal);
 
   const router = useRouter();
 
@@ -116,7 +118,7 @@ export function Navbar() {
 
                       <button
                         className="flex items-center gap-2 w-full px-4 py-2 text-sm text-white/60 hover:bg-white/10 hover:text-white/90 transition-colors"
-                        onClick={() => { setProfileMenuOpen(false); setProfileModalOpen(true); }}
+                        onClick={() => { setProfileMenuOpen(false); openProfileModal(); }}
                       >
                         <FiUser className="w-4 h-4" />
                         My Profile
@@ -206,7 +208,7 @@ export function Navbar() {
                   )}
                   <span className="text-sm font-medium text-white/70">{session.user.name}</span>
                 </div>
-                <button className="text-left text-sm text-white/50 hover:text-white/90 transition-colors" onClick={() => { setMobileMenuOpen(false); setProfileModalOpen(true); }}>
+                <button className="text-left text-sm text-white/50 hover:text-white/90 transition-colors" onClick={() => { setMobileMenuOpen(false); openProfileModal(); }}>
                   My Profile
                 </button>
                 <Link href="/submit" className="text-sm text-white/50 hover:text-white/90 transition-colors" onClick={() => setMobileMenuOpen(false)}>
@@ -235,10 +237,10 @@ export function Navbar() {
     </header>
 
     <AnimatePresence>
-      {profileModalOpen && session && (
+      {isProfileModalOpen && session && (
         <ProfileContainer
           slug={session.user.id}
-          onClose={() => setProfileModalOpen(false)}
+          onClose={closeProfileModal}
         />
       )}
     </AnimatePresence>

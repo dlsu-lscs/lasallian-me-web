@@ -4,9 +4,8 @@ import { getApplicationBySlug } from '@/features/apps/services/apps.service';
 import React from 'react';
 
 export interface AppDetailPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 }
 
 export async function generateMetadata({ params }: AppDetailPageProps): Promise<Metadata> {
@@ -29,9 +28,10 @@ export async function generateMetadata({ params }: AppDetailPageProps): Promise<
   }
 }
 
-const AppDetailPage = async ({params}: AppDetailPageProps) => {
+const AppDetailPage = async ({ params, searchParams }: AppDetailPageProps) => {
   const { slug } = await params;
-  return <AppDetailContainer slug={slug} />;
+  const { from } = await searchParams;
+  return <AppDetailContainer slug={slug} from={from} />;
 }
 
 export default AppDetailPage;

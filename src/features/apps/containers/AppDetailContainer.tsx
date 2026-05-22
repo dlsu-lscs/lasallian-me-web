@@ -1,24 +1,42 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUIStore } from '@/store/uiStore';
 import { useAppBySlug } from '@/features/apps/hooks/use-app-by-slug';
 import { useApplicationFavoritesCountQuery } from '../queries/apps.queries';
 import { AppDetail } from '../components/AppDetail';
+import { ClaimModal } from '../components/ClaimModal';
 import { RatingsContainer } from '@/features/ratings/containers/RatingsContainer';
 import { useFavoriteToggle } from '@/features/favorites/hooks/useFavoriteToggle';
 import { useApplicationRatingsQuery } from '@/features/ratings/queries/ratings.queries';
+import { authClient } from '@/lib/auth-client';
 import { notFound } from 'next/navigation';
 import { Skeleton } from '@/components/atoms/Skeleton';
 
 export interface AppDetailContainerProps {
   slug: string;
+  from?: string;
 }
 
-export function AppDetailContainer({ slug }: AppDetailContainerProps) {
+export function AppDetailContainer({ slug, from }: AppDetailContainerProps) {
+  const router = useRouter();
+  const openProfileModal = useUIStore((state) => state.openProfileModal);
   const { data: app, isLoading, isError } = useAppBySlug(slug);
   const { data: favoritesData } = useApplicationFavoritesCountQuery(app?.id);
   const { data: ratingsData } = useApplicationRatingsQuery(slug);
   const { isFavorited, toggle, isPending: isFavoritePending, isLoggedIn } = useFavoriteToggle(app?.id ?? 0);
+  const { data: session } = authClient.useSession();
+
+  const [claimModalOpen, setClaimModalOpen] = useState(false);
+
+  const handleClaim = () => {
+    if (!isLoggedIn) {
+      window.location.href = '/login';
+      return;
+    }
+    setClaimModalOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -44,20 +62,43 @@ export function AppDetailContainer({ slug }: AppDetailContainerProps) {
     notFound();
   }
 
-  
+  const backLabel = from === 'profile' ? 'Profile' : from === 'home' ? 'Home' : undefined;
+
+  const handleBack = () => {
+    if (from === 'profile') openProfileModal();
+    router.back();
+  };
 
   return (
-    
-    <AppDetail
-      app={app}
-      favoritesCount={favoritesData?.count}
-      isFavorited={isFavorited}
-      onToggleFavorite={toggle}
-      isFavoritePending={isFavoritePending}
-      isLoggedIn={isLoggedIn}
-      averageScore={ratingsData?.averageScore}
-      totalRatings={ratingsData?.total}
-      ratingsSection={<RatingsContainer slug={slug} />}
-    />
+    <>
+      <AppDetail
+        app={app}
+        favoritesCount={favoritesData?.count}
+        isFavorited={isFavorited}
+        onToggleFavorite={toggle}
+        isFavoritePending={isFavoritePending}
+        isLoggedIn={isLoggedIn}
+        averageScore={ratingsData?.averageScore}
+        totalRatings={ratingsData?.total}
+        ratingsSection={<RatingsContainer slug={slug} />}
+        onClaim={app.unclaimed ? handleClaim : undefined}
+        backLabel={backLabel}
+        onBack={handleBack}
+      />
+
+      {session?.user && app.unclaimed && (
+        <ClaimModal
+          isOpen={claimModalOpen}
+          onClose={() => setClaimModalOpen(false)}
+          applicationId={app.id}
+          applicationTitle={app.title}
+          user={{
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image,
+          }}
+        />
+      )}
+    </>
   );
 }

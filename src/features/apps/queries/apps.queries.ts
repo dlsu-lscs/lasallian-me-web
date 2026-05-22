@@ -7,6 +7,7 @@ import {
   getApplicationFavoritesCount,
   updateApplication,
   deleteApplication,
+  claimApplication,
 } from '../services/apps.service';
 import { AppFilters, Application } from '../types/app.types';
 
@@ -105,5 +106,12 @@ export function useDeleteApplicationMutation() {
   return useMutation({
     mutationFn: (id: number) => deleteApplication(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['applications'] }),
+  });
+}
+
+export function useClaimApplicationMutation() {
+  return useMutation({
+    mutationFn: ({ id, additionalInfo }: { id: number; additionalInfo?: string }) =>
+      claimApplication(id, additionalInfo),
   });
 }
