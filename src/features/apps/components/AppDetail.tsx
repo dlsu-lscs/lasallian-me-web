@@ -20,6 +20,7 @@ export interface AppDetailProps {
   ratingsSection?: React.ReactNode;
   /** When true, strips the outer page-padding wrapper so the card fills its container. */
   preview?: boolean;
+  onClaim?: () => void;
 }
 
 export function AppDetail({
@@ -33,6 +34,7 @@ export function AppDetail({
   totalRatings,
   ratingsSection,
   preview = false,
+  onClaim,
 }: AppDetailProps) {
   const screenshotRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
@@ -189,6 +191,18 @@ export function AppDetail({
             )}
 
           </div>
+
+          {/* ── Unclaimed notice ── */}
+          {app.unclaimed && (
+            <div className="flex justify-end px-5 py-2 border-b border-white/8">
+              <button
+                onClick={onClaim}
+                className="text-white/35 text-xs hover:text-white/60 transition-colors"
+              >
+                Is this your app? Claim it →
+              </button>
+            </div>
+          )}
 
           {/* ── 3. Screenshots Carousel ── */}
           {previewImages.length > 0 && (

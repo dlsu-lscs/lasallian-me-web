@@ -13,6 +13,7 @@ export interface Application {
   author?: string | null;
   status: 'PENDING' | 'APPROVED' | 'CHANGES_REQUESTED' | 'REMOVED';
   rejectionReason?: string | null;
+  unclaimed?: boolean;
   createdAt: string;
   updatedAt: string;
   favoritesCount?: number;

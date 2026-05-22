@@ -6,13 +6,17 @@ import { useIsAdmin } from '@/features/auth/hooks/useIsAdmin';
 import { SidebarLayout } from '@/components/organisms/SidebarLayout';
 import { ApprovalContainer } from './ApprovalContainer';
 import { MembersContainer } from './MembersContainer';
+import { ClaimApprovalContainer } from './ClaimApprovalContainer';
 import type { AdminTab } from '../types/admin.types';
-import { FiGrid, FiUsers } from 'react-icons/fi';
+import { FiGrid, FiUsers, FiFlag } from 'react-icons/fi';
 
 const SIDEBAR_SECTIONS = [
   {
     label: 'Content',
-    items: [{ id: 'apps' as AdminTab, label: 'Apps', icon: <FiGrid /> }],
+    items: [
+      { id: 'apps' as AdminTab, label: 'Apps', icon: <FiGrid /> },
+      { id: 'claims' as AdminTab, label: 'Claim Requests', icon: <FiFlag /> },
+    ],
   },
   {
     label: 'Management',
@@ -57,7 +61,9 @@ export function AdminDashboardContainer() {
           activeId={activeTab}
           onSelect={setActiveTab}
         >
-          {activeTab === 'apps' ? <ApprovalContainer /> : <MembersContainer />}
+          {activeTab === 'apps' && <ApprovalContainer />}
+          {activeTab === 'claims' && <ClaimApprovalContainer />}
+          {activeTab === 'members' && <MembersContainer />}
         </SidebarLayout>
       </div>
     </div>

@@ -116,3 +116,20 @@ export async function getOwnApplicationBySlug(slug: string): Promise<Application
 
   return response.json();
 }
+
+export async function claimApplication(id: number, additionalInfo?: string): Promise<void> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${id}/claim`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ additionalInfo }),
+    },
+  );
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? 'Failed to submit claim request');
+  }
+}

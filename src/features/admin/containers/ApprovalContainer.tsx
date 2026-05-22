@@ -9,6 +9,7 @@ import {
   useApproveApplicationMutation,
   useRequestChangesMutation,
   useRemoveApplicationMutation,
+  useSetApplicationUnclaimedMutation,
 } from '../queries/admin.queries';
 import type { RemoveModalState } from '../types/admin.types';
 import type { AdminApplicationStatus } from '../services/admin.service';
@@ -178,18 +179,40 @@ function PendingReviewCard({
 
 function ApprovedActionsCard({
   appId,
+  unclaimed,
   onRemove,
+  onToggleUnclaimed,
   isRemoving,
+  isTogglingUnclaimed,
 }: {
   appId: number;
+  unclaimed: boolean;
   onRemove: (id: number) => void;
+  onToggleUnclaimed: (id: number, unclaimed: boolean) => void;
   isRemoving: boolean;
+  isTogglingUnclaimed: boolean;
 }) {
+  const isBusy = isRemoving || isTogglingUnclaimed;
   return (
-    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
-      <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-2">Actions</p>
+    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3 flex flex-col gap-2">
+      <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest">Actions</p>
       <button
-        disabled={isRemoving}
+        disabled={isBusy}
+        onClick={() => onToggleUnclaimed(appId, !unclaimed)}
+        className={`w-full py-1.5 rounded-lg text-xs font-semibold border transition-colors disabled:opacity-40 cursor-pointer ${
+          unclaimed
+            ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border-amber-500/20'
+            : 'bg-white/5 hover:bg-amber-500/10 text-white/40 hover:text-amber-400 border-white/10 hover:border-amber-500/20'
+        }`}
+      >
+        {isTogglingUnclaimed
+          ? 'Updating…'
+          : unclaimed
+          ? 'Mark as Claimed'
+          : 'Mark as Unclaimed'}
+      </button>
+      <button
+        disabled={isBusy}
         onClick={() => onRemove(appId)}
         className="w-full py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-red-500/15 text-white/40 hover:text-red-400 border border-white/10 hover:border-red-500/20 transition-colors disabled:opacity-40 cursor-pointer"
       >
@@ -223,10 +246,11 @@ export function ApprovalContainer() {
   const apps = data?.data ?? [];
   const meta = data?.meta;
 
-  const approveMutation        = useApproveApplicationMutation();
-  const requestChangesMutation = useRequestChangesMutation();
-  const removeMutation         = useRemoveApplicationMutation();
-  const updateMutation         = useUpdateApplicationMutation();
+  const approveMutation          = useApproveApplicationMutation();
+  const requestChangesMutation   = useRequestChangesMutation();
+  const removeMutation           = useRemoveApplicationMutation();
+  const updateMutation           = useUpdateApplicationMutation();
+  const setUnclaimedMutation     = useSetApplicationUnclaimedMutation();
 
   const { addToast } = useToastStore();
 
@@ -268,6 +292,16 @@ export function ApprovalContainer() {
           setSelectedApp(null);
         },
         onError: () => addToast('Failed to remove application', 'error'),
+      },
+    );
+  };
+
+  const handleToggleUnclaimed = (id: number, unclaimed: boolean) => {
+    setUnclaimedMutation.mutate(
+      { id, unclaimed },
+      {
+        onSuccess: () => addToast(unclaimed ? 'Marked as unclaimed' : 'Marked as claimed', 'success'),
+        onError: () => addToast('Failed to update unclaimed status', 'error'),
       },
     );
   };
@@ -325,8 +359,11 @@ export function ApprovalContainer() {
         <ApprovedActionsCard
           key={app.id}
           appId={app.id}
+          unclaimed={app.unclaimed ?? false}
           onRemove={handleOpenRemove}
+          onToggleUnclaimed={handleToggleUnclaimed}
           isRemoving={isRemoving}
+          isTogglingUnclaimed={setUnclaimedMutation.isPending && setUnclaimedMutation.variables?.id === app.id}
         />
       );
     }
