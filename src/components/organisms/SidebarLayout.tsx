@@ -4,6 +4,7 @@ export interface SidebarNavItem<T extends string = string> {
   id: T;
   label: string;
   icon?: React.ReactNode;
+  badge?: number;
 }
 
 export interface SidebarNavSection<T extends string = string> {
@@ -54,6 +55,11 @@ export function SidebarLayout<T extends string = string>({
                 </span>
               )}
               {item.label}
+              {item.badge != null && item.badge > 0 && (
+                <span className="text-[10px] font-semibold bg-white/15 text-white/60 rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                  {item.badge > 9 ? '9+' : item.badge}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -90,6 +96,11 @@ export function SidebarLayout<T extends string = string>({
                         </span>
                       )}
                       {item.label}
+                      {item.badge != null && item.badge > 0 && (
+                        <span className="ml-auto text-[10px] font-semibold bg-white/15 text-white/60 rounded-full px-1.5 py-0.5 min-w-[18px] text-center leading-none">
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </span>
+                      )}
                     </button>
                   </li>
                 ))}
