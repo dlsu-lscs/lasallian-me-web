@@ -262,10 +262,13 @@ function LeaveReviewCard({
   const [comment, setComment] = useState<string>(initialValues?.comment ?? '');
   const [isAnonymous, setIsAnonymous] = useState(initialValues?.isAnonymous ?? false);
 
+  const trimmedComment = comment.trim();
+  const commentTooShort = trimmedComment.length > 0 && trimmedComment.length < 10;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (score === 0) return;
-    onSubmit({ score, comment: comment.trim() || null, isAnonymous });
+    if (score === 0 || commentTooShort) return;
+    onSubmit({ score, comment: trimmedComment || null, isAnonymous });
   };
 
   return (
@@ -301,14 +304,17 @@ function LeaveReviewCard({
           </div>
 
           {/* Textarea — borderless, integrated */}
-          <div className="px-4 py-2.5 flex-1 min-h-0">
+          <div className="px-4 py-2.5 flex-1 min-h-0 flex flex-col gap-1">
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Share your thoughts… (optional)"
               maxLength={255}
-              className="w-full h-full bg-transparent resize-none text-white/65 text-sm placeholder:text-white/20 focus:outline-none leading-relaxed"
+              className="w-full flex-1 min-h-0 bg-transparent resize-none text-white/65 text-sm placeholder:text-white/20 focus:outline-none leading-relaxed"
             />
+            {commentTooShort && (
+              <p className="text-[10px] text-red-400/80 shrink-0">Minimum 10 characters</p>
+            )}
           </div>
 
           {/* Footer */}
@@ -332,9 +338,12 @@ function LeaveReviewCard({
                   Cancel
                 </button>
               )}
+              <span className="text-[10px] text-white/20 tabular-nums">
+                {trimmedComment.length}/255
+              </span>
               <button
                 type="submit"
-                disabled={isPending || score === 0}
+                disabled={isPending || score === 0 || commentTooShort}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 text-black hover:bg-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isPending ? '…' : isEditMode ? 'Update' : 'Submit'}
