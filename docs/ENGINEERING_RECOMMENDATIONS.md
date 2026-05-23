@@ -97,7 +97,41 @@ Allow application authors to post a single official reply to any review on their
 
 ---
 
-### 6. Customizable / Dynamic Front Page
+### 6. Standardized Preview Image Resolution
+
+**Priority: Medium**
+
+Define and enforce a canonical resolution and aspect ratio for application preview images so that authors can design their screenshots and promotional graphics with a known layout target. Currently inconsistent image sizes degrade the visual quality of app listing pages.
+
+**Scope:**
+- Define a standard preview image spec (e.g., 1280×800px, 16:10 aspect ratio) and publish it in the author-facing submission guidelines
+- Enforce the spec at upload time: reject images that fall outside acceptable dimensions or aspect ratio, with a clear error message
+- Apply consistent cropping and display treatment across all preview image surfaces (app cards, detail page carousel, admin panel thumbnails)
+- Provide authors a downloadable design template (e.g., Figma frame, PNG overlay) reflecting the safe zones and layout
+- Migrate or re-prompt existing authors whose uploaded images do not meet the new spec
+
+**Affected Systems:** `lasallian-me-api` (image upload validation), `lasallian-me-web` (`submit` and `apps` features), author documentation
+
+---
+
+### 7. Markdown-Rendered Application Descriptions
+
+**Priority: Medium**
+
+Allow application descriptions to be authored and stored as Markdown, then rendered as rich HTML on the application detail page. This enables authors to properly structure and express their application’s purpose, features, and usage instructions.
+
+**Scope:**
+- Replace plain-text description input in the submission form with a Markdown editor (e.g., a lightweight editor with a live preview pane)
+- Sanitize rendered HTML server-side or client-side to prevent XSS (use a trusted library such as `DOMPurify` paired with a Markdown parser like `marked` or `remark`)
+- Apply consistent typographic styling to rendered output so it fits the platform’s design system
+- Maintain backwards compatibility: existing plain-text descriptions should render without errors
+- Consider a supported subset of Markdown (headings, bold, italic, lists, code blocks, links) and document it for authors
+
+**Affected Systems:** `lasallian-me-web` (`submit` and `apps` features), `lasallian-me-api` (description storage, no schema change required)
+
+---
+
+### 8. Customizable / Dynamic Front Page
 
 **Priority: Medium**
 
@@ -140,7 +174,7 @@ Replace a static front page layout with an admin-configurable section system. Se
 
 ---
 
-### 7. Top Apps Per Category Algorithm
+### 9. Top Apps Per Category Algorithm
 
 **Priority: Low (defer until catalog grows)**
 
@@ -161,7 +195,7 @@ score = (avg_rating × log(review_count + 1)) + (0.3 × favorites_count) + (0.2 
 **Scope:**
 - Scheduled background job (e.g., daily) to compute and cache scores per application
 - API endpoint for `GET /applications?sort=top&tag=productivity`
-- Front page "Top in [Category]" section type added to the dynamic front page system (see item 6)
+- Front page "Top in [Category]" section type added to the dynamic front page system (see item 8)
 
 **Affected Systems:** `lasallian-me-api` (background job, scoring logic), `lasallian-me-web` (new section rendering)
 
