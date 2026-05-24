@@ -9,7 +9,6 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
 # testing
 /coverage
 
@@ -44,3 +43,6 @@ next-env.d.ts
 .agents/
 CLAUDE.md
 skills-lock.json
+
+#ide
+.vscode
