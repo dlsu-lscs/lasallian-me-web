@@ -12,7 +12,7 @@ export async function uploadImages(files: File[]): Promise<UploadResult[]> {
     });
     const presignResponse = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/images/uploads/presigned?${params}`,
-      {credentials: 'include'}
+      { credentials: 'include' },
     );
 
     if (!presignResponse.ok) {
@@ -28,6 +28,7 @@ export async function uploadImages(files: File[]): Promise<UploadResult[]> {
       method: 'PUT',
       headers: { 'Content-Type': file.type },
       body: file,
+      credentials: 'omit',
     });
 
     if (!uploadResponse.ok) {
@@ -47,7 +48,7 @@ export async function uploadIcon(file: File): Promise<UploadResult> {
   });
   const presignResponse = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/images/uploads/presigned?${params}`,
-    {credentials: 'include'}
+    { credentials: 'include' },
   );
 
   if (!presignResponse.ok) {
@@ -60,10 +61,10 @@ export async function uploadIcon(file: File): Promise<UploadResult> {
   const { presignedUrl, key } = await presignResponse.json();
 
   const uploadResponse = await fetch(presignedUrl, {
-    credentials: 'include',
     method: 'PUT',
     headers: { 'Content-Type': file.type },
     body: file,
+    credentials: 'omit',
   });
 
   if (!uploadResponse.ok) {

@@ -46,7 +46,7 @@ export function SubmitContainer() {
       try {
         const uploaded = await uploadImages(files);
         previewImages = uploaded.map(
-          (r) => `${window.location.origin}/api/image?key=${encodeURIComponent(r.key)}`
+          (r) => `${window.location.origin}/api/signed?key=${encodeURIComponent(r.key)}`
         );
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : 'Image upload failed.');
@@ -60,7 +60,7 @@ export function SubmitContainer() {
       setIsUploading(true);
       try {
         const uploaded = await uploadIcon(iconFile);
-        icon = `${window.location.origin}/api/image?key=${encodeURIComponent(uploaded.key)}`;
+        icon = `${window.location.origin}/api/signed?key=${encodeURIComponent(uploaded.key)}`;
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : 'Icon upload failed.');
         setIsUploading(false);

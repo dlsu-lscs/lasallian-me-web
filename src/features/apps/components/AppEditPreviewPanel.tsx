@@ -102,7 +102,7 @@ export function AppEditPreviewPanel({
       if (formState.newPreviewFiles.length > 0) {
         const uploaded = await uploadImages(formState.newPreviewFiles);
         previewImages = previewImages.concat(
-          uploaded.map((r) => `${window.location.origin}/api/image?key=${encodeURIComponent(r.key)}`),
+          uploaded.map((r) => `${window.location.origin}/api/signed?key=${encodeURIComponent(r.key)}`),
         );
       }
       let icon: string | null | undefined = undefined;
@@ -110,7 +110,7 @@ export function AppEditPreviewPanel({
         icon = null;
       } else if (formState.iconFile) {
         const uploaded = await uploadIcon(formState.iconFile);
-        icon = `${window.location.origin}/api/image?key=${encodeURIComponent(uploaded.key)}`;
+        icon = `${window.location.origin}/api/signed?key=${encodeURIComponent(uploaded.key)}`;
       }
       onSave({
         title: formState.title.trim() || undefined,

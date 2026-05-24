@@ -1,9 +1,19 @@
-import { Application, ApplicationsListResponse } from '@/features/apps/types/app.types';
-import type { ClaimRequestsListResponse, ClaimRequestStatus } from '../types/admin.types';
+import {
+  Application,
+  ApplicationsListResponse,
+} from '@/features/apps/types/app.types';
+import type {
+  ClaimRequestsListResponse,
+  ClaimRequestStatus,
+} from '../types/admin.types';
 
 const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/applications`;
 
-export type AdminApplicationStatus = 'PENDING' | 'APPROVED' | 'CHANGES_REQUESTED' | 'REMOVED';
+export type AdminApplicationStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'CHANGES_REQUESTED'
+  | 'REMOVED';
 
 export async function getAdminApplications(
   page = 1,
@@ -35,12 +45,18 @@ export async function approveApplication(id: number): Promise<void> {
   }
 }
 
-export async function requestChanges(id: number, reason: string): Promise<void> {
+export async function requestChanges(
+  id: number,
+  reason: string,
+): Promise<void> {
   const response = await fetch(`${BASE}/admin/${id}/review`, {
     method: 'PATCH',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status: 'CHANGES_REQUESTED', rejectionReason: reason }),
+    body: JSON.stringify({
+      status: 'CHANGES_REQUESTED',
+      rejectionReason: reason,
+    }),
   });
 
   if (!response.ok) {
@@ -48,7 +64,10 @@ export async function requestChanges(id: number, reason: string): Promise<void> 
   }
 }
 
-export async function removeApplication(id: number, reason: string): Promise<void> {
+export async function removeApplication(
+  id: number,
+  reason: string,
+): Promise<void> {
   const response = await fetch(`${BASE}/admin/${id}/review`, {
     method: 'PATCH',
     credentials: 'include',
@@ -79,7 +98,10 @@ export async function editApplication(
   return response.json();
 }
 
-export async function setApplicationUnclaimed(id: number, unclaimed: boolean): Promise<void> {
+export async function setApplicationUnclaimed(
+  id: number,
+  unclaimed: boolean,
+): Promise<void> {
   const response = await fetch(`${BASE}/admin/${id}/unclaimed`, {
     method: 'PATCH',
     credentials: 'include',
@@ -97,10 +119,15 @@ export async function getAdminClaimRequests(
   limit = 20,
   status?: ClaimRequestStatus,
 ): Promise<ClaimRequestsListResponse> {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
   if (status) params.set('status', status);
 
-  const response = await fetch(`${BASE}/admin/claims?${params}`, { credentials: 'include' });
+  const response = await fetch(`${BASE}/admin/claims?${params}`, {
+    credentials: 'include',
+  });
 
   if (!response.ok) {
     throw new Error('Failed to fetch claim requests');
