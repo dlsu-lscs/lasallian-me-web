@@ -6,6 +6,15 @@ if (!process.env.NEXT_PUBLIC_SITE_URL) {
 
 const nextConfig: NextConfig = {
   images: {
+    localPatterns: [
+      {
+        pathname: '/api/signed',
+        search: '**',
+      },
+      {
+        pathname: '/**',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
