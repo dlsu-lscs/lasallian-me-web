@@ -7,8 +7,8 @@ export async function uploadImages(files: File[]): Promise<UploadResult[]> {
 
   for (const file of files) {
     const params = new URLSearchParams({
-      fileName: file.name,
       contentType: file.type,
+      type: 'preview',
     });
     const presignResponse = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/images/uploads/presigned?${params}`,
