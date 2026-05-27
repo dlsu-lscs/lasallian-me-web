@@ -25,7 +25,7 @@ export function FavoritesPreviewContainer({ userId }: FavoritesPreviewContainerP
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: favoritesData, isLoading: favLoading } = useUserFavoritesQuery(userId);
-  const { data: appsData, isLoading: appsLoading } = useApplicationsQuery();
+  const { data: appsData, isLoading: appsLoading } = useApplicationsQuery({}, { limit: 100 });
   const removeMutation = useRemoveFavoriteMutation(userId);
 
   const isLoading = favLoading || appsLoading;
