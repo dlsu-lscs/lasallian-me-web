@@ -12,7 +12,7 @@ interface FavoritesContainerProps {
 
 export function FavoritesContainer({ userId }: FavoritesContainerProps) {
   const { data: favoritesData, isLoading: favLoading } = useUserFavoritesQuery(userId);
-  const { data: appsData, isLoading: appsLoading } = useApplicationsQuery();
+  const { data: appsData, isLoading: appsLoading } = useApplicationsQuery({}, { limit: 100 });
 
   const isLoading = favLoading || appsLoading;
 
