@@ -44,25 +44,16 @@ export function LoginModal({ isOpen, onClose, onGoogleSignIn, isLoading, error }
             </button>
 
             {/* Left panel — image + branding */}
-            <div className="relative hidden sm:flex flex-col justify-between w-[45%] shrink-0 bg-[#062c1e] p-8 overflow-hidden text-white">
+            <div className="relative hidden sm:flex flex-col justify-between w-[45%] shrink-0 bg-[#0d5c35] p-8 overflow-hidden text-white">
               {/* Background image */}
               <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-b from-[#062c1e]/80 via-[#062c1e]/60 to-[#062c1e] z-10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0d5c35]/80 via-[#0d5c35]/60 to-[#0d5c35] z-10" />
                 <Image
                   fill
-                  src="/HenrySy.jpg"
-                  alt="University Campus"
+                  src="/bg.png"
+                  alt="App background"
                   className="object-cover opacity-40 mix-blend-luminosity"
                 />
-              </div>
-
-              {/* Bow-arrow decorative */}
-              <div
-                aria-hidden="true"
-                className="absolute -bottom-6 -left-6 w-40 h-40 opacity-[0.06] pointer-events-none z-10"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              >
-                <Image fill unoptimized src="/bow-arrow.svg" alt="" />
               </div>
 
               {/* Logo */}
@@ -90,15 +81,6 @@ export function LoginModal({ isOpen, onClose, onGoogleSignIn, isLoading, error }
 
             {/* Right panel — login form */}
             <div className="flex-1 flex flex-col justify-center px-8 py-10 relative">
-              {/* Bow-arrow decorative (mobile only — left panel hidden) */}
-              <div
-                aria-hidden="true"
-                className="sm:hidden absolute -bottom-6 -right-6 w-36 h-36 opacity-[0.04] pointer-events-none"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              >
-                <Image fill unoptimized src="/bow-arrow.svg" alt="" />
-              </div>
-
               {/* Mobile logo */}
               <p className="sm:hidden font-display font-bold text-xl text-white/90 tracking-tight mb-6">
                 pana<span className="text-primary-600 font-normal">.tools</span>
