@@ -101,16 +101,14 @@ export function AppEditPreviewPanel({
       let previewImages = [...formState.existingPreviewImages];
       if (formState.newPreviewFiles.length > 0) {
         const uploaded = await uploadImages(formState.newPreviewFiles);
-        previewImages = previewImages.concat(
-          uploaded.map((r) => `${window.location.origin}/api/signed?key=${encodeURIComponent(r.key)}`),
-        );
+        previewImages = previewImages.concat(uploaded.map((r) => r.key));
       }
       let icon: string | null | undefined = undefined;
       if (formState.removeIcon) {
         icon = null;
       } else if (formState.iconFile) {
         const uploaded = await uploadIcon(formState.iconFile);
-        icon = `${window.location.origin}/api/signed?key=${encodeURIComponent(uploaded.key)}`;
+        icon = uploaded.key;
       }
       onSave({
         title: formState.title.trim() || undefined,
