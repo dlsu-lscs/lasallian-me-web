@@ -146,15 +146,13 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
 
       if (newPreviewFiles.length > 0) {
         const uploaded = await uploadImages(newPreviewFiles);
-        previewImages = previewImages.concat(
-          uploaded.map((result) => `${window.location.origin}/api/signed?key=${encodeURIComponent(result.key)}`),
-        );
+        previewImages = previewImages.concat(uploaded.map((result) => result.key));
       }
 
       let icon: string | null | undefined = undefined;
       if (iconFile) {
         const uploaded = await uploadIcon(iconFile);
-        icon = `${window.location.origin}/api/signed?key=${encodeURIComponent(uploaded.key)}`;
+        icon = uploaded.key;
       } else if (iconUrl === '') {
         icon = null;
       }
