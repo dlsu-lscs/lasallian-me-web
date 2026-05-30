@@ -4,9 +4,8 @@ import { getApplicationBySlug } from '@/features/apps/services/apps.service';
 import React from 'react';
 
 export interface AppDetailPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 }
 
 export async function generateMetadata({ params }: AppDetailPageProps): Promise<Metadata> {
@@ -15,11 +14,13 @@ export async function generateMetadata({ params }: AppDetailPageProps): Promise<
     const app = await getApplicationBySlug(slug);
     return {
       title: app.title,
-      description: app.description,
+      description: app.description ?? undefined,
       openGraph: {
         title: app.title,
-        description: app.description,
-        images: app.previewImages.length > 0 ? [{ url: app.previewImages[0] }] : [],
+        description: app.description ?? undefined,
+        images: (app.previewImages?.length ?? 0) > 0 
+        ? [{ url: app.previewImages![0] }] 
+        : [],
       },
     };
   } catch {
@@ -27,9 +28,10 @@ export async function generateMetadata({ params }: AppDetailPageProps): Promise<
   }
 }
 
-const AppDetailPage = async ({params}: AppDetailPageProps) => {
+const AppDetailPage = async ({ params, searchParams }: AppDetailPageProps) => {
   const { slug } = await params;
-  return <AppDetailContainer slug={slug} />;
+  const { from } = await searchParams;
+  return <AppDetailContainer slug={slug} from={from} />;
 }
 
 export default AppDetailPage;

@@ -1,117 +1,104 @@
 import { Application } from '@/features/apps/types/app.types';
-import { Badge } from '@/components/atoms/Badge';
-import { Button } from '@/components/atoms/Button';
+import { AppCard } from '@/features/apps/components/AppCard';
+import type { AdminApplicationStatus } from '../services/admin.service';
+import { FiCheck, FiX, FiTrash2, FiUser } from 'react-icons/fi';
 
 interface PendingAppCardProps {
   app: Application;
+  tab: AdminApplicationStatus;
+  onClick?: (app: Application) => void;
   onApprove: (id: number) => void;
-  onReject: (id: number) => void;
+  onRequestChanges: (id: number) => void;
   onRemove: (id: number) => void;
-  onEdit: (app: Application) => void;
   isApproving: boolean;
-  isRejecting: boolean;
+  isRequestingChanges: boolean;
   isRemoving: boolean;
 }
 
+const STATUS_DOT: Record<AdminApplicationStatus, { label: string; color: string }> = {
+  APPROVED:           { label: 'Approved',           color: 'bg-green-400' },
+  PENDING:            { label: 'Pending',             color: 'bg-yellow-400' },
+  CHANGES_REQUESTED:  { label: 'Changes Requested',  color: 'bg-amber-400' },
+  REMOVED:            { label: 'Removed',             color: 'bg-white/40' },
+};
+
 export function PendingAppCard({
   app,
+  tab,
+  onClick,
   onApprove,
-  onReject,
+  onRequestChanges,
   onRemove,
-  onEdit,
   isApproving,
-  isRejecting,
+  isRequestingChanges,
   isRemoving,
 }: PendingAppCardProps) {
-  const isBusy = isApproving || isRejecting || isRemoving;
-  const visibleTags = app.tags?.slice(0, 3) ?? [];
-  const extraTags = (app.tags?.length ?? 0) - 3;
+  const isBusy = isApproving || isRequestingChanges || isRemoving;
+  const dot = STATUS_DOT[tab];
 
-  const uniqueTags = Array.from(new Set(visibleTags));
+  const showApprove         = tab === 'PENDING' || tab === 'CHANGES_REQUESTED' || tab === 'REMOVED';
+  const showRequestChanges  = tab === 'PENDING';
+  const showRemove          = tab === 'APPROVED' || tab === 'PENDING' || tab === 'CHANGES_REQUESTED';
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
-      {app.previewImages?.[0] ? (
-        <img
-          src={app.previewImages[0]}
-          alt={app.title}
-          className="w-full h-40 object-cover"
-        />
-      ) : (
-        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-          No preview
+    <AppCard
+      app={app}
+      onClick={onClick}
+      showTags={false}
+      variant="compact"
+      iconOverlay={
+        <div className="group/dot relative">
+          <span className={`w-2.5 h-2.5 rounded-full ${dot.color} block ring-[1.5px] ring-black/80`} />
+          <span className="absolute bottom-full right-0 mb-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium bg-black text-white whitespace-nowrap border border-white/10 opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-20">
+            {dot.label}
+          </span>
         </div>
-      )}
-
-      <div className="p-4 flex flex-col gap-3 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-gray-900 text-base leading-tight">{app.title}</h3>
+      }
+      subtitle={
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1.5">
+            <FiUser className="w-3 h-3 text-white/30 shrink-0" />
+            <span className="text-white/45 text-xs truncate">{app.userEmail}</span>
+          </div>
+          {app.rejectionReason && (
+            <p className="text-amber-400/70 text-xs truncate">{app.rejectionReason}</p>
+          )}
         </div>
-
-        {app.userEmail && (
-          <p className="text-xs text-gray-500">by {app.userEmail}</p>
-        )}
-
-        {app.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">{app.description}</p>
-        )}
-
-        {app.rejectionReason && (
-          <p className="text-xs text-red-600 bg-red-50 rounded px-2 py-1">
-            Reason: {app.rejectionReason}
-          </p>
-        )}
-
-        <div className="flex flex-wrap gap-1.5">
-          {uniqueTags.map((tag) => (
-            <Badge key={tag}>{tag}</Badge>
-          ))}
-          {extraTags > 0 && <Badge>+{extraTags}</Badge>}
-        </div>
-
-        <div className="flex gap-2 mt-auto pt-2 flex-wrap">
-          {app.isApproved !== 'APPROVED' && (
-            <Button
-              size="sm"
-              variant="primary"
+      }
+      action={
+        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {showApprove && (
+            <button
               disabled={isBusy}
               onClick={() => onApprove(app.id)}
-              className="flex-1 bg-green-600 hover:bg-green-700 focus:ring-green-500 disabled:opacity-60"
+              title="Approve"
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-green-400/60 hover:text-green-400 hover:bg-green-500/15 transition-colors disabled:opacity-40"
             >
-              {isApproving ? 'Approving…' : 'Approve'}
-            </Button>
+              {isApproving ? <span className="text-[10px]">…</span> : <FiCheck className="w-3.5 h-3.5" />}
+            </button>
           )}
-          {app.isApproved !== 'APPROVED' && (
-            <Button
-              size="sm"
-              variant="primary"
+          {showRequestChanges && (
+            <button
               disabled={isBusy}
-              onClick={() => onReject(app.id)}
-              className="flex-1 bg-red-600 hover:bg-red-700 focus:ring-red-500 disabled:opacity-60"
+              onClick={() => onRequestChanges(app.id)}
+              title="Request Changes"
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-amber-400/60 hover:text-amber-400 hover:bg-amber-500/15 transition-colors disabled:opacity-40"
             >
-              {isRejecting ? 'Declining…' : 'Decline'}
-            </Button>
+              {isRequestingChanges ? <span className="text-[10px]">…</span> : <FiX className="w-3.5 h-3.5" />}
+            </button>
           )}
-          <Button
-            size="sm"
-            variant="primary"
-            disabled={isBusy}
-            onClick={() => onRemove(app.id)}
-            className="flex-1 bg-gray-700 hover:bg-gray-800 focus:ring-gray-500 disabled:opacity-60"
-          >
-            {isRemoving ? 'Removing…' : 'Remove'}
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={isBusy}
-            onClick={() => onEdit(app)}
-            className="shrink-0"
-          >
-            Edit
-          </Button>
+          {showRemove && (
+            <button
+              disabled={isBusy}
+              onClick={() => onRemove(app.id)}
+              title="Remove"
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors disabled:opacity-40"
+            >
+              {isRemoving ? <span className="text-[10px]">…</span> : <FiTrash2 className="w-3.5 h-3.5" />}
+            </button>
+          )}
         </div>
-      </div>
-    </div>
+      }
+    />
   );
 }

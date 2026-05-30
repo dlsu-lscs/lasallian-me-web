@@ -35,12 +35,12 @@ export function useAppsFilters(apps: Application[]) {
       const matchesSearch =
         filters.searchQuery === '' ||
         app.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-        app.description.toLowerCase().includes(filters.searchQuery.toLowerCase());
+        app.description?.toLowerCase().includes(filters.searchQuery.toLowerCase());
 
       // Tag filter
       const matchesTags =
         filters.selectedTags.length === 0 ||
-        filters.selectedTags.some((tag) => app.tags.includes(tag));
+        filters.selectedTags.some((tag) => app.tags?.includes(tag));
 
       return matchesSearch && matchesTags;
     });

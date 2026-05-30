@@ -1,7 +1,9 @@
 import { Application } from '@/features/apps/types/app.types';
 import { SubmitApplicationForm } from '../types/submit.types';
 
-export async function submitApplication(data: SubmitApplicationForm): Promise<Application> {
+export async function submitApplication(
+  data: SubmitApplicationForm,
+): Promise<Application> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/applications`,
     {
@@ -14,7 +16,9 @@ export async function submitApplication(data: SubmitApplicationForm): Promise<Ap
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err?.error?.message ?? 'Submission failed. Please try again.');
+    throw new Error(
+      err?.error?.message ?? 'Submission failed. Please try again.',
+    );
   }
 
   return response.json();

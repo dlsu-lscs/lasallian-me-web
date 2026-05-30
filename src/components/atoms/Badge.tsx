@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
+  variant?: 'default' | 'overlay' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
   className?: string;
 }
 
@@ -12,17 +12,18 @@ export function Badge({
   className = '',
 }: BadgeProps) {
   const variantStyles = {
-    default: 'bg-gray-100 text-gray-800',
-    primary: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-gray-100 text-gray-800',
-    success: 'bg-green-700 text-white',
-    warning: 'bg-yellow-100 text-yellow-800',
-    danger: 'bg-red-100 text-red-800',
+    default: 'bg-white/10 text-white/55 backdrop-blur-lg border border-white/12',
+    overlay: 'bg-black/50 text-white/90 backdrop-blur-sm border border-white/15',
+    primary: 'bg-primary-400/20 text-primary-300 border border-primary-400/30',
+    secondary: 'bg-white/10 text-white/55 border border-white/12',
+    success: 'bg-white text-black border border-white/80',
+    warning: 'bg-yellow-400/15 text-yellow-300 border border-yellow-400/25',
+    danger: 'bg-red-400/15 text-red-300 border border-red-400/25',
   };
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium shadow-lg ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variantStyles[variant]} ${className}`}
     >
       {children}
     </span>

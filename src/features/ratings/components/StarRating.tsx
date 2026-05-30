@@ -24,8 +24,8 @@ export function StarRating({ value, interactive = false, onChange, size = 'md' }
           <FaStar
             key={i}
             className={`${sizeClass} transition-colors ${
-              filled ? 'text-yellow-400' : 'text-gray-300'
-            } ${interactive ? 'cursor-pointer hover:text-yellow-400' : ''}`}
+              filled ? 'text-white/80' : 'text-white/15'
+            } ${interactive ? 'cursor-pointer hover:text-white' : ''}`}
             onMouseEnter={interactive ? () => setHovered(i + 1) : undefined}
             onMouseLeave={interactive ? () => setHovered(null) : undefined}
             onClick={interactive && onChange ? () => onChange(i + 1) : undefined}

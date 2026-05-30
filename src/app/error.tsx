@@ -9,7 +9,7 @@ interface ErrorProps {
 
 export default function Error({ error, reset }: ErrorProps) {
   useEffect(() => {
-    console.error(error);
+    // console.error(error);
   }, [error]);
 
   return (

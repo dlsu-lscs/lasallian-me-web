@@ -4,6 +4,7 @@ export interface Rating {
   comment: string | null;
   isAnonymous: boolean;
   userEmail: string | null;
+  userName: string | null;
 }
 
 export interface ApplicationRatings {
@@ -17,4 +18,23 @@ export interface CreateRatingPayload {
   score: number;
   comment?: string | null;
   isAnonymous: boolean;
+}
+
+export interface UserRatingItem {
+  userId: string | null;
+  applicationId: number;
+  score: number;
+  comment: string | null;
+  isAnonymous: boolean;
+  application: {
+    id: number;
+    slug: string;
+    title: string;
+  };
+}
+
+export interface UserRatings {
+  userId: string;
+  ratings: UserRatingItem[];
+  total: number;
 }

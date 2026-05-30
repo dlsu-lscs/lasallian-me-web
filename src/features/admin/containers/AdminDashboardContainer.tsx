@@ -3,16 +3,22 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useIsAdmin } from '@/features/auth/hooks/useIsAdmin';
-import { AdminTabs } from '../components/AdminTabs';
+import { SidebarLayout } from '@/components/organisms/SidebarLayout';
 import { ApprovalContainer } from './ApprovalContainer';
-import AppsContainer from '@/features/apps/containers/AppsContainer';
+import { MembersContainer } from './MembersContainer';
+import { ClaimApprovalContainer } from './ClaimApprovalContainer';
+import { useAdminApplicationsQuery, useAdminClaimRequestsQuery } from '../queries/admin.queries';
 import type { AdminTab } from '../types/admin.types';
+import { FiGrid, FiUsers, FiFlag } from 'react-icons/fi';
 
 export function AdminDashboardContainer() {
   const router = useRouter();
   const { isAdmin, isPending } = useIsAdmin();
   const [activeTab, setActiveTab] = useState<AdminTab>('apps');
   const [hasMounted, setHasMounted] = useState(false);
+
+  const { data: pendingApps } = useAdminApplicationsQuery(1, 'PENDING', 1);
+  const { data: pendingClaims } = useAdminClaimRequestsQuery(1, 'PENDING', 1);
 
   useEffect(() => {
     setHasMounted(true);
@@ -26,7 +32,7 @@ export function AdminDashboardContainer() {
 
   if (!hasMounted || isPending) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">
+      <div className="min-h-screen flex items-center justify-center text-white/40">
         Loading…
       </div>
     );
@@ -36,14 +42,33 @@ export function AdminDashboardContainer() {
     return null;
   }
 
+  const sidebarSections = [
+    {
+      label: 'Content',
+      items: [
+        { id: 'apps' as AdminTab, label: 'Apps', icon: <FiGrid />, badge: pendingApps?.meta.total },
+        { id: 'claims' as AdminTab, label: 'Claim Requests', icon: <FiFlag />, badge: pendingClaims?.meta.total },
+      ],
+    },
+    {
+      label: 'Management',
+      items: [{ id: 'members' as AdminTab, label: 'Members', icon: <FiUsers /> }],
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
-        <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
-        <div className="mt-6">
-          {activeTab === 'apps' ? <AppsContainer /> : <ApprovalContainer />}
-        </div>
+    <div className="min-h-screen flex items-start justify-center px-4 py-10">
+      <div className="glass-lg rounded-2xl overflow-hidden w-full max-w-7xl" style={{ minHeight: 'calc(100vh - 5rem)' }}>
+        <SidebarLayout
+          title="Admin"
+          sections={sidebarSections}
+          activeId={activeTab}
+          onSelect={setActiveTab}
+        >
+          {activeTab === 'apps' && <ApprovalContainer />}
+          {activeTab === 'claims' && <ClaimApprovalContainer />}
+          {activeTab === 'members' && <MembersContainer />}
+        </SidebarLayout>
       </div>
     </div>
   );

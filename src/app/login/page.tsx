@@ -1,8 +1,5 @@
-import type { Metadata } from 'next';
-import LoginFormContainer from '@/features/auth/containers/LoginFormContainer';
-
-export const metadata: Metadata = { title: 'Login' };
+import { redirect } from 'next/navigation';
 
 export default function LoginPage() {
-  return <LoginFormContainer />;
+  redirect('/');
 }

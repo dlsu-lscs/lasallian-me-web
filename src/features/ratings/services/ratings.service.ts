@@ -1,6 +1,7 @@
-import type { ApplicationRatings, CreateRatingPayload, Rating } from '../types/rating.types';
+import type { ApplicationRatings, CreateRatingPayload, Rating, UserRatings } from '../types/rating.types';
 
 const base = () => `${process.env.NEXT_PUBLIC_API_URL}/api/applications`;
+const ratingsBase = () => `${process.env.NEXT_PUBLIC_API_URL}/api/ratings`;
 
 export async function getApplicationRatings(slug: string): Promise<ApplicationRatings> {
   const response = await fetch(`${base()}/${encodeURIComponent(slug)}/ratings`);
@@ -36,5 +37,13 @@ export async function deleteRating(slug: string): Promise<Rating> {
     credentials: 'include',
   });
   if (!response.ok) throw new Error(`Failed to delete rating: ${response.statusText}`);
+  return response.json();
+}
+
+export async function getUserRatings(): Promise<UserRatings> {
+  const response = await fetch(`${ratingsBase()}/me`, {
+    credentials: 'include',
+  });
+  if (!response.ok) throw new Error(`Failed to fetch user ratings: ${response.statusText}`);
   return response.json();
 }

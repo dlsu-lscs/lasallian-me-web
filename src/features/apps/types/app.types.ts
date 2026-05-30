@@ -2,17 +2,23 @@ export interface Application {
   id: number;
   title: string;
   slug: string;
-  description: string;
+  description: string | null;
   url: string;
-  previewImages: string[];
-  tags: string[];
+  githubLink: string | null;
+  previewImages: string[] | null;
+  icon?: string | null;
+  tags: string[] | null;
   userId: string;
   userEmail?: string;
-  isApproved: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REMOVED';
+  author?: string | null;
+  status: 'PENDING' | 'APPROVED' | 'CHANGES_REQUESTED' | 'REMOVED';
   rejectionReason?: string | null;
+  unclaimed?: boolean;
   createdAt: string;
   updatedAt: string;
   favoritesCount?: number;
+  ratingCount?: number;
+  averageRating?: number | null;
 }
 
 export interface ApplicationsMeta {

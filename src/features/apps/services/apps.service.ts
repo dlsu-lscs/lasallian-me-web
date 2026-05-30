@@ -33,6 +33,19 @@ export async function getApplications(params: GetApplicationsParams = {}): Promi
   return response.json();
 }
 
+export async function getMyApplications(): Promise<ApplicationsListResponse> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/applications/me`,
+    { credentials: 'include' },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch my applications: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 export async function getApplicationFavoritesCount(
   applicationId: number,
 ): Promise<{ applicationId: number; count: number }> {
@@ -49,8 +62,8 @@ export async function getApplicationFavoritesCount(
 
 export async function updateApplication(
   id: number,
-  updates: Partial<Pick<Application, 'title' | 'slug' | 'description' | 'url' | 'tags' | 'previewImages'>>,
-): Promise<Application> {
+  updates: Partial<Pick<Application, 'title' | 'slug' | 'description' | 'url' | 'githubLink' | 'tags' | 'previewImages' | 'icon'>>,
+): Promise<{ slug: string }> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${id}`,
     {
@@ -89,4 +102,34 @@ export async function getApplicationBySlug(slug: string): Promise<Application> {
   }
 
   return response.json();
+}
+
+export async function getOwnApplicationBySlug(slug: string): Promise<Application> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${encodeURIComponent(slug)}/edit`,
+    { credentials: 'include' },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch application: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function claimApplication(id: number, additionalInfo?: string): Promise<void> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/applications/${id}/claim`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ additionalInfo }),
+    },
+  );
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? 'Failed to submit claim request');
+  }
 }

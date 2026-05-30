@@ -1,11 +1,10 @@
 import { Application } from '@/features/apps/types/app.types';
 
-export type AdminTab = 'apps' | 'approval';
+export type AdminTab = 'apps' | 'members' | 'claims';
 
 export type AdminApplication = Application & {
   userId: string;
   userEmail: string;
-  isApproved: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REMOVED';
   rejectionReason: string | null;
 };
 
@@ -24,4 +23,97 @@ export interface RemoveModalState {
 export interface EditModalState {
   isOpen: boolean;
   application: Application | null;
+}
+
+export interface Member {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+  role: string | null;
+  banned: boolean | null;
+  banReason: string | null;
+  banExpires: string | null;
+  createdAt: string;
+  favoritesCount: number;
+  reviewsCount: number;
+  pendingCount: number;
+  approvedCount: number;
+  changesRequestedCount: number;
+  removedCount: number;
+  lastLogin: string | null;
+}
+
+export interface MembersListMeta {
+  page: number;
+  limit: number;
+  count: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface MembersListResponse {
+  data: Member[];
+  meta: MembersListMeta;
+}
+
+export interface BanModalState {
+  isOpen: boolean;
+  member: Member | null;
+}
+
+export interface MemberAppsModalState {
+  isOpen: boolean;
+  member: Member | null;
+}
+
+export interface AddAdminModalState {
+  isOpen: boolean;
+}
+
+export interface MemberReviewsModalState {
+  isOpen: boolean;
+  member: Member | null;
+}
+
+export type ClaimRequestStatus = 'PENDING' | 'APPROVED' | 'DECLINED';
+
+export interface ClaimRequest {
+  id: number;
+  applicationId: number;
+  applicationTitle: string;
+  applicationSlug: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userImage: string | null;
+  additionalInfo: string | null;
+  status: ClaimRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClaimRequestsListResponse {
+  data: ClaimRequest[];
+  meta: {
+    page: number;
+    limit: number;
+    count: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface DeclineClaimModalState {
+  isOpen: boolean;
+  claimId: number | null;
+}
+
+export interface MemberReview {
+  applicationId: number;
+  applicationTitle: string;
+  applicationSlug: string;
+  score: number;
+  comment: string | null;
+  isAnonymous: boolean;
 }
