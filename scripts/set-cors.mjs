@@ -12,7 +12,9 @@ const s3 = new S3Client({
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://lasallian-me.dev.app.dlsu-lscs.org' 
+  'https://lasallian-me.dev.app.dlsu-lscs.org',
+  'https://stage.pana.tools',
+  'https://pana.tools',
 ];
 
 await s3.send(
@@ -20,17 +22,8 @@ await s3.send(
     Bucket: process.env.S3_BUCKET,
     CORSConfiguration: {
       CORSRules: [
-        // Cors rule for local development
         {
-          AllowedOrigins: ['http://localhost:3000'],
-          AllowedMethods: ['PUT'],
-          AllowedHeaders: ['*'],
-          ExposeHeaders: ['ETag'],
-          MaxAgeSeconds: 3600,
-        },
-        // Cors rule for deployment
-        {
-          AllowedOrigins: ['https://lasallian-me.dev.app.dlsu-lscs.org'],
+          AllowedOrigins: allowedOrigins,
           AllowedMethods: ['PUT'],
           AllowedHeaders: ['*'],
           ExposeHeaders: ['ETag'],
