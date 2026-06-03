@@ -21,15 +21,13 @@ await s3.send(
   new PutBucketCorsCommand({
     Bucket: process.env.S3_BUCKET,
     CORSConfiguration: {
-      CORSRules: [
-        {
-          AllowedOrigins: allowedOrigins,
-          AllowedMethods: ['PUT'],
-          AllowedHeaders: ['*'],
-          ExposeHeaders: ['ETag'],
-          MaxAgeSeconds: 3600,
-        },
-      ],
+      CORSRules: allowedOrigins.map((origin) => ({
+        AllowedOrigins: [origin],
+        AllowedMethods: ['PUT'],
+        AllowedHeaders: ['*'],
+        ExposeHeaders: ['ETag'],
+        MaxAgeSeconds: 3600,
+      })),
     },
   }),
 );
