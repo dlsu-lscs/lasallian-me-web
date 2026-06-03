@@ -7,6 +7,7 @@ import {
   removeApplication,
   editApplication,
   setApplicationUnclaimed,
+  permanentlyDeleteApplication,
   getAdminClaimRequests,
   reviewClaimRequest,
   type AdminApplicationStatus,
@@ -121,6 +122,26 @@ export function useSetApplicationUnclaimedMutation() {
         (old) => old
           ? { ...old, data: old.data.map((a) => (a.id === id ? { ...a, unclaimed } : a)) }
           : old,
+      );
+      return { snapshots };
+    },
+    onError: (_err, _vars, context) => {
+      context?.snapshots.forEach(([key, val]) => qc.setQueryData(key, val));
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ADMIN_KEY }),
+  });
+}
+
+export function usePermanentlyDeleteApplicationMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => permanentlyDeleteApplication(id),
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: ADMIN_KEY });
+      const snapshots = qc.getQueriesData<ApplicationsListResponse>({ queryKey: ADMIN_KEY });
+      qc.setQueriesData<ApplicationsListResponse>(
+        { queryKey: ADMIN_KEY },
+        (old) => old ? { ...old, data: old.data.filter((a) => a.id !== id) } : old,
       );
       return { snapshots };
     },

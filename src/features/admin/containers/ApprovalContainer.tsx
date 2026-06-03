@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { PendingAppCard } from '../components/PendingAppCard';
 import { RemoveModal } from '../components/RemoveModal';
+import { PermanentDeleteModal } from '../components/PermanentDeleteModal';
 import {
   useAdminApplicationsQuery,
   useApproveApplicationMutation,
   useRequestChangesMutation,
   useRemoveApplicationMutation,
   useSetApplicationUnclaimedMutation,
+  usePermanentlyDeleteApplicationMutation,
 } from '../queries/admin.queries';
 import type { RemoveModalState } from '../types/admin.types';
 import type { AdminApplicationStatus } from '../services/admin.service';
@@ -249,6 +251,7 @@ export function ApprovalContainer() {
   const approveMutation          = useApproveApplicationMutation();
   const requestChangesMutation   = useRequestChangesMutation();
   const removeMutation           = useRemoveApplicationMutation();
+  const permanentDeleteMutation  = usePermanentlyDeleteApplicationMutation();
   const updateMutation           = useUpdateApplicationMutation();
   const setUnclaimedMutation     = useSetApplicationUnclaimedMutation();
 
@@ -258,6 +261,11 @@ export function ApprovalContainer() {
     isOpen: false,
     applicationId: null,
     reason: '',
+  });
+
+  const [permanentDeleteModal, setPermanentDeleteModal] = useState<{ isOpen: boolean; applicationId: number | null }>({
+    isOpen: false,
+    applicationId: null,
   });
 
   const handleApprove = (id: number) => {
@@ -294,6 +302,22 @@ export function ApprovalContainer() {
         onError: () => addToast('Failed to remove application', 'error'),
       },
     );
+  };
+
+  const handleOpenPermanentDelete = (id: number) => {
+    setPermanentDeleteModal({ isOpen: true, applicationId: id });
+  };
+
+  const handleConfirmPermanentDelete = () => {
+    if (permanentDeleteModal.applicationId == null) return;
+    permanentDeleteMutation.mutate(permanentDeleteModal.applicationId, {
+      onSuccess: () => {
+        setPermanentDeleteModal({ isOpen: false, applicationId: null });
+        addToast('Application permanently deleted', 'success');
+        setSelectedApp(null);
+      },
+      onError: () => addToast('Failed to permanently delete application', 'error'),
+    });
   };
 
   const handleToggleUnclaimed = (id: number, unclaimed: boolean) => {
@@ -352,7 +376,22 @@ export function ApprovalContainer() {
       );
     }
     if (status === 'REMOVED') {
-      return <ReasonBanner status="REMOVED" reason={app.rejectionReason} />;
+      const isDeleting = permanentDeleteMutation.isPending && permanentDeleteMutation.variables === app.id;
+      return (
+        <div className="flex flex-col gap-2">
+          <ReasonBanner status="REMOVED" reason={app.rejectionReason} />
+          <div className="rounded-xl border border-white/8 bg-white/[0.03] p-3 flex flex-col gap-2">
+            <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest">Actions</p>
+            <button
+              disabled={isDeleting}
+              onClick={() => handleOpenPermanentDelete(app.id)}
+              className="w-full py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-red-500/15 text-white/40 hover:text-red-400 border border-white/10 hover:border-red-500/20 transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+            >
+              {isDeleting ? 'Deleting…' : 'Permanently Delete'}
+            </button>
+          </div>
+        </div>
+      );
     }
     if (status === 'APPROVED') {
       return (
@@ -418,9 +457,11 @@ export function ApprovalContainer() {
               onApprove={handleApprove}
               onRequestChanges={(id) => handleRequestChanges(id, '')}
               onRemove={handleOpenRemove}
+              onPermanentDelete={handleOpenPermanentDelete}
               isApproving={approveMutation.isPending && approveMutation.variables === app.id}
               isRequestingChanges={requestChangesMutation.isPending && requestChangesMutation.variables?.id === app.id}
               isRemoving={removeMutation.isPending && removeMutation.variables?.id === app.id}
+              isDeleting={permanentDeleteMutation.isPending && permanentDeleteMutation.variables === app.id}
             />
           ))}
         </div>
@@ -459,6 +500,13 @@ export function ApprovalContainer() {
         onClose={() => setRemoveModal({ isOpen: false, applicationId: null, reason: '' })}
         onConfirm={handleConfirmRemove}
         isSubmitting={removeMutation.isPending}
+      />
+
+      <PermanentDeleteModal
+        isOpen={permanentDeleteModal.isOpen}
+        onClose={() => setPermanentDeleteModal({ isOpen: false, applicationId: null })}
+        onConfirm={handleConfirmPermanentDelete}
+        isSubmitting={permanentDeleteMutation.isPending}
       />
     </div>
   );
