@@ -59,6 +59,8 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
   const [iconPreviewUrl, setIconPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [iconSizeError, setIconSizeError] = useState<string | null>(null);
+  const [previewSizeError, setPreviewSizeError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
@@ -99,7 +101,14 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
 
   const addFiles = (incoming: File[]) => {
     const images = incoming.filter((file) => file.type.startsWith('image/'));
-    setNewPreviewFiles((prev) => [...prev, ...images].slice(0, 5));
+    const oversized = images.filter((f) => f.size > 10 * 1024 * 1024);
+    const valid = images.filter((f) => f.size <= 10 * 1024 * 1024);
+    if (oversized.length > 0) {
+      setPreviewSizeError(`${oversized.length} file(s) exceeded 10 MB and were not added.`);
+    } else {
+      setPreviewSizeError(null);
+    }
+    setNewPreviewFiles((prev) => [...prev, ...valid].slice(0, 5));
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -123,8 +132,13 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/')) {
-      setIconFile(file);
-      setIconUrl('');
+      if (file.size > 5 * 1024 * 1024) {
+        setIconSizeError('Icon must be 5 MB or less.');
+      } else {
+        setIconSizeError(null);
+        setIconFile(file);
+        setIconUrl('');
+      }
     }
     if (iconInputRef.current) iconInputRef.current.value = '';
   };
@@ -297,6 +311,9 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
                 </>
               )}
             </div>
+            {iconSizeError && (
+              <p className="mt-1 text-xs text-red-400">{iconSizeError}</p>
+            )}
           </div>
 
           {/* Preview Images */}
@@ -320,8 +337,11 @@ export function EditModal({ isOpen, onClose, application, onSave, isSubmitting }
               <p className="text-sm text-white/40">
                 Drop images here or <span className="text-white/60 font-semibold">click to browse</span>
               </p>
-              <p className="text-xs text-white/25 mt-1">Up to 5 images, max 5 MB each.</p>
+              <p className="text-xs text-white/25 mt-1">Up to 5 images, max 10 MB each.</p>
             </div>
+            {previewSizeError && (
+              <p className="mt-1.5 text-xs text-red-400">{previewSizeError}</p>
+            )}
 
             {(existingPreviewImages.length > 0 || newPreviewUrls.length > 0) && (
               <div className="mt-3 grid grid-cols-3 gap-2">

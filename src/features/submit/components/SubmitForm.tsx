@@ -62,6 +62,8 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [iconPreviewUrl, setIconPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [iconSizeError, setIconSizeError] = useState<string | null>(null);
+  const [previewSizeError, setPreviewSizeError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
 
@@ -83,7 +85,14 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
   }, [iconFile]);
 
   const addFiles = (incoming: File[]) => {
-    setSelectedFiles((prev) => [...prev, ...incoming].slice(0, 5));
+    const oversized = incoming.filter((f) => f.size > 10 * 1024 * 1024);
+    const valid = incoming.filter((f) => f.size <= 10 * 1024 * 1024);
+    if (oversized.length > 0) {
+      setPreviewSizeError(`${oversized.length} file(s) exceeded 10 MB and were not added.`);
+    } else {
+      setPreviewSizeError(null);
+    }
+    setSelectedFiles((prev) => [...prev, ...valid].slice(0, 5));
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -249,7 +258,14 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) setIconFile(file);
+                  if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                      setIconSizeError('Icon must be 5 MB or less.');
+                    } else {
+                      setIconSizeError(null);
+                      setIconFile(file);
+                    }
+                  }
                   if (iconInputRef.current) iconInputRef.current.value = '';
                 }}
               />
@@ -282,6 +298,9 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
               )}
             </div>
             <p className="mt-1.5 text-xs text-white/30">Square image, max 5 MB</p>
+            {iconSizeError && (
+              <p className="mt-1 text-xs text-red-400">{iconSizeError}</p>
+            )}
           </div>
 
           {/* Preview Images */}
@@ -310,6 +329,10 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
               </p>
               <p className="text-xs text-white/25 mt-1">Up to 5 images</p>
             </div>
+
+            {previewSizeError && (
+              <p className="mt-1.5 text-xs text-red-400">{previewSizeError}</p>
+            )}
 
             {previewUrls.length > 0 && (
               <div className="mt-2.5 flex flex-wrap gap-2">
