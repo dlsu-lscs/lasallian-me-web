@@ -271,18 +271,20 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
               />
               {iconPreviewUrl ? (
                 <div className="flex items-center gap-3">
-                  <div className="relative w-14 h-14 shrink-0 rounded-xl overflow-hidden border border-white/10">
-                    <Image
-                      fill
-                      unoptimized
-                      src={iconPreviewUrl}
-                      alt="Icon preview"
-                      className="object-cover"
-                    />
+                  <div className="relative w-14 h-14 shrink-0">
+                    <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-white/10">
+                      <Image
+                        fill
+                        unoptimized
+                        src={iconPreviewUrl}
+                        alt="Icon preview"
+                        className="object-cover"
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); setIconFile(null); }}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center cursor-pointer shadow-sm"
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center cursor-pointer shadow-sm z-10"
                       aria-label="Remove icon"
                     >
                       <FiX className="w-3 h-3" strokeWidth={3} />
@@ -323,39 +325,46 @@ export function SubmitForm({ onSubmit, isSubmitting, submitLabel, error, isSucce
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <FiUpload className="w-5 h-5 text-white/30 mb-2" />
-              <p className="text-sm text-white/40">
-                Drop or <span className="text-white/60 font-semibold">browse</span>
-              </p>
-              <p className="text-xs text-white/25 mt-1">Up to 5 images</p>
+              {previewUrls.length > 0 ? (
+                <>
+                  <div className="flex flex-wrap gap-4 justify-center pt-2">
+                    {previewUrls.map((previewUrl, i) => (
+                      <div key={i} className="relative w-14 h-14 shrink-0">
+                        <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-white/10">
+                          <Image
+                            fill
+                            unoptimized
+                            src={previewUrl}
+                            alt={selectedFiles[i]?.name ?? `Preview ${i + 1}`}
+                            className="object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center cursor-pointer shadow-sm z-10"
+                          aria-label="Remove image"
+                        >
+                          <FiX className="w-3 h-3" strokeWidth={3} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-white/25 mt-3">Up to 5 images</p>
+                </>
+              ) : (
+                <>
+                  <FiUpload className="w-5 h-5 text-white/30 mb-2" />
+                  <p className="text-sm text-white/40">
+                    Drop or <span className="text-white/60 font-semibold">browse</span>
+                  </p>
+                  <p className="text-xs text-white/25 mt-1">Up to 5 images</p>
+                </>
+              )}
             </div>
 
             {previewSizeError && (
               <p className="mt-1.5 text-xs text-red-400">{previewSizeError}</p>
-            )}
-
-            {previewUrls.length > 0 && (
-              <div className="mt-2.5 flex flex-wrap gap-2">
-                {previewUrls.map((previewUrl, i) => (
-                  <div key={i} className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden border border-white/10">
-                    <Image
-                      fill
-                      unoptimized
-                      src={previewUrl}
-                      alt={selectedFiles[i]?.name ?? `Preview ${i + 1}`}
-                      className="object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-400 text-white rounded-full flex items-center justify-center cursor-pointer shadow-sm"
-                      aria-label="Remove image"
-                    >
-                      <FiX className="w-3 h-3" strokeWidth={3} />
-                    </button>
-                  </div>
-                ))}
-              </div>
             )}
           </div>
         </div>
