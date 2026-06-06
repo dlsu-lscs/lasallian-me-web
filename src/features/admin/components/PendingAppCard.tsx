@@ -10,9 +10,11 @@ interface PendingAppCardProps {
   onApprove: (id: number) => void;
   onRequestChanges: (id: number) => void;
   onRemove: (id: number) => void;
+  onPermanentDelete?: (id: number) => void;
   isApproving: boolean;
   isRequestingChanges: boolean;
   isRemoving: boolean;
+  isDeleting?: boolean;
 }
 
 const STATUS_DOT: Record<AdminApplicationStatus, { label: string; color: string }> = {
@@ -29,16 +31,19 @@ export function PendingAppCard({
   onApprove,
   onRequestChanges,
   onRemove,
+  onPermanentDelete,
   isApproving,
   isRequestingChanges,
   isRemoving,
+  isDeleting = false,
 }: PendingAppCardProps) {
-  const isBusy = isApproving || isRequestingChanges || isRemoving;
+  const isBusy = isApproving || isRequestingChanges || isRemoving || isDeleting;
   const dot = STATUS_DOT[tab];
 
   const showApprove         = tab === 'PENDING' || tab === 'CHANGES_REQUESTED' || tab === 'REMOVED';
   const showRequestChanges  = tab === 'PENDING';
   const showRemove          = tab === 'APPROVED' || tab === 'PENDING' || tab === 'CHANGES_REQUESTED';
+  const showPermanentDelete = tab === 'REMOVED';
 
   return (
     <AppCard
@@ -95,6 +100,16 @@ export function PendingAppCard({
               className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white/60 hover:bg-white/10 transition-colors disabled:opacity-40"
             >
               {isRemoving ? <span className="text-[10px]">…</span> : <FiTrash2 className="w-3.5 h-3.5" />}
+            </button>
+          )}
+          {showPermanentDelete && (
+            <button
+              disabled={isBusy}
+              onClick={() => onPermanentDelete?.(app.id)}
+              title="Permanently Delete"
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/15 transition-colors disabled:opacity-40"
+            >
+              {isDeleting ? <span className="text-[10px]">…</span> : <FiTrash2 className="w-3.5 h-3.5" />}
             </button>
           )}
         </div>

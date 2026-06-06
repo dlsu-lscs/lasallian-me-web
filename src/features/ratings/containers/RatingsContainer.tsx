@@ -12,6 +12,7 @@ import {
   usePatchRatingMutation,
 } from '../queries/ratings.queries';
 import type { CreateRatingPayload, Rating } from '../types/rating.types';
+import { DeleteReviewModal } from '../components/DeleteReviewModal';
 import Link from 'next/link';
 
 interface RatingsContainerProps {
@@ -367,6 +368,7 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [dialogData, setDialogData] = useState<DialogData | null>(null);
   const [anonCache, setAnonCache] = useState<Pick<
     CreateRatingPayload,
@@ -425,11 +427,14 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
     });
   };
 
-  const handleDelete = () => {
+  const handleDelete = () => setIsDeleteModalOpen(true);
+
+  const handleConfirmDelete = () => {
     deleteMutation.mutate(undefined, {
       onSuccess: () => {
         localStorage.removeItem(anonKey);
         setAnonCache(null);
+        setIsDeleteModalOpen(false);
       },
     });
   };
@@ -454,6 +459,12 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
 
   return (
     <>
+      <DeleteReviewModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        isSubmitting={deleteMutation.isPending}
+      />
       <div className="border-t border-white/8 py-5">
         {/* Header */}
         <div className="px-6 mb-4 flex flex-col gap-1">

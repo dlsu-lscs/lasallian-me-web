@@ -98,6 +98,17 @@ export async function editApplication(
   return response.json();
 }
 
+export async function permanentlyDeleteApplication(id: number): Promise<void> {
+  const response = await fetch(`${BASE}/admin/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to permanently delete application');
+  }
+}
+
 export async function setApplicationUnclaimed(
   id: number,
   unclaimed: boolean,

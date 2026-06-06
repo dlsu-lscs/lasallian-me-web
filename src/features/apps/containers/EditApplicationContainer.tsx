@@ -6,6 +6,7 @@ import { authClient } from '@/lib/auth-client';
 import { useUpdateApplicationMutation, useOwnApplicationBySlugQuery } from '@/features/apps/queries/apps.queries';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { AppEditPreviewPanel } from '@/features/apps/components/AppEditPreviewPanel';
+import { ResubmitConfirmModal } from '@/features/apps/components/ResubmitConfirmModal';
 import { Application } from '@/features/apps/types/app.types';
 import { Skeleton } from '@/components/atoms/Skeleton';
 
@@ -16,6 +17,7 @@ export function EditApplicationContainer({ slug }: { slug: string }) {
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const { data: app, isLoading, isError } = useOwnApplicationBySlugQuery(slug);
   const updateMutation = useUpdateApplicationMutation();
+  const [pendingUpdates, setPendingUpdates] = useState<Partial<Application> | null>(null);
 
   useEffect(() => { setHasMounted(true); }, []);
 
@@ -52,13 +54,22 @@ export function EditApplicationContainer({ slug }: { slug: string }) {
   }
 
   const isChangesRequested = app.status === 'CHANGES_REQUESTED';
+  const isApproved = app.status === 'APPROVED';
 
   const handleSave = (updates: Partial<Application>) => {
+    if (isApproved) {
+      setPendingUpdates(updates);
+      return;
+    }
+    submitUpdates(updates);
+  };
+
+  const submitUpdates = (updates: Partial<Application>) => {
     updateMutation.mutate(
       { id: app.id, updates },
       {
         onSuccess: (result) => {
-          if (isChangesRequested) {
+          if (isChangesRequested || isApproved) {
             router.push('/');
           } else {
             const destination = result?.slug
@@ -69,6 +80,11 @@ export function EditApplicationContainer({ slug }: { slug: string }) {
         },
       },
     );
+  };
+
+  const handleConfirmResubmit = () => {
+    if (!pendingUpdates) return;
+    submitUpdates(pendingUpdates);
   };
 
   const changesRequestedBanner = isChangesRequested ? (
@@ -84,12 +100,20 @@ export function EditApplicationContainer({ slug }: { slug: string }) {
   ) : null;
 
   return (
-    <AppEditPreviewPanel
-      app={app}
-      onSave={handleSave}
-      isSaving={updateMutation.isPending}
-      saveError={updateMutation.isError ? updateMutation.error?.message : null}
-      sidebarTop={changesRequestedBanner}
-    />
+    <>
+      <AppEditPreviewPanel
+        app={app}
+        onSave={handleSave}
+        isSaving={updateMutation.isPending}
+        saveError={updateMutation.isError ? updateMutation.error?.message : null}
+        sidebarTop={changesRequestedBanner}
+      />
+      <ResubmitConfirmModal
+        isOpen={pendingUpdates !== null}
+        onClose={() => setPendingUpdates(null)}
+        onConfirm={handleConfirmResubmit}
+        isSubmitting={updateMutation.isPending}
+      />
+    </>
   );
 }

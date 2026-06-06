@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   FiUpload, FiX,
   FiGlobe, FiGithub, FiUser, FiTag, FiHash,
@@ -47,17 +47,32 @@ export function AppEditSidebar({
 }: AppEditSidebarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
+  const [iconSizeError, setIconSizeError] = useState<string | null>(null);
+  const [previewSizeError, setPreviewSizeError] = useState<string | null>(null);
 
   const addFiles = (incoming: File[]) => {
     const images = incoming.filter((f) => f.type.startsWith('image/'));
     if (!images.length) return;
-    onFormChange({ newPreviewFiles: [...formState.newPreviewFiles, ...images].slice(0, 5) });
+    const oversized = images.filter((f) => f.size > 10 * 1024 * 1024);
+    const valid = images.filter((f) => f.size <= 10 * 1024 * 1024);
+    if (oversized.length > 0) {
+      setPreviewSizeError(`${oversized.length} file(s) exceeded 10 MB and were not added.`);
+    } else {
+      setPreviewSizeError(null);
+    }
+    onFormChange({ newPreviewFiles: [...formState.newPreviewFiles, ...valid].slice(0, 5) });
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file?.type.startsWith('image/')) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setIconSizeError('Icon must be 5 MB or less.');
+      if (iconInputRef.current) iconInputRef.current.value = '';
+      return;
+    }
+    setIconSizeError(null);
     onFormChange({ iconFile: file, iconUrl: '', removeIcon: false });
     if (iconInputRef.current) iconInputRef.current.value = '';
   };
@@ -213,6 +228,9 @@ export function AppEditSidebar({
                   Upload icon
                 </button>
               )}
+              {iconSizeError && (
+                <p className="text-xs text-red-400">{iconSizeError}</p>
+              )}
             </Field>
 
             {/* Preview images */}
@@ -234,6 +252,10 @@ export function AppEditSidebar({
                 <FiUpload className="w-3.5 h-3.5 shrink-0" />
                 Add screenshots (up to 5)
               </div>
+
+              {previewSizeError && (
+                <p className="text-xs text-red-400 mt-1">{previewSizeError}</p>
+              )}
 
               {allPreviews.length > 0 && (
                 <div className="grid grid-cols-3 gap-1.5 mt-1">
