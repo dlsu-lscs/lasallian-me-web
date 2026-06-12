@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Sora, DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { Navbar } from '@/components/organisms/Navbar';
 import { Footer } from '@/components/organisms/Footer';
 import { QueryProvider } from '@/providers/QueryProvider';
@@ -70,6 +71,7 @@ export default function RootLayout({
           <GlobalLoginModal />
         </QueryProvider>
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GTM_ID!} />
     </html>
   );
 }
