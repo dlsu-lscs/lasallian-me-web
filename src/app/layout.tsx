@@ -63,16 +63,13 @@ export default function RootLayout({
       >
         <QueryProvider>
           <Navbar />
-          <main className="pt-4">
-            {children}
-          </main>
+          <main className="pt-4">{children}</main>
           <Footer />
           <Toaster />
           <GlobalLoginModal />
         </QueryProvider>
       </body>
-      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GTM_ID!} />
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ''} />
     </html>
   );
 }
-
