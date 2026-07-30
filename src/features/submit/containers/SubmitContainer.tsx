@@ -7,12 +7,20 @@ import { SubmitForm } from '../components/SubmitForm';
 import { useSubmitApplicationMutation } from '../queries/submit.queries';
 import { uploadImages, uploadIcon } from '../services/upload.service';
 import type { SubmitApplicationForm } from '../types/submit.types';
+import { TosAcceptanceModal } from '../components/ToSAcceptanceModal';
 
 export function SubmitContainer() {
   const router = useRouter();
   const [hasMounted, setHasMounted] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const [showTosModal, setShowTosModal] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState<{
+    formData: SubmitApplicationForm;
+    files: File[];
+    iconFile?: File;
+  } | null>(null);
 
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const mutation = useSubmitApplicationMutation();
@@ -36,6 +44,12 @@ export function SubmitContainer() {
   }
 
   const handleSubmit = async (formData: SubmitApplicationForm, files: File[], iconFile?: File) => {
+    if (session?.user && !session.user.tosAccepted) {
+      setPendingSubmission({ formData, files, iconFile });
+      setShowTosModal(true);
+      return;
+    }
+
     setUploadError(null);
 
     let previewImages: string[] | undefined;
@@ -100,6 +114,12 @@ export function SubmitContainer() {
             mutation.reset();
             setUploadError(null);
           }}
+        />
+
+        <TosAcceptanceModal
+          isOpen={showTosModal}
+          onAccept={() => {}}
+          isSubmitting={false}
         />
       </div>
     </div>
