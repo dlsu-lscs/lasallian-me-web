@@ -18,13 +18,14 @@ export function SubmitContainer() {
   const [isUploading, setIsUploading] = useState(false);
 
   const [showTosModal, setShowTosModal] = useState(false);
+  const [tosJustAccepted, setTosJustAccepted] = useState(false);
   const [pendingSubmission, setPendingSubmission] = useState<{
     formData: SubmitApplicationForm;
     files: File[];
     iconFile?: File;
   } | null>(null);
 
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const { data: session, isPending: isSessionPending, refetch: refetchSession } = authClient.useSession();
   const mutation = useSubmitApplicationMutation();
   const queryClient = useQueryClient();
   const acceptTosMutation = useAcceptTosMutation(session?.user?.email ?? '');
@@ -52,7 +53,7 @@ export function SubmitContainer() {
   const sessionUser = session.user as typeof session.user & TosStatus;
 
   const handleSubmit = async (formData: SubmitApplicationForm, files: File[], iconFile?: File) => {
-    if (!sessionUser.tosAccepted) {
+    if (!(tosJustAccepted || sessionUser.tosAccepted === true)) {
       setPendingSubmission({ formData, files, iconFile });
       setShowTosModal(true);
       return;
@@ -128,17 +129,20 @@ export function SubmitContainer() {
           isOpen={showTosModal}
           onAccept={() => {
             acceptTosMutation.mutate(undefined, {
-              onSuccess: () => {
+              onSuccess: async () => {
                 queryClient.invalidateQueries({ queryKey: ['session'] });
+
+                setTosJustAccepted(true); 
                 setShowTosModal(false);
+                await refetchSession(); 
+
                 if (pendingSubmission) {
                   handleSubmit(pendingSubmission.formData, pendingSubmission.files, pendingSubmission.iconFile);
                   setPendingSubmission(null);
                 }
+                
               },
-              onError: () => {
-                addToast('Failed to accept Terms of Service', 'error');
-              },
+              onError: () => addToast('Failed to accept Terms of Service', 'error'),
             });
           }}
           onClose={() => {
