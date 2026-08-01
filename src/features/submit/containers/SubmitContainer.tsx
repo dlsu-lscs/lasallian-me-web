@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { SubmitForm } from '../components/SubmitForm';
-import { useSubmitApplicationMutation } from '../queries/submit.queries';
+import { useSubmitApplicationMutation, useAcceptTosMutation } from '../queries/submit.queries';
 import { uploadImages, uploadIcon } from '../services/upload.service';
 import type { SubmitApplicationForm } from '../types/submit.types';
 import { TosAcceptanceModal } from '../components/ToSAcceptanceModal';
@@ -24,6 +24,7 @@ export function SubmitContainer() {
 
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const mutation = useSubmitApplicationMutation();
+  const acceptTosMutation = useAcceptTosMutation(session?.user?.email ?? '');
 
   useEffect(() => {
     setHasMounted(true);
@@ -118,8 +119,18 @@ export function SubmitContainer() {
 
         <TosAcceptanceModal
           isOpen={showTosModal}
-          onAccept={() => {}}
-          isSubmitting={false}
+          onAccept={() => {
+            acceptTosMutation.mutate(undefined, {
+              onSuccess: () => {
+                setShowTosModal(false);
+                if (pendingSubmission) {
+                  handleSubmit(pendingSubmission.formData, pendingSubmission.files, pendingSubmission.iconFile);
+                  setPendingSubmission(null);
+                }
+              }
+            });
+          }}
+          isSubmitting={acceptTosMutation.isPending}
         />
       </div>
     </div>
