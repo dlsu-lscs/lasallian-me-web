@@ -17,7 +17,7 @@ export function useAcceptTosMutation(email: string) {
           method: 'PATCH',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ accepted: true }),
+          body: JSON.stringify({ tosAccepted: true }),
         }
       );
       if (!response.ok) throw new Error('Failed to accept Terms');

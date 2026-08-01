@@ -6,9 +6,10 @@ import { authClient } from '@/lib/auth-client';
 import { SubmitForm } from '../components/SubmitForm';
 import { useSubmitApplicationMutation, useAcceptTosMutation } from '../queries/submit.queries';
 import { uploadImages, uploadIcon } from '../services/upload.service';
-import type { SubmitApplicationForm } from '../types/submit.types';
-import { TosAcceptanceModal } from '../components/ToSAcceptanceModal';
+import type { SubmitApplicationForm, TosStatus } from '../types/submit.types';
+import { TosAcceptanceModal } from '../components/TosAcceptanceModal';
 import { useQueryClient } from '@tanstack/react-query';
+import { useToastStore } from '@/store/toast.store';
 
 export function SubmitContainer() {
   const router = useRouter();
@@ -28,6 +29,8 @@ export function SubmitContainer() {
   const queryClient = useQueryClient();
   const acceptTosMutation = useAcceptTosMutation(session?.user?.email ?? '');
 
+  const { addToast } = useToastStore();
+
   useEffect(() => {
     setHasMounted(true);
   }, []);
@@ -46,8 +49,10 @@ export function SubmitContainer() {
     return null;
   }
 
+  const sessionUser = session.user as typeof session.user & TosStatus;
+
   const handleSubmit = async (formData: SubmitApplicationForm, files: File[], iconFile?: File) => {
-    if (session?.user && !session.user.tosAccepted) {
+    if (!sessionUser.tosAccepted) {
       setPendingSubmission({ formData, files, iconFile });
       setShowTosModal(true);
       return;
@@ -130,8 +135,15 @@ export function SubmitContainer() {
                   handleSubmit(pendingSubmission.formData, pendingSubmission.files, pendingSubmission.iconFile);
                   setPendingSubmission(null);
                 }
-              }
+              },
+              onError: () => {
+                addToast('Failed to accept Terms of Service', 'error');
+              },
             });
+          }}
+          onClose={() => {
+            setShowTosModal(false);
+            setPendingSubmission(null);
           }}
           isSubmitting={acceptTosMutation.isPending}
         />
