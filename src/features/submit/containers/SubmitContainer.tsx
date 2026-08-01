@@ -8,6 +8,7 @@ import { useSubmitApplicationMutation, useAcceptTosMutation } from '../queries/s
 import { uploadImages, uploadIcon } from '../services/upload.service';
 import type { SubmitApplicationForm } from '../types/submit.types';
 import { TosAcceptanceModal } from '../components/ToSAcceptanceModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function SubmitContainer() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export function SubmitContainer() {
 
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const mutation = useSubmitApplicationMutation();
+  const queryClient = useQueryClient();
   const acceptTosMutation = useAcceptTosMutation(session?.user?.email ?? '');
 
   useEffect(() => {
@@ -122,6 +124,7 @@ export function SubmitContainer() {
           onAccept={() => {
             acceptTosMutation.mutate(undefined, {
               onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['session'] });
                 setShowTosModal(false);
                 if (pendingSubmission) {
                   handleSubmit(pendingSubmission.formData, pendingSubmission.files, pendingSubmission.iconFile);
