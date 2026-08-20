@@ -42,23 +42,17 @@ export function SubmitContainer() {
     }
   }, [session, isSessionPending, router, hasMounted]);
 
-  if (!hasMounted || isSessionPending) {
-    return null;
-  }
-
-  if (!session) {
+  if (!hasMounted || isSessionPending || !session) {
     return null;
   }
 
   const sessionUser = session.user as typeof session.user & TosStatus;
 
-  const handleSubmit = async (formData: SubmitApplicationForm, files: File[], iconFile?: File) => {
-    if (!(tosJustAccepted || sessionUser.tosAccepted === true)) {
-      setPendingSubmission({ formData, files, iconFile });
-      setShowTosModal(true);
-      return;
-    }
-
+  const executeSubmission = async (
+    formData: SubmitApplicationForm,
+    files: File[],
+    iconFile?: File,
+  ) => {
     setUploadError(null);
 
     let previewImages: string[] | undefined;
@@ -91,6 +85,20 @@ export function SubmitContainer() {
     }
 
     mutation.mutate({ ...formData, previewImages, icon });
+  };
+
+  const handleSubmit = async (
+    formData: SubmitApplicationForm,
+    files: File[],
+    iconFile?: File,
+  ) => {
+    if (!(tosJustAccepted || sessionUser.tosAccepted === true)) {
+      setPendingSubmission({ formData, files, iconFile });
+      setShowTosModal(true);
+      return;
+    }
+
+    await executeSubmission(formData, files, iconFile);
   };
 
   const isSubmitting = isUploading || mutation.isPending;
@@ -132,15 +140,18 @@ export function SubmitContainer() {
               onSuccess: async () => {
                 queryClient.invalidateQueries({ queryKey: ['session'] });
 
-                setTosJustAccepted(true); 
+                setTosJustAccepted(true);
                 setShowTosModal(false);
-                await refetchSession(); 
+                refetchSession();
 
                 if (pendingSubmission) {
-                  handleSubmit(pendingSubmission.formData, pendingSubmission.files, pendingSubmission.iconFile);
+                  executeSubmission(
+                    pendingSubmission.formData,
+                    pendingSubmission.files,
+                    pendingSubmission.iconFile,
+                  );
                   setPendingSubmission(null);
                 }
-                
               },
               onError: () => addToast('Failed to accept Terms of Service', 'error'),
             });
