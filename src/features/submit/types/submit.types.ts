@@ -9,3 +9,8 @@ export interface SubmitApplicationForm {
   previewImages?: string[];
   icon?: string;
 }
+
+export interface TosStatus {
+  tosAccepted: boolean;
+  tosAcceptedAt: string | null;
+}

@@ -4,9 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { SubmitForm } from '../components/SubmitForm';
-import { useSubmitApplicationMutation } from '../queries/submit.queries';
+import { useSubmitApplicationMutation, useAcceptTosMutation } from '../queries/submit.queries';
 import { uploadImages, uploadIcon } from '../services/upload.service';
-import type { SubmitApplicationForm } from '../types/submit.types';
+import type { SubmitApplicationForm, TosStatus } from '../types/submit.types';
+import { TosAcceptanceModal } from '../components/TosAcceptanceModal';
+import { useQueryClient } from '@tanstack/react-query';
+import { useToastStore } from '@/store/toast.store';
 
 export function SubmitContainer() {
   const router = useRouter();
@@ -14,8 +17,20 @@ export function SubmitContainer() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
+  const [showTosModal, setShowTosModal] = useState(false);
+  const [tosJustAccepted, setTosJustAccepted] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState<{
+    formData: SubmitApplicationForm;
+    files: File[];
+    iconFile?: File;
+  } | null>(null);
+
+  const { data: session, isPending: isSessionPending, refetch: refetchSession } = authClient.useSession();
   const mutation = useSubmitApplicationMutation();
+  const queryClient = useQueryClient();
+  const acceptTosMutation = useAcceptTosMutation(session?.user?.email ?? '');
+
+  const { addToast } = useToastStore();
 
   useEffect(() => {
     setHasMounted(true);
@@ -27,15 +42,17 @@ export function SubmitContainer() {
     }
   }, [session, isSessionPending, router, hasMounted]);
 
-  if (!hasMounted || isSessionPending) {
+  if (!hasMounted || isSessionPending || !session) {
     return null;
   }
 
-  if (!session) {
-    return null;
-  }
+  const sessionUser = session.user as typeof session.user & TosStatus;
 
-  const handleSubmit = async (formData: SubmitApplicationForm, files: File[], iconFile?: File) => {
+  const executeSubmission = async (
+    formData: SubmitApplicationForm,
+    files: File[],
+    iconFile?: File,
+  ) => {
     setUploadError(null);
 
     let previewImages: string[] | undefined;
@@ -70,6 +87,20 @@ export function SubmitContainer() {
     mutation.mutate({ ...formData, previewImages, icon });
   };
 
+  const handleSubmit = async (
+    formData: SubmitApplicationForm,
+    files: File[],
+    iconFile?: File,
+  ) => {
+    if (!(tosJustAccepted || sessionUser.tosAccepted === true)) {
+      setPendingSubmission({ formData, files, iconFile });
+      setShowTosModal(true);
+      return;
+    }
+
+    await executeSubmission(formData, files, iconFile);
+  };
+
   const isSubmitting = isUploading || mutation.isPending;
   const submitLabel = isUploading
     ? 'Uploading…'
@@ -100,6 +131,36 @@ export function SubmitContainer() {
             mutation.reset();
             setUploadError(null);
           }}
+        />
+
+        <TosAcceptanceModal
+          isOpen={showTosModal}
+          onAccept={() => {
+            acceptTosMutation.mutate(undefined, {
+              onSuccess: async () => {
+                queryClient.invalidateQueries({ queryKey: ['session'] });
+
+                setTosJustAccepted(true);
+                setShowTosModal(false);
+                refetchSession();
+
+                if (pendingSubmission) {
+                  executeSubmission(
+                    pendingSubmission.formData,
+                    pendingSubmission.files,
+                    pendingSubmission.iconFile,
+                  );
+                  setPendingSubmission(null);
+                }
+              },
+              onError: () => addToast('Failed to accept Terms of Service', 'error'),
+            });
+          }}
+          onClose={() => {
+            setShowTosModal(false);
+            setPendingSubmission(null);
+          }}
+          isSubmitting={acceptTosMutation.isPending}
         />
       </div>
     </div>
