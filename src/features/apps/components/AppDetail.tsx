@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Application } from '../types/app.types';
-import { FiBookmark, FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
+import { FiBookmark, FiChevronLeft, FiChevronRight, FiX, FiEye } from 'react-icons/fi';
 import { FaBookmark, FaStar, FaPlay } from 'react-icons/fa';
 import { LuTag, LuSquareUser } from 'react-icons/lu';
 import { imgSrc } from '@/lib/img-src';
@@ -199,6 +199,18 @@ export function AppDetail({
                 {favoritesCount ?? 0}
               </span>
               <span className="text-white/35 text-[10px]">Saved this app</span>
+            </div>
+
+            {/* Views */}
+            <div className="flex-1 flex flex-col items-center justify-center gap-1 px-4 py-4">
+              <span className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">
+                Views
+              </span>
+              <span className="flex items-center gap-1.5 text-white font-bold text-xl leading-none">
+                <FiEye className="w-4 h-4" />
+                {app.viewCount ?? 0}
+              </span>
+              <span className="text-white/35 text-[10px]">Total views</span>
             </div>
 
             {/* Category */}

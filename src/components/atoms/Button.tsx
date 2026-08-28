@@ -14,17 +14,17 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center font-semibold rounded-full transition-colors focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer';
+    'inline-flex items-center justify-center font-semibold rounded-full transition-all focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer';
 
   const variants = {
     primary:   'bg-white text-black hover:bg-white/90',
-    secondary: 'bg-white/10 text-white hover:bg-white/15 border border-white/10',
+    secondary: 'bg-white/8 text-white/50 hover:bg-white/12 hover:text-white/80 border border-white/10',
     outline:   'border border-white/20 text-white hover:bg-white/8',
     ghost:     'text-white/60 hover:text-white hover:bg-white/8',
   };
 
   const sizes = {
-    sm: 'px-4 py-2 text-sm',
+    sm: 'px-4 py-1.5 text-sm',
     md: 'px-5 py-2.5 text-sm',
     lg: 'px-6 py-3 text-base',
   };

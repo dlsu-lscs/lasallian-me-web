@@ -1,3 +1,5 @@
+import { SORT_BY_OPTIONS } from "@/lib/sort-constants";
+
 export interface Application {
   id: number;
   title: string;
@@ -19,6 +21,7 @@ export interface Application {
   favoritesCount?: number;
   ratingCount?: number;
   averageRating?: number | null;
+  viewCount?: number;
 }
 
 export interface ApplicationsMeta {
@@ -38,4 +41,7 @@ export interface AppFilters {
   searchQuery: string;
   selectedTags: string[];
   userId?: string;
+  sortBy?: SortByOptions | '';
 }
+
+export type SortByOptions = (typeof SORT_BY_OPTIONS)[number]['value'];

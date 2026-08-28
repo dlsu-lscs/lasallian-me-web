@@ -16,6 +16,7 @@ export const applicationsQueryKey = (filters: Partial<AppFilters>) => [
   filters.userId ?? '',
   filters.searchQuery ?? '',
   filters.selectedTags ?? [],
+  filters.sortBy ?? 'createdAt',
 ];
 
 export function useApplicationsQuery(filters: Partial<AppFilters> = {}, options?: { enabled?: boolean; page?: number; limit?: number }) {
@@ -28,6 +29,7 @@ export function useApplicationsQuery(filters: Partial<AppFilters> = {}, options?
         search: filters.searchQuery || undefined,
         tags: filters.selectedTags && filters.selectedTags.length > 0 ? filters.selectedTags : undefined,
         userId: filters.userId || undefined,
+        sortBy: filters.sortBy || 'createdAt',
         page,
         limit,
       }),
@@ -44,6 +46,7 @@ export function useInfiniteApplicationsQuery(filters: Partial<AppFilters> = {}, 
         search: filters.searchQuery || undefined,
         tags: filters.selectedTags && filters.selectedTags.length > 0 ? filters.selectedTags : undefined,
         userId: filters.userId || undefined,
+        sortBy: filters.sortBy || 'createdAt',
         page: pageParam,
       }),
     initialPageParam: 1,

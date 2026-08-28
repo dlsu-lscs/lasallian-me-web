@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUIStore } from '@/store/uiStore';
 import { useAppBySlug } from '@/features/apps/hooks/use-app-by-slug';
+import { useTrackView } from '@/features/apps/hooks/use-track-view';
 import { useApplicationFavoritesCountQuery } from '../queries/apps.queries';
 import { AppDetail } from '../components/AppDetail';
 import { ClaimModal } from '../components/ClaimModal';
@@ -27,8 +28,8 @@ export function AppDetailContainer({ slug, from }: AppDetailContainerProps) {
   const { data: ratingsData } = useApplicationRatingsQuery(slug);
   const { isFavorited, toggle, isPending: isFavoritePending, isLoggedIn } = useFavoriteToggle(app?.id ?? 0);
   const { data: session } = authClient.useSession();
-
   const [claimModalOpen, setClaimModalOpen] = useState(false);
+  useTrackView(slug);
 
   const handleClaim = () => {
     if (!isLoggedIn) {
