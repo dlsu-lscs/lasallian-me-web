@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/atoms/Button';
+import { FilterButton } from '@/components/molecules/FilterButton';
 import { AppCard } from '../components/AppCard';
 import { useAppsContainer } from '@/features/apps/hooks/useAppsContainer';
 import { AppCardSkeleton } from '@/components/molecules/AppCardSkeleton';
@@ -11,6 +12,9 @@ import { UserProfileCard } from '../components/UserProfileCard';
 import { GuestPanel } from '../components/GuestPanel';
 import { FavoritesPreviewContainer } from '@/features/favorites/containers/FavoritesPreviewContainer';
 import ProfileContainer from './ProfileContainer';
+import { SortByOptions } from '../types/app.types';
+import { SORT_BY_OPTIONS } from '@/lib/sort-constants';
+import { HiBars3BottomLeft } from 'react-icons/hi2';
 
 export default function AppsContainer() {
   const [hasMounted, setHasMounted] = useState(false);
@@ -30,6 +34,7 @@ export default function AppsContainer() {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
+    setSortBy,
   } = useAppsContainer();
 
   useEffect(() => {
@@ -77,24 +82,47 @@ export default function AppsContainer() {
 
       {/* Filter / search panel — glass card */}
       <div className="max-w-7xl mx-auto px-5 sm:px-8 pt-8">
-        <div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-xl px-5 py-4">
-          <div className="flex items-start gap-3">
+        <div className="bg-black/60 backdrop-blur-lg border border-white/10 shadow-[var(--shadow-glass)] rounded-xl px-5 py-4 flex flex-col gap-4">
+          
+          {/* Sort row */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="shrink-0 flex items-center gap-2">
+              <HiBars3BottomLeft className="w-4 h-4 text-white/50" />
+              <p className="text-xs font-semibold text-white/40 uppercase tracking-wide leading-none">Sort</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs flex-wrap">
+              {SORT_BY_OPTIONS.map((option) => (
+                <FilterButton
+                  key={option.value}
+                  label={option.label}
+                  isActive={filters.sortBy === option.value || (!filters.sortBy && option.value === 'createdAt')}
+                  onClick={() => setSortBy(option.value as SortByOptions)}
+                  className="px-3 py-1 rounded-full text-xs font-medium"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="h-px bg-white/10 -mx-5" />
+
+          {/* Filter row */}
+          <div className="flex items-start gap-3 flex-wrap">
             <div className="shrink-0 pt-0.5">
               <p className="text-xs font-semibold text-white/40 uppercase tracking-wide leading-none">Filter</p>
               <p className="text-xs text-white/25 mt-0.5 whitespace-nowrap">by tag</p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
+
               {uniqueTags.map((tag) => {
                 const isActive = filters.selectedTags.includes(tag);
                 return (
                   <motion.button
                     key={tag}
                     onClick={() => toggleTag(tag)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                      isActive
-                        ? 'bg-white text-black'
-                        : 'bg-white/8 text-white/50 border border-white/10 hover:bg-white/12 hover:text-white/80'
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${isActive
+                      ? 'bg-white text-black'
+                      : 'bg-white/8 text-white/50 border border-white/10 hover:bg-white/12 hover:text-white/80'
+                      }`}
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.94 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
