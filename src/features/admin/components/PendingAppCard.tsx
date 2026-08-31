@@ -1,7 +1,7 @@
 import { Application } from '@/features/apps/types/app.types';
 import { AppCard } from '@/features/apps/components/AppCard';
 import type { AdminApplicationStatus } from '../services/admin.service';
-import { FiCheck, FiX, FiTrash2, FiUser } from 'react-icons/fi';
+import { FiCheck, FiX, FiTrash2, FiUser, FiFlag } from 'react-icons/fi';
 
 interface PendingAppCardProps {
   app: Application;
@@ -18,10 +18,10 @@ interface PendingAppCardProps {
 }
 
 const STATUS_DOT: Record<AdminApplicationStatus, { label: string; color: string }> = {
-  APPROVED:           { label: 'Approved',           color: 'bg-green-400' },
-  PENDING:            { label: 'Pending',             color: 'bg-yellow-400' },
-  CHANGES_REQUESTED:  { label: 'Changes Requested',  color: 'bg-amber-400' },
-  REMOVED:            { label: 'Removed',             color: 'bg-white/40' },
+  APPROVED:          { label: 'Approved',          color: 'bg-green-400' },
+  PENDING:           { label: 'Pending',           color: 'bg-yellow-400' },
+  CHANGES_REQUESTED: { label: 'Changes Requested', color: 'bg-amber-400' },
+  REMOVED:           { label: 'Removed',           color: 'bg-white/40' },
 };
 
 export function PendingAppCard({
@@ -45,12 +45,22 @@ export function PendingAppCard({
   const showRemove          = tab === 'APPROVED' || tab === 'PENDING' || tab === 'CHANGES_REQUESTED';
   const showPermanentDelete = tab === 'REMOVED';
 
+  const hasReports = (app.reportCount ?? 0) > 0;
+
   return (
     <AppCard
       app={app}
       onClick={onClick}
       showTags={false}
       variant="compact"
+      badge={
+        hasReports ? (
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30 shrink-0">
+            <FiFlag className="w-2.5 h-2.5" />
+            {app.reportCount} {app.reportCount === 1 ? 'report' : 'reports'}
+          </span>
+        ) : undefined
+      }
       iconOverlay={
         <div className="group/dot relative">
           <span className={`w-2.5 h-2.5 rounded-full ${dot.color} block ring-[1.5px] ring-black/80`} />

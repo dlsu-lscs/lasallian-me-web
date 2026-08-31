@@ -22,6 +22,7 @@ export interface Application {
   ratingCount?: number;
   averageRating?: number | null;
   viewCount?: number;
+  reportCount?: number;
 }
 
 export interface ApplicationsMeta {

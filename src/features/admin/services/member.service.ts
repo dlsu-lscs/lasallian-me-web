@@ -59,6 +59,7 @@ export interface UserReview {
   score: number;
   comment: string | null;
   isAnonymous: boolean;
+  reportCount?: number;
 }
 
 export async function getUserReviews(userId: string): Promise<{ data: UserReview[] }> {
