@@ -7,9 +7,11 @@ import { SidebarLayout } from '@/components/organisms/SidebarLayout';
 import { ApprovalContainer } from './ApprovalContainer';
 import { MembersContainer } from './MembersContainer';
 import { ClaimApprovalContainer } from './ClaimApprovalContainer';
+import { AdminReportsContainer } from '@/features/reports/containers/AdminReportsContainer';
 import { useAdminApplicationsQuery, useAdminClaimRequestsQuery } from '../queries/admin.queries';
+import { useAdminReportsQuery } from '@/features/reports/queries/reports.queries';
 import type { AdminTab } from '../types/admin.types';
-import { FiGrid, FiUsers, FiFlag } from 'react-icons/fi';
+import { FiGrid, FiUsers, FiFlag, FiShield } from 'react-icons/fi';
 
 export function AdminDashboardContainer() {
   const router = useRouter();
@@ -19,6 +21,7 @@ export function AdminDashboardContainer() {
 
   const { data: pendingApps } = useAdminApplicationsQuery(1, 'PENDING', 1);
   const { data: pendingClaims } = useAdminClaimRequestsQuery(1, 'PENDING', 1);
+  const { data: pendingReports } = useAdminReportsQuery({ status: 'PENDING', limit: 1 });
 
   useEffect(() => {
     setHasMounted(true);
@@ -47,7 +50,8 @@ export function AdminDashboardContainer() {
       label: 'Content',
       items: [
         { id: 'apps' as AdminTab, label: 'Apps', icon: <FiGrid />, badge: pendingApps?.meta.total },
-        { id: 'claims' as AdminTab, label: 'Claim Requests', icon: <FiFlag />, badge: pendingClaims?.meta.total },
+        { id: 'claims' as AdminTab, label: 'Claim Requests', icon: <FiShield />, badge: pendingClaims?.meta.total },
+        { id: 'reports' as AdminTab, label: 'Reports', icon: <FiFlag />, badge: pendingReports?.meta.total },
       ],
     },
     {
@@ -67,6 +71,7 @@ export function AdminDashboardContainer() {
         >
           {activeTab === 'apps' && <ApprovalContainer />}
           {activeTab === 'claims' && <ClaimApprovalContainer />}
+          {activeTab === 'reports' && <AdminReportsContainer />}
           {activeTab === 'members' && <MembersContainer />}
         </SidebarLayout>
       </div>
