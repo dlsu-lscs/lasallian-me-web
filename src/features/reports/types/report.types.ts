@@ -1,5 +1,21 @@
+import type { Application } from '@/features/apps/types/app.types';
+import type { Rating } from '@/features/ratings/types/rating.types';
+
 export type ReportStatus = 'PENDING' | 'RESOLVED' | 'DISMISSED';
 export type ReportTargetType = 'APPLICATION' | 'REVIEW';
+
+/**
+ * Discriminated union representing the frontend target entity for report modals.
+ */
+export type ReportTarget =
+  | {
+      type: 'APPLICATION';
+      app: Application;
+    }
+  | {
+      type: 'REVIEW';
+      rating: Rating;
+    };
 
 export const REPORT_REASONS = [
   { value: 'INAPPROPRIATE', label: 'Inappropriate Content' },
@@ -54,4 +70,11 @@ export interface ReportsListResponse {
 export interface UpdateReportPayload {
   status?: ReportStatus;
   adminNotes?: string | null;
+}
+
+export interface CreateReportPayload {
+  targetType: ReportTargetType;
+  targetId: number | string;
+  reason: string;
+  description?: string | null;
 }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { StarRating } from '../components/StarRating';
-import { FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2, FiX, FiFlag, FiCheck } from 'react-icons/fi';
 import { FaStar } from 'react-icons/fa';
 import {
   useApplicationRatingsQuery,
@@ -11,8 +11,12 @@ import {
   useDeleteRatingMutation,
   usePatchRatingMutation,
 } from '../queries/ratings.queries';
+import { useCreateReportMutation } from '@/features/reports/queries/reports.queries';
+import { useToastStore } from '@/store/toast.store';
+import { useReportStore } from '@/store/report.store';
 import type { CreateRatingPayload, Rating } from '../types/rating.types';
 import { DeleteReviewModal } from '../components/DeleteReviewModal';
+import { ReportModal } from '@/features/reports/components/ReportModal';
 import Link from 'next/link';
 
 interface RatingsContainerProps {
@@ -135,9 +139,13 @@ function ReviewDialog({ data, onClose }: { data: DialogData; onClose: () => void
 function ReviewCard({
   rating,
   onReadMore,
+  onReport,
+  isReported = false,
 }: {
   rating: Rating;
   onReadMore: (data: DialogData) => void;
+  onReport: (rating: Rating) => void;
+  isReported?: boolean;
 }) {
   const displayName =
     rating.isAnonymous || (!rating.userName && !rating.userEmail)
@@ -147,7 +155,7 @@ function ReviewCard({
   const hasMore = (rating.comment?.length ?? 0) > 80;
 
   return (
-    <div className="shrink-0 w-72 aspect-[4/3] bg-black/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col overflow-hidden">
+    <div className="shrink-0 w-72 aspect-[4/3] bg-black/50 backdrop-blur-md border border-white/10 rounded-xl p-4 flex flex-col overflow-hidden">
       {/* Header: stars (top, bigger, white) then name below */}
       <div className="flex items-start gap-2.5 shrink-0">
         <div className="w-7 h-7 rounded-full bg-white/8 border border-white/10 flex items-center justify-center text-white/50 text-xs font-bold shrink-0 select-none">
@@ -165,13 +173,28 @@ function ReviewCard({
       </p>
 
       {/* Footer */}
-      <div className="flex items-center justify-end pt-2 mt-1 border-t border-white/6 shrink-0">
+      <div className="flex items-center justify-between pt-2 mt-1 border-t border-white/6 shrink-0">
+        {isReported ? (
+          <span className="text-[10px] text-green-400/80 font-medium flex items-center gap-1 select-none">
+            <FiCheck className="w-3 h-3 text-green-400" />
+            Reported
+          </span>
+        ) : (
+          <button
+            onClick={() => onReport(rating)}
+            title="Report this review"
+            className="text-[10px] text-white/30 hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer"
+          >
+            <FiFlag className="w-3 h-3" />
+            <span>Report</span>
+          </button>
+        )}
         {hasMore && (
           <button
             onClick={() =>
               onReadMore({ displayName, score: rating.score, comment: rating.comment! })
             }
-            className="text-[10px] text-white/30 hover:text-white/60 transition-colors cursor-pointer"
+            className="text-[10px] text-white/30 hover:text-white/60 transition-colors cursor-pointer pr-1"
           >
             Read more
           </button>
@@ -198,7 +221,7 @@ function YourReviewCard({
   const initial = displayName[0].toUpperCase();
 
   return (
-    <div className="shrink-0 w-72 aspect-[4/3] bg-black/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col overflow-hidden">
+    <div className="shrink-0 w-72 aspect-[4/3] bg-black/50 backdrop-blur-md border border-white/10 rounded-xl p-4 flex flex-col overflow-hidden">
       {/* Header — same layout as ReviewCard */}
       <div className="flex items-start gap-2.5 shrink-0">
         <div className="w-7 h-7 rounded-full bg-white/8 border border-white/10 flex items-center justify-center text-white/50 text-xs font-bold shrink-0 select-none">
@@ -273,7 +296,7 @@ function LeaveReviewCard({
   };
 
   return (
-    <div className="shrink-0 w-72 aspect-[4/3] bg-black/50 backdrop-blur-md border border-white/10 rounded-2xl flex flex-col overflow-hidden">
+    <div className="shrink-0 w-72 aspect-[4/3] bg-black/50 backdrop-blur-md border border-white/10 rounded-xl flex flex-col overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-3.5 pb-3 flex items-center gap-2 border-b border-white/8 shrink-0">
         <FaStar className="w-3.5 h-3.5 text-white/30 shrink-0" />
@@ -365,10 +388,15 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
   const createMutation = useCreateRatingMutation(slug);
   const patchMutation = usePatchRatingMutation(slug);
   const deleteMutation = useDeleteRatingMutation(slug);
+  const reportMutation = useCreateReportMutation();
+  const { addToast } = useToastStore();
+  const reportedReviewKeys = useReportStore((state) => state.reportedReviewKeys);
+  const markReviewReported = useReportStore((state) => state.markReviewReported);
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedRatingToReport, setSelectedRatingToReport] = useState<Rating | null>(null);
   const [dialogData, setDialogData] = useState<DialogData | null>(null);
   const [anonCache, setAnonCache] = useState<Pick<
     CreateRatingPayload,
@@ -384,6 +412,9 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
 
   const isLoggedIn = !!session;
   const currentUserEmail = session?.user?.email;
+
+  const getRatingIdentifier = (r: Rating) =>
+    `${r.applicationId}-${r.userEmail ?? r.userName ?? r.comment ?? 'anon'}`;
 
   const emailRating = ratingsData?.ratings.find(
     (r) => r.userEmail !== null && r.userEmail === currentUserEmail,
@@ -429,6 +460,32 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
 
   const handleDelete = () => setIsDeleteModalOpen(true);
 
+  const handleOpenReport = (rating: Rating) => setSelectedRatingToReport(rating);
+
+  const handleConfirmReport = (payload: { reason: string; description?: string }) => {
+    if (!selectedRatingToReport) return;
+    const targetKey = getRatingIdentifier(selectedRatingToReport);
+
+    reportMutation.mutate(
+      {
+        targetType: 'REVIEW',
+        targetId: selectedRatingToReport.applicationId,
+        reason: payload.reason,
+        description: payload.description,
+      },
+      {
+        onSuccess: () => {
+          addToast('Report submitted for review', 'success');
+          markReviewReported(targetKey);
+          setSelectedRatingToReport(null);
+        },
+        onError: (err) => {
+          addToast(err.message || 'Failed to submit report', 'error');
+        },
+      },
+    );
+  };
+
   const handleConfirmDelete = () => {
     deleteMutation.mutate(undefined, {
       onSuccess: () => {
@@ -464,6 +521,17 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
         isSubmitting={deleteMutation.isPending}
+      />
+      <ReportModal
+        isOpen={selectedRatingToReport !== null}
+        onClose={() => setSelectedRatingToReport(null)}
+        onConfirm={handleConfirmReport}
+        isSubmitting={reportMutation.isPending}
+        target={
+          selectedRatingToReport
+            ? { type: 'REVIEW', rating: selectedRatingToReport }
+            : null
+        }
       />
       <div className="border-t border-white/8 py-5">
         {/* Header */}
@@ -533,9 +601,18 @@ export function RatingsContainer({ slug }: RatingsContainerProps) {
               )}
 
               {/* Other reviews */}
-              {otherRatings.map((r, i) => (
-                <ReviewCard key={i} rating={r} onReadMore={setDialogData} />
-              ))}
+              {otherRatings.map((r, i) => {
+                const isReported = reportedReviewKeys.includes(getRatingIdentifier(r));
+                return (
+                  <ReviewCard
+                    key={i}
+                    rating={r}
+                    onReadMore={setDialogData}
+                    onReport={handleOpenReport}
+                    isReported={isReported}
+                  />
+                );
+              })}
 
               {/* Empty state — shown whenever there are no other reviews */}
               {otherRatings.length === 0 && (

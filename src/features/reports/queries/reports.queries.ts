@@ -2,9 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getAdminReports,
   updateAdminReport,
+  createReport,
   GetAdminReportsParams,
 } from '../services/reports.service';
-import { ReportsListResponse, UpdateReportPayload } from '../types/report.types';
+import { ReportsListResponse, UpdateReportPayload, CreateReportPayload } from '../types/report.types';
 
 export const REPORTS_KEY = ['admin', 'reports'] as const;
 
@@ -47,6 +48,20 @@ export function useUpdateAdminReportMutation() {
       context?.snapshots.forEach(([key, val]) => queryClient.setQueryData(key, val));
     },
     onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: REPORTS_KEY });
+    },
+  });
+}
+
+/**
+ * Mutation hook for users or guests to submit a report for an application or review.
+ */
+export function useCreateReportMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateReportPayload) => createReport(payload),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: REPORTS_KEY });
     },
   });

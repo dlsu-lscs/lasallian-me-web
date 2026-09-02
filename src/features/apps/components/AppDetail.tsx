@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Application } from '../types/app.types';
-import { FiBookmark, FiChevronLeft, FiChevronRight, FiX, FiEye } from 'react-icons/fi';
+import { FiBookmark, FiChevronLeft, FiChevronRight, FiX, FiEye, FiFlag, FiCheck } from 'react-icons/fi';
 import { FaBookmark, FaStar, FaPlay } from 'react-icons/fa';
 import { LuTag, LuSquareUser } from 'react-icons/lu';
 import { imgSrc } from '@/lib/img-src';
@@ -21,6 +21,8 @@ export interface AppDetailProps {
   /** When true, strips the outer page-padding wrapper so the card fills its container. */
   preview?: boolean;
   onClaim?: () => void;
+  onReport?: () => void;
+  isReported?: boolean;
   backLabel?: string;
   onBack?: () => void;
 }
@@ -37,6 +39,8 @@ export function AppDetail({
   ratingsSection,
   preview = false,
   onClaim,
+  onReport,
+  isReported = false,
   backLabel,
   onBack,
 }: AppDetailProps) {
@@ -140,11 +144,24 @@ export function AppDetail({
                     {isFavorited ? <FaBookmark className="w-3.5 h-3.5" /> : <FiBookmark className="w-3.5 h-3.5" />}
                     {isFavorited ? 'Saved' : 'Save'}
                   </button>
+                  {isReported ? (
+                    <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-green-500/15 border border-green-500/30 text-green-400 select-none">
+                      <FiCheck className="w-3.5 h-3.5" /> Reported
+                    </span>
+                  ) : onReport ? (
+                    <button
+                      onClick={onReport}
+                      title="Report this app"
+                      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-white/10 border border-white/20 text-white/70 hover:text-red-400 hover:border-red-400/40 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    >
+                      <FiFlag className="w-3.5 h-3.5" /> Report
+                    </button>
+                  ) : null}
                 </div>
               </div>
 
               {/* Mobile: buttons below title */}
-              <div className="flex sm:hidden items-center gap-2 mt-3">
+              <div className="flex sm:hidden items-center gap-2 mt-3 flex-wrap">
                 {app.url && (
                   <a
                     href={app.url}
@@ -164,6 +181,19 @@ export function AppDetail({
                   {isFavorited ? <FaBookmark className="w-3.5 h-3.5" /> : <FiBookmark className="w-3.5 h-3.5" />}
                   {isFavorited ? 'Saved' : 'Save'}
                 </button>
+                {isReported ? (
+                  <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-green-500/15 border border-green-500/30 text-green-400 select-none">
+                    <FiCheck className="w-3.5 h-3.5" /> Reported
+                  </span>
+                ) : onReport ? (
+                  <button
+                    onClick={onReport}
+                    title="Report this app"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold bg-white/10 border border-white/20 text-white/70 hover:text-red-400 hover:border-red-400/40 hover:bg-red-500/10 transition-colors cursor-pointer"
+                  >
+                    <FiFlag className="w-3.5 h-3.5" /> Report
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
