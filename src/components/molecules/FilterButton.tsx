@@ -17,8 +17,8 @@ export function FilterButton({
 }: FilterButtonProps) {
   return (
     <Button
-      variant={isActive ? 'primary' : 'secondary'}
-      size="sm"
+      variant={isActive ? 'primary' : 'sort'}
+      size="xs"
       onClick={onClick}
       className={`transform duration-200 ease-out hover:scale-105 active:scale-95 inline-flex items-center gap-1.5 ${className}`.trim()}
     >

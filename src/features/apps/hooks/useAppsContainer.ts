@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { SORT_VALUES } from '@/lib/sort-constants';
 import { useUIStore } from '@/store/uiStore';
 import { useQueryString } from '@/hooks/useQueryString';
 import { useInfiniteApplicationsQuery } from '../queries/apps.queries';
@@ -9,7 +10,7 @@ import { Application, SortByOptions } from '../types/app.types';
 export function useAppsContainer() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [sortBy, setSortBy] = useQueryString<SortByOptions>('sortBy', 'createdAt');
+  const [sortBy, setSortBy] = useQueryString<SortByOptions>('sortBy', 'createdAt', SORT_VALUES);
 
   const { searchQuery } = useUIStore();
 
