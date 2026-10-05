@@ -3,9 +3,9 @@ name: Setup Lint Test
 
 on:
     push:
-        branches: [main]
+        branches: [main, development]
     pull_request:
-        branches: [main]
+        branches: [main, development]
 
 jobs:
     test:
@@ -27,4 +27,9 @@ jobs:
             
         #  - name: Run tests
         #    run: npm tests
+
+         - name: Run Build
+           run: npm run build
+           
+    
          
